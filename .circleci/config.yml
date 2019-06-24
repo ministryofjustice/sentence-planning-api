@@ -23,28 +23,28 @@ commands:
             # confirm setup is ok
             kubectl config use-context circleci
             kubectl -n "${KUBE_ENV_NAMESPACE}" get deployments
-#  deploy_to_env:
-#    parameters:
-#      env:
-#        type: string
-#    steps:
-#      - setup
-#      - checkout:
-#          path: ~/git
-#      - attach_workspace:
-#          at: ~/app
-#      - deploy:
-#          name: Deploy to << parameters.env >>
-#          command: |
-#            APP_VERSION=$(cat ~/app/app_version.txt)
-#            aws secretsmanager --region ${AWS_DEFAULT_REGION} get-secret-value --secret-id ${KUBE_ENV_NAMESPACE} | jq -r .SecretString | \
-#            helm upgrade sentence-planning-api ~/git/helm_deploy/sentence-planning-api/. \
-#              --install --wait --force --reset-values --timeout 360 \
-#              --tiller-namespace=${KUBE_ENV_NAMESPACE} \
-#              --namespace=${KUBE_ENV_NAMESPACE} \
-#              --values ~/git/helm_deploy/values-<< parameters.env >>.yaml \
-#              --values - \
-#              --set image.tag="${APP_VERSION}"
+  deploy_to_env:
+    parameters:
+      env:
+        type: string
+    steps:
+      - setup
+      - checkout:
+          path: ~/git
+      - attach_workspace:
+          at: ~/app
+      - deploy:
+          name: Deploy to << parameters.env >>
+          command: |
+            APP_VERSION=$(cat ~/app/app_version.txt)
+            aws secretsmanager --region ${AWS_DEFAULT_REGION} get-secret-value --secret-id ${KUBE_ENV_NAMESPACE} | jq -r .SecretString | \
+            helm upgrade sentence-planning-api ~/git/helm_deploy/sentence-planning-api/. \
+              --install --wait --force --reset-values --timeout 360 \
+              --tiller-namespace=${KUBE_ENV_NAMESPACE} \
+              --namespace=${KUBE_ENV_NAMESPACE} \
+              --values ~/git/helm_deploy/values-<< parameters.env >>.yaml \
+              --values - \
+              --set image.tag="${APP_VERSION}"
 executors:
   deployer:
     docker:
@@ -99,40 +99,40 @@ jobs:
             - build.gradle
             - app_version.txt
 
-#  build_docker:
-#    executor: deployer
-#    steps:
-#      - checkout
-#      - attach_workspace:
-#          at: ~/app
-#      - setup_remote_docker:
-#          docker_layer_caching: true
-#      - run:
-#          name: Build container and publish to docker hub
-#          command: |
-#            APP_VERSION=$(cat ./app_version.txt)
-#            docker build --rm=false . \
-#               --tag "mojdigitalstudio/sentence-planning-api:$APP_VERSION" \
-#               --label "maintainer=stuart.whitlam@digital.justice.gov.uk" \
-#               --label "app.version=$APP_VERSION" \
-#               --label "build.version=$APP_VERSION" \
-#               --label "build.number=$CIRCLE_BUILD_NUM" \
-#               --label "build.url=$CIRCLE_BUILD_URL" \
-#               --label "build.gitref=$CIRCLE_SHA1"
-#
-#            if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
-#              # publish to docker hub as the tag
-#             docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
-#             docker tag mojdigitalstudio/sentence-planning-api:$APP_VERSION mojdigitalstudio/sentence-planning-api:latest
-#             docker push mojdigitalstudio/sentence-planning-api:$APP_VERSION
-#             docker push mojdigitalstudio/sentence-planning-api:latest
-#            fi
+  build_docker:
+    executor: deployer
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/app
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - run:
+          name: Build container and publish to docker hub
+          command: |
+            APP_VERSION=$(cat ./app_version.txt)
+            docker build --rm=false . \
+               --tag "mojdigitalstudio/sentence-planning-api:$APP_VERSION" \
+               --label "maintainer=stuart.whitlam@digital.justice.gov.uk" \
+               --label "app.version=$APP_VERSION" \
+               --label "build.version=$APP_VERSION" \
+               --label "build.number=$CIRCLE_BUILD_NUM" \
+               --label "build.url=$CIRCLE_BUILD_URL" \
+               --label "build.gitref=$CIRCLE_SHA1"
 
-#  deploy_dev:
-#    executor: deployer
-#    steps:
-#      - deploy_to_env:
-#          env: "dev"
+            if [[ "${CIRCLE_BRANCH}" == "master" ]]; then
+              # publish to docker hub as the tag
+             docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+             docker tag mojdigitalstudio/sentence-planning-api:$APP_VERSION mojdigitalstudio/sentence-planning-api:latest
+             docker push mojdigitalstudio/sentence-planning-api:$APP_VERSION
+             docker push mojdigitalstudio/sentence-planning-api:latest
+            fi
+
+  deploy_dev:
+    executor: deployer
+    steps:
+      - deploy_to_env:
+          env: "dev"
 #  deploy_preprod:
 #    executor: deployer
 #    steps:
@@ -152,15 +152,15 @@ workflows:
           filters:
             tags:
               ignore: /.*/
-#      - build_docker:
-#          requires:
-#            - build
-#          filters:
-#            branches:
-#              only: master
-#      - deploy_dev:
-#          requires:
-#            - build_docker
+      - build_docker:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
+      - deploy_dev:
+          requires:
+            - build_docker
 #      - request-preprod-approval:
 #          type: approval
 #          requires:
