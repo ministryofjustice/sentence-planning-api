@@ -132,7 +132,7 @@ jobs:
     executor: deployer
     steps:
       - deploy_to_env:
-          env: "dev"
+          env: "development"
 #  deploy_preprod:
 #    executor: deployer
 #    steps:
