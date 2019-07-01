@@ -33,7 +33,7 @@ public class RequestData implements HandlerInterceptor {
     }
 
     private String initialiseCorrelationId(HttpServletRequest request) {
-        String correlationId = request.getHeader(CORRELATION_ID_HEADER);
+        var correlationId = request.getHeader(CORRELATION_ID_HEADER);
         return correlationId !=null ? correlationId : UUID.randomUUID().toString();
     }
 

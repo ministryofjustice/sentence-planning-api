@@ -1,24 +1,69 @@
-CREATE TABLE OFFENDER
+
+DROP TABLE IF EXISTS OFFENDER;
+
+CREATE TABLE IF NOT EXISTS OFFENDER
 (
   ID                                SERIAL        PRIMARY KEY,
   UUID                              UUID          NOT NULL,
   OASYS_OFFENDER_ID                 TEXT          NULL,
   NOMIS_OFFENDER_ID                 TEXT          NULL,
+  DELIUS_OFFENDER_ID                TEXT          NULL,
   CONSTRAINT offender_uuid_idempotent UNIQUE (UUID),
   CONSTRAINT offender_oasysid_idempotent UNIQUE (OASYS_OFFENDER_ID),
   CONSTRAINT offender_nomisid_idempotent UNIQUE (NOMIS_OFFENDER_ID)
 );
 
-CREATE TABLE SENTENCE_PLAN
+DROP TABLE IF EXISTS SENTENCE_PLAN;
+
+CREATE TABLE IF NOT EXISTS SENTENCE_PLAN
 (
   ID                                 SERIAL       PRIMARY KEY,
   UUID                               UUID         NOT NULL,
-  OASYS_ASSSESSMENT_REF              TEXT         NULL,
   STATUS                             TEXT         NOT NULL,
-  OFFENDER_ID                        UUID         NOT NULL,
+  DATA                               JSONB        NULL,
+  EVENT_TYPE                         TEXT         NOT NULL,
   CREATED_ON                         TIMESTAMP    NOT NULL,
-  CONSTRAINT sentence_plan_uuid_idempotent UNIQUE (UUID),
-  CONSTRAINT fk_sentenceplan_offender FOREIGN KEY (OFFENDER_ID) REFERENCES OFFENDER (UUID)
+  START_DATE                         TIMESTAMP    NOT NULL,
+  END_DATE                           TIMESTAMP    NULL,
+  OFFENDER_UUID                      UUID         NOT NULL,
+  CONSTRAINT sentence_plan_uuid_idempotent UNIQUE (UUID,START_DATE),
+  CONSTRAINT fk_sentenceplan_offender FOREIGN KEY (OFFENDER_UUID) REFERENCES OFFENDER (UUID)
 );
 
+DROP TABLE IF EXISTS ASSESSMENT;
 
+CREATE TABLE IF NOT EXISTS ASSESSMENT
+(
+  ID                                SERIAL        PRIMARY KEY,
+  UUID                              UUID          NOT NULL,
+  SENTENCE_PLAN_UUID                TEXT          NULL,
+  ASSESSMENT_ID                     TEXT          NOT NULL,
+  CONSTRAINT assessment_uuid_idempotent UNIQUE (UUID)
+);
+
+DROP TABLE IF EXISTS NEED;
+
+CREATE TABLE IF NOT EXISTS NEED
+(
+  ID                                SERIAL        PRIMARY KEY,
+  UUID                              UUID          NOT NULL,
+  ASSESSMENT_UUID                   TEXT          NULL,
+  DESCRIPTION                       TEXT          NOT NULL,
+  REOFFENDING_RISK                  BOOLEAN       NOT NULL,
+  HARM_RISK                         BOOLEAN       NOT NULL,
+  LOW_SCORE_RISK                    BOOLEAN       NOT NULL,
+  ACTIVE                            BOOLEAN       NOT NULL,
+  CONSTRAINT need_uuid_idempotent UNIQUE (UUID)
+);
+
+DROP TABLE IF EXISTS INTERVENTION;
+
+CREATE TABLE IF NOT EXISTS INTERVENTION
+(
+  ID                                SERIAL        PRIMARY KEY,
+  UUID                              UUID          NOT NULL,
+  SHORT_DESCRIPTION                 TEXT          NOT NULL,
+  DESCRIPTION                       TEXT          NOT NULL,
+  ACTIVE                            BOOLEAN       NOT NULL,
+  CONSTRAINT intervention_uuid_idempotent UNIQUE (UUID)
+);

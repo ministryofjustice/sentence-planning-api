@@ -1,21 +1,24 @@
 package uk.gov.digital.justice.hmpps.sentenceplan.controller;
 
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import uk.gov.digital.justice.hmpps.sentenceplan.api.CreateSentencePlanRequest;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.SentencePlan;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.SentencePlanService;
 
-import java.time.LocalDateTime;
+import javax.validation.Valid;
 import java.util.UUID;
 
-import static net.logstash.logback.argument.StructuredArguments.value;
-import static uk.gov.digital.justice.hmpps.sentenceplan.application.LogEvent.EVENT;
-import static uk.gov.digital.justice.hmpps.sentenceplan.application.LogEvent.SENTENCE_PLAN_RETRIEVED;
+@Api(tags = {"Sentence Planning API"})
 
 @RestController
+@RequestMapping(
+        produces = MediaType.APPLICATION_JSON_VALUE)
 @Slf4j
 public class SentencePlanResource {
 
@@ -25,11 +28,23 @@ public class SentencePlanResource {
         this.sentencePlanService = sentencePlanService;
     }
 
-    @GetMapping(value = "/sentenceplan/{sentencePlanUUID}")
-    ResponseEntity<SentencePlan> getCase(@PathVariable UUID sentencePlanUUID) {
-        log.info("Retrieving Sentence Plan {}", sentencePlanUUID, value(EVENT,SENTENCE_PLAN_RETRIEVED));
-        return ResponseEntity.ok(new SentencePlan(LocalDateTime.now()));
 
+    @GetMapping(value = "/sentenceplan/{sentencePlanUUID}")
+    @ApiOperation(value = "Gets a Sentence Plan from it's ID",
+            response = SentencePlan.class,
+            notes = "Request sentence plan")
+    ResponseEntity<SentencePlan> getSentencePlan(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID) {
+        return ResponseEntity.ok(sentencePlanService.getSentencePlanFromUuid(sentencePlanUUID));
+    }
+
+
+    @PostMapping(value = "/sentenceplan")
+    @ApiOperation(value = "Create new sentence plan",
+            notes = "Creates a draft new sentence plan")
+    ResponseEntity<SentencePlan> createSentencePlan(@ApiParam(value = "Offender details", required = true) @RequestBody @Valid CreateSentencePlanRequest createSentencePlanRequest) {
+        return ResponseEntity.ok(sentencePlanService.createSentencePlan(
+                createSentencePlanRequest.getOffenderId(),
+                createSentencePlanRequest.getOffenderReferenceType()));
     }
 
 }
