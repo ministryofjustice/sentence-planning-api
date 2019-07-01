@@ -57,7 +57,7 @@ executors:
           SPRING_PROFILES_ACTIVE: test
           DATABASE_USERNAME: root
           DATABASE_PASSWORD: dev
-          DATABASE_NAME: sentence_plan_test
+          DATABASE_NAME: sentence_plan
           DATABASE_ENDPOINT: 127.0.0.1:5432
       - image: circleci/postgres:9.6.5-alpine-ram
         environment:
