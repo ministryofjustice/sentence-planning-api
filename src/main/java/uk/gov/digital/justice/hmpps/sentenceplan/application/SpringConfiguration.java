@@ -1,5 +1,6 @@
 package uk.gov.digital.justice.hmpps.sentenceplan.application;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -47,7 +48,6 @@ public class SpringConfiguration implements WebMvcConfigurer {
     @Bean
     public ObjectMapper initialiseObjectMapper() {
         var m = new ObjectMapper();
-        m.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
         m.registerModule(new JavaTimeModule());
         m.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         m.enable(SerializationFeature.INDENT_OUTPUT);
