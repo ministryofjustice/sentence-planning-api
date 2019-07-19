@@ -49,13 +49,13 @@ env:
   - name: SENTENCEPLAN_API_CLIENT_ID
     valueFrom:
       secretKeyRef:
-        name: sentence-planning-development
+        name: sentence-planning-api
         key: API_CLIENT_ID
 
   - name: SENTENCEPLAN_API_CLIENT_ID_SECRET
     valueFrom:
       secretKeyRef:
-        name: sentence-planning-development
+        name: sentence-planning-api
         key: API_CLIENT_SECRET
 
 {{- end -}}
