@@ -33,7 +33,6 @@ import uk.gov.digital.justice.hmpps.sentenceplan.service.OffenderReferenceType;
 import java.util.List;
 import java.util.UUID;
 import static io.restassured.RestAssured.given;
-import static io.restassured.RestAssured.with;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
@@ -184,7 +183,7 @@ public class SentencePlanResourceTest {
     }
 
     @Test
-    public void shouldReturn400WhenOffenderNotFound() throws JsonProcessingException {
+    public void shouldReturn404WhenOffenderNotFound() throws JsonProcessingException {
 
         var assessmentApi = bindTo(oauthRestTemplate).ignoreExpectOrder(true).build();
 
