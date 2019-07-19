@@ -52,7 +52,7 @@ env:
         name: sentence-planning-api
         key: API_CLIENT_ID
 
-  - name: SENTENCEPLAN_API_CLIENT_ID_SECRET
+  - name: SENTENCEPLAN_API_CLIENT_SECRET
     valueFrom:
       secretKeyRef:
         name: sentence-planning-api
