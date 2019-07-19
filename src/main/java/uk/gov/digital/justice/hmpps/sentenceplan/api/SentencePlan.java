@@ -2,7 +2,6 @@ package uk.gov.digital.justice.hmpps.sentenceplan.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.SentencePlanEntity;
@@ -26,6 +25,8 @@ public class SentencePlan {
     private PlanStatus status;
     @JsonProperty("actions")
     private List<Action> actions;
+    @JsonProperty("needs")
+    private List<Need> needs;
     @JsonProperty("serviceUserComments")
     private String serviceUserComments;
     @JsonProperty("practitionerComments")
@@ -37,7 +38,7 @@ public class SentencePlan {
         var data = Optional.ofNullable(sentencePlan.getData()).orElseGet(() -> new SentencePlanPropertiesEntity());
 
         return new SentencePlan(sentencePlan.getUuid(), sentencePlan.getCreatedOn(), sentencePlan.getStatus(),
-                Action.from(data.getActions()),
+                Action.from(data.getActions()), Need.from(sentencePlan.getNeeds()),
                 data.getServiceUserComments(), data.getPractitionerComments());
     }
 }

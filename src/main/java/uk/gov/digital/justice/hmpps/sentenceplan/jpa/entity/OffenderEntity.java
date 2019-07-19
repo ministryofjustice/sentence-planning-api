@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,9 +34,13 @@ public class OffenderEntity implements Serializable {
     @Column(name = "DELIUS_OFFENDER_ID")
     private String deliusOffednerId;
 
-    @OneToMany(mappedBy = "offender", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "offender", cascade = CascadeType.PERSIST)
     private List<SentencePlanEntity> setencePlans;
 
-
-
+    public OffenderEntity(String oasysOffednerId, String nomisOffednerId) {
+        this.uuid = UUID.randomUUID();
+        this.oasysOffednerId = oasysOffednerId;
+        this.nomisOffednerId = nomisOffednerId;
+        this.setencePlans = new ArrayList<>();
+    }
 }

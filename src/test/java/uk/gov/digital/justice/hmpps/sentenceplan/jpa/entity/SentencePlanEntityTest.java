@@ -17,9 +17,7 @@ public class SentencePlanEntityTest {
     @Test
     public void shouldCreateDraftSentencePlan() {
         var offender = mock(OffenderEntity.class);
-        var assessment = mock(AssessmentEntity.class);
-
-        var sentencePlan = new SentencePlanEntity(offender, assessment);
+        var sentencePlan = new SentencePlanEntity(offender);
 
         assertThat(sentencePlan.getUuid()).isNotNull();
         assertThat(sentencePlan.getCreatedOn()).isEqualToIgnoringSeconds(LocalDateTime.now());
