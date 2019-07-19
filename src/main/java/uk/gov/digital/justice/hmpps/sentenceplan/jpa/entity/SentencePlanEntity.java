@@ -15,11 +15,15 @@ import uk.gov.digital.justice.hmpps.sentenceplan.api.PlanStatus;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
+import static java.util.Collections.EMPTY_LIST;
 
 @Entity
-@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @Data
@@ -61,17 +65,40 @@ public class SentencePlanEntity implements Serializable {
     @JoinColumn(name = "OFFENDER_UUID", referencedColumnName = "UUID")
     private OffenderEntity offender;
 
-    @OneToMany(mappedBy = "sentencePlan", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-    private List<AssessmentEntity> assessments;
+    @OneToMany(mappedBy = "sentencePlan", cascade = CascadeType.PERSIST)
+    private List<NeedEntity> needs;
 
-    public SentencePlanEntity(OffenderEntity offender, AssessmentEntity assessment) {
+    public SentencePlanEntity(OffenderEntity offender) {
         this.offender = offender;
-        this.assessments = List.of(assessment);
+        this.needs = new ArrayList();
         this.uuid = UUID.randomUUID();
         this.createdOn = LocalDateTime.now();
         this.startDate = LocalDateTime.now();
         this.status = PlanStatus.DRAFT;
         this.eventType = EventType.CREATED;
+    }
+
+    public SentencePlanEntity() {
+        this.needs = new ArrayList();
+    }
+
+    private void addNeed(NeedEntity need) {
+        this.needs.add(need);
+    }
+
+    public void addNeeds(List<NeedEntity> needs) {
+        var latestNeeds = needs.stream().map(n->n.getDescription()).collect(Collectors.toSet());
+        var currentNeeds = this.needs.stream().map(n->n.getDescription()).collect(Collectors.toSet());
+
+        //flag removed needs as inactive
+        this.needs.stream().filter(n-> !latestNeeds.contains(n.getDescription())).forEach(
+                n->n.setActive(false)
+        );
+
+        //add new needs
+        needs.stream().filter(n-> !currentNeeds.contains(n.getDescription())).forEach(
+                this::addNeed
+        );
     }
 }
 

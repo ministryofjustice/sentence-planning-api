@@ -36,6 +36,6 @@ public class InterventionEntity  implements Serializable {
     private boolean active;
 
     @ManyToOne
-    @JoinColumn(name = "ASSESSMENT_UUID", referencedColumnName = "UUID")
-    private AssessmentEntity assessment;
+    @JoinColumn(name = "SENTENCE_PLAN_UUID", referencedColumnName = "UUID")
+    private SentencePlanEntity sentencePlan;
 }

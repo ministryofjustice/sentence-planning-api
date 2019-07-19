@@ -30,29 +30,20 @@ CREATE TABLE IF NOT EXISTS SENTENCE_PLAN
   CONSTRAINT fk_sentenceplan_offender FOREIGN KEY (OFFENDER_UUID) REFERENCES OFFENDER (UUID)
 );
 
-DROP TABLE IF EXISTS ASSESSMENT;
-
-CREATE TABLE IF NOT EXISTS ASSESSMENT
-(
-  ID                                SERIAL        PRIMARY KEY,
-  UUID                              UUID          NOT NULL,
-  SENTENCE_PLAN_UUID                TEXT          NULL,
-  ASSESSMENT_ID                     TEXT          NOT NULL,
-  CONSTRAINT assessment_uuid_idempotent UNIQUE (UUID)
-);
-
 DROP TABLE IF EXISTS NEED;
 
 CREATE TABLE IF NOT EXISTS NEED
 (
   ID                                SERIAL        PRIMARY KEY,
   UUID                              UUID          NOT NULL,
-  ASSESSMENT_UUID                   TEXT          NULL,
-  DESCRIPTION                       TEXT          NOT NULL,
-  REOFFENDING_RISK                  BOOLEAN       NOT NULL,
-  HARM_RISK                         BOOLEAN       NOT NULL,
-  LOW_SCORE_RISK                    BOOLEAN       NOT NULL,
+  SENTENCE_PLAN_UUID                UUID          NULL,
+  DESCRIPTION                       TEXT          NULL,
+  OVER_THRESHOLD                    BOOLEAN       NULL,
+  REOFFENDING_RISK                  BOOLEAN       NULL,
+  HARM_RISK                         BOOLEAN       NULL,
+  LOW_SCORE_RISK                    BOOLEAN       NULL,
   ACTIVE                            BOOLEAN       NOT NULL,
+  CREATED_ON                        TIMESTAMP     NOT NULL,
   CONSTRAINT need_uuid_idempotent UNIQUE (UUID)
 );
 

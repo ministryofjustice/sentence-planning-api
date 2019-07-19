@@ -13,6 +13,15 @@ env:
   - name: JAVA_OPTS
     value: "{{ .Values.env.JAVA_OPTS }}"
 
+  - name: OAUTH_ROOT_URL
+    value: "{{ .Values.env.OAUTH_ROOT_URL }}"
+
+  - name: ASSESSMENT_API_URI_ROOT
+    value: "{{ .Values.env.ASSESSMENT_API_URI_ROOT }}"
+
+  - name: JWT_PUBLIC_KEY
+    value: "{{ .Values.env.JWT_PUBLIC_KEY }}"
+
   - name: DATABASE_USERNAME
     valueFrom:
       secretKeyRef:
@@ -37,16 +46,16 @@ env:
         name: sentence-planning-rds-instance-output
         key: rds_instance_endpoint
 
-  - name: API_CLIENT_ID
+  - name: SENTENCEPLAN_API_CLIENT_ID
     valueFrom:
       secretKeyRef:
-        name: sentence-planning
+        name: sentence-planning-development
         key: API_CLIENT_ID
 
-  - name: API_CLIENT_SECRET
+  - name: SENTENCEPLAN_API_CLIENT_ID_SECRET
     valueFrom:
       secretKeyRef:
-        name: sentence-planning
+        name: sentence-planning-development
         key: API_CLIENT_SECRET
 
 {{- end -}}

@@ -29,7 +29,7 @@ public class SentencePlanResource {
     }
 
 
-    @GetMapping(value = "/sentenceplan/{sentencePlanUUID}")
+    @GetMapping(value = "/sentenceplan/{sentencePlanUUID}", produces = "application/json")
     @ApiOperation(value = "Gets a Sentence Plan from it's ID",
             response = SentencePlan.class,
             notes = "Request sentence plan")
@@ -38,7 +38,7 @@ public class SentencePlanResource {
     }
 
 
-    @PostMapping(value = "/sentenceplan")
+    @PostMapping(value = "/sentenceplan", produces = "application/json")
     @ApiOperation(value = "Create new sentence plan",
             notes = "Creates a draft new sentence plan")
     ResponseEntity<SentencePlan> createSentencePlan(@ApiParam(value = "Offender details", required = true) @RequestBody @Valid CreateSentencePlanRequest createSentencePlanRequest) {

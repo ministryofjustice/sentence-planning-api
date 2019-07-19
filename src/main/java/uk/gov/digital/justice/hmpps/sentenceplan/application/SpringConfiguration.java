@@ -1,6 +1,5 @@
 package uk.gov.digital.justice.hmpps.sentenceplan.application;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -10,7 +9,6 @@ import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -19,10 +17,8 @@ import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.SentencePlan;
 import uk.gov.digital.justice.hmpps.sentenceplan.controller.SentencePlanResource;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Collections;
@@ -34,11 +30,6 @@ public class SpringConfiguration implements WebMvcConfigurer {
 
     @Autowired(required = false)
     private BuildProperties buildProperties;
-
-    @Bean
-    public RequestData createRequestData() {
-        return new RequestData();
-    }
 
     @Bean
     public RestTemplate createRestTemplate() {
@@ -54,11 +45,6 @@ public class SpringConfiguration implements WebMvcConfigurer {
         m.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
         m.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         return m;
-    }
-
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(createRequestData());
     }
 
     @Bean

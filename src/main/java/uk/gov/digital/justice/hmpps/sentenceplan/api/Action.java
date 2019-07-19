@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.ActionEntity;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
@@ -24,6 +25,8 @@ public class Action {
     private String strength;
     @JsonProperty("status")
     private ActionStatus status;
+    @JsonProperty("needs")
+    private List<UUID> needs;
     @JsonProperty("interventions")
     private Map<String,String> interventions;
 
@@ -33,6 +36,7 @@ public class Action {
                 action.getDescription(),
                 action.getStrength(),
                 action.getStatus(),
+                action.getNeeds(),
                 action.getInterventions());
     }
 
