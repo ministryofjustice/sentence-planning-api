@@ -22,9 +22,9 @@ public class OasysAssessment {
     private List<AssessmentNeed> needs;
 
     @JsonProperty("childSafeguardingIndicated")
-    private boolean childSafeguardingIndicated;
+    private Boolean childSafeguardingIndicated;
 
     @JsonProperty("complyWithChildProtectionPlanIndicated")
-    private boolean complyWithChildProtectionPlanIndicated;
+    private Boolean complyWithChildProtectionPlanIndicated;
 
 }

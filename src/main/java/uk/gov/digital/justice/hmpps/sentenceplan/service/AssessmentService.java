@@ -23,10 +23,12 @@ public class AssessmentService {
     }
 
     public void addLatestAssessmentNeedsToPlan(SentencePlanEntity sentencePlanEntity) {
+        log.info("Adding new assessment needs to sentence plan {}", sentencePlanEntity.getUuid());
         var oasysAssessment = oasysAssessmentAPIClient.getLatestLayer3AssessmentForOffender(
                 sentencePlanEntity.getOffender().getOasysOffednerId())
                 .orElseThrow(NoOffenderAssessmentException::new);
 
+        sentencePlanEntity.setSafeguardingRisks(oasysAssessment.getChildSafeguardingIndicated(), oasysAssessment.getComplyWithChildProtectionPlanIndicated());
         sentencePlanEntity.addNeeds(getNeedsFromOasysAssessment(oasysAssessment, sentencePlanEntity));
     }
     private List<NeedEntity> getNeedsFromOasysAssessment(OasysAssessment assessment, SentencePlanEntity sentencePlanEntity) {

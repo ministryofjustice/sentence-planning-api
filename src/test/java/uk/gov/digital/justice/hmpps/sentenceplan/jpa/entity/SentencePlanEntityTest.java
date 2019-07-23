@@ -24,7 +24,9 @@ public class SentencePlanEntityTest {
         assertThat(sentencePlan.getStartDate()).isEqualToIgnoringSeconds(LocalDateTime.now());
         assertThat(sentencePlan.getEventType()).isEqualTo(EventType.CREATED);
         assertThat(sentencePlan.getStatus()).isEqualTo(PlanStatus.DRAFT);
-        assertThat(sentencePlan.getData()).isNull();
-
+        assertThat(sentencePlan.getData().actions).isEmpty();
+        assertThat(sentencePlan.getData().getChildSafeguardingIndicated()).isNull();
+        assertThat(sentencePlan.getData().getComplyWithChildProtectionPlanIndicated()).isNull();
+        assertThat(sentencePlan.getNeeds()).isEmpty();
     }
 }

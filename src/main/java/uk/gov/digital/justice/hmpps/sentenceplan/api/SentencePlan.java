@@ -31,7 +31,10 @@ public class SentencePlan {
     private String serviceUserComments;
     @JsonProperty("practitionerComments")
     private String practitionerComments;
-
+    @JsonProperty("childSafeguardingIndicated")
+    private Boolean childSafeguardingIndicated;
+    @JsonProperty("complyWithChildProtectionPlanIndicated")
+    private Boolean complyWithChildProtectionPlanIndicated;
 
     public static SentencePlan from(SentencePlanEntity sentencePlan) {
 
@@ -39,6 +42,7 @@ public class SentencePlan {
 
         return new SentencePlan(sentencePlan.getUuid(), sentencePlan.getCreatedOn(), sentencePlan.getStatus(),
                 Action.from(data.getActions()), Need.from(sentencePlan.getNeeds()),
-                data.getServiceUserComments(), data.getPractitionerComments());
+                data.getServiceUserComments(), data.getPractitionerComments(),
+                data.getChildSafeguardingIndicated(), data.getComplyWithChildProtectionPlanIndicated());
     }
 }

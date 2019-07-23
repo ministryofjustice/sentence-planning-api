@@ -76,6 +76,7 @@ public class SentencePlanEntity implements Serializable {
         this.startDate = LocalDateTime.now();
         this.status = PlanStatus.DRAFT;
         this.eventType = EventType.CREATED;
+        this.data = new SentencePlanPropertiesEntity();
     }
 
     public SentencePlanEntity() {
@@ -99,6 +100,11 @@ public class SentencePlanEntity implements Serializable {
         needs.stream().filter(n-> !currentNeeds.contains(n.getDescription())).forEach(
                 this::addNeed
         );
+    }
+
+    public void setSafeguardingRisks(Boolean childSafeguardingIndicated, Boolean complyWithChildProtectionPlanIndicated) {
+        this.data.setChildSafeguardingIndicated(childSafeguardingIndicated);
+        this.data.setComplyWithChildProtectionPlanIndicated(complyWithChildProtectionPlanIndicated);
     }
 }
 

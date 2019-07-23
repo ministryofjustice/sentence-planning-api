@@ -14,6 +14,8 @@ public class SentencePlanPropertiesEntity implements Serializable {
 
     private String serviceUserComments;
     private String practitionerComments;
+    private Boolean childSafeguardingIndicated;
+    private Boolean complyWithChildProtectionPlanIndicated;
     List<ActionEntity> actions;
 
     public SentencePlanPropertiesEntity() {
