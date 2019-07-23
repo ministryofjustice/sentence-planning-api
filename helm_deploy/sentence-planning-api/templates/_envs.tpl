@@ -50,7 +50,7 @@ env:
     valueFrom:
       secretKeyRef:
         name: sentence-planning-api
-        key: API_CLIEN_CREDENTIALS_ID
+        key: API_CLIENT_CREDENTIALS_ID
 
   - name: SENTENCEPLAN_API_CLIENT_SECRET
     valueFrom:
