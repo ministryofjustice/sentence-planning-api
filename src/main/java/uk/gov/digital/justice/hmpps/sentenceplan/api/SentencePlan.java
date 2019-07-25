@@ -23,8 +23,8 @@ public class SentencePlan {
     private LocalDateTime createdOn;
     @JsonProperty("status")
     private PlanStatus status;
-    @JsonProperty("actions")
-    private List<Action> actions;
+    @JsonProperty("steps")
+    private List<Step> steps;
     @JsonProperty("needs")
     private List<Need> needs;
     @JsonProperty("serviceUserComments")
@@ -41,7 +41,7 @@ public class SentencePlan {
         var data = Optional.ofNullable(sentencePlan.getData()).orElseGet(() -> new SentencePlanPropertiesEntity());
 
         return new SentencePlan(sentencePlan.getUuid(), sentencePlan.getCreatedOn(), sentencePlan.getStatus(),
-                Action.from(data.getActions()), Need.from(sentencePlan.getNeeds()),
+                Step.from(data.getSteps()), Need.from(sentencePlan.getNeeds()),
                 data.getServiceUserComments(), data.getPractitionerComments(),
                 data.getChildSafeguardingIndicated(), data.getComplyWithChildProtectionPlanIndicated());
     }

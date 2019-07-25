@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.ActionEntity;
+import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.StepEntity;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -13,10 +13,10 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class Action {
+public class Step {
 
     @JsonProperty("owner")
-    private ActionOwner owner;
+    private StepOwner owner;
     @JsonProperty("ownerOther")
     private String ownerOther;
     @JsonProperty("description")
@@ -24,23 +24,23 @@ public class Action {
     @JsonProperty("strength")
     private String strength;
     @JsonProperty("status")
-    private ActionStatus status;
+    private StepStatus status;
     @JsonProperty("needs")
     private List<UUID> needs;
     @JsonProperty("interventions")
     private Map<String,String> interventions;
 
-    public static Action from(ActionEntity action) {
-        return new Action(action.getOwner(),
-                action.getOwnerOther(),
-                action.getDescription(),
-                action.getStrength(),
-                action.getStatus(),
-                action.getNeeds(),
-                action.getInterventions());
+    public static Step from(StepEntity step) {
+        return new Step(step.getOwner(),
+                step.getOwnerOther(),
+                step.getDescription(),
+                step.getStrength(),
+                step.getStatus(),
+                step.getNeeds(),
+                step.getInterventions());
     }
 
-    public static List<Action> from(List<ActionEntity> actions) {
-        return actions.stream().map(Action::from).collect(Collectors.toList());
+    public static List<Step> from(List<StepEntity> steps) {
+        return steps.stream().map(Step::from).collect(Collectors.toList());
     }
 }
