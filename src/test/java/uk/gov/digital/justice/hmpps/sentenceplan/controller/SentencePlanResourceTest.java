@@ -148,7 +148,7 @@ public class SentencePlanResourceTest {
                 .as(SentencePlan.class);
 
         assertThat(result.getStatus()).isEqualTo(DRAFT);
-        assertThat(result.getActions().size()).isEqualTo(0);
+        assertThat(result.getSteps().size()).isEqualTo(0);
         assertThat(result.getNeeds().size()).isEqualTo(2);
     }
 

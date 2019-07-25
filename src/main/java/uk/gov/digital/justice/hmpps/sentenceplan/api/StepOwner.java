@@ -1,6 +1,6 @@
 package uk.gov.digital.justice.hmpps.sentenceplan.api;
 
-public enum ActionOwner {
+public enum StepOwner {
     SERVICE_USER,
     PRACTITIONER,
     OTHER
