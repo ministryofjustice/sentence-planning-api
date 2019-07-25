@@ -1,6 +1,6 @@
 package uk.gov.digital.justice.hmpps.sentenceplan.api;
 
-public enum ActionStatus {
+public enum StepStatus {
     NOT_STARTED,
     IN_PROGRESS,
     COMPLETE,
