@@ -5,24 +5,40 @@ import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MotivationRefEntityTest {
+public class MotivationEntityTest {
 
     @Test
-    public void shouldCreateMotivationRef() {
-        String motivationText = "Motivation_Text";
-        String friendlyText = "Friendly_Text";
+    public void shouldCreateMotivation() {
+        UUID needUUID = UUID.randomUUID();
 
-        var motivation = new MotivationRefEntity(motivationText, friendlyText);
+        var motivation = new MotivationEntity(needUUID);
 
         assertThat(motivation.getUuid()).isNotNull();
-        assertThat(motivation.getMotivationText()).isEqualTo(motivationText);
-        assertThat(motivation.getFriendlyText()).isEqualTo(friendlyText);
-        assertThat(motivation.getCreated()).isEqualToIgnoringSeconds(LocalDateTime.now());
-        assertThat(motivation.getDeleted()).isNull();
+        assertThat(motivation.getNeedUuid()).isEqualTo(needUUID);
+        assertThat(motivation.getStart()).isEqualToIgnoringSeconds(LocalDateTime.now());
+        assertThat(motivation.getEnd()).isNull();
+        assertThat(motivation.isEnded()).isFalse();
+
+    }
+
+    @Test
+    public void shouldEndMotivation() {
+        UUID needUUID = UUID.randomUUID();
+
+        var motivation = new MotivationEntity(needUUID);
+
+        assertThat(motivation.getEnd()).isNull();
+        assertThat(motivation.isEnded()).isFalse();
+
+        motivation.end();
+
+        assertThat(motivation.getEnd()).isEqualToIgnoringSeconds(LocalDateTime.now());
+        assertThat(motivation.isEnded()).isTrue();
 
     }
 }

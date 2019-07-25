@@ -5,7 +5,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.Motivation;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.MotivationRefEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.MotivationRefDataRespository;
 
