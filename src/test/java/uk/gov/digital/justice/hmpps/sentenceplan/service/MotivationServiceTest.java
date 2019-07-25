@@ -6,7 +6,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.Motivation;
-import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.MotivationEntity;
+import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.MotivationRefEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.MotivationRespository;
 
 import java.util.ArrayList;
@@ -52,7 +52,7 @@ public class MotivationServiceTest {
     @Test
     public void shouldReturnIfNotExists() {
 
-        when(motivationRespository.findAllByDeletedIsNull()).thenReturn(List.of(new MotivationEntity("Motivation", "Friendly")));
+        when(motivationRespository.findAllByDeletedIsNull()).thenReturn(List.of(new MotivationRefEntity("Motivation", "Friendly")));
 
         List<Motivation> motivations = motivationService.getActiveMotivations();
 

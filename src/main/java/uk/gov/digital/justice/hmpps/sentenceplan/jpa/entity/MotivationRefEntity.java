@@ -16,8 +16,8 @@ import java.util.UUID;
 @NoArgsConstructor
 @Data
 @Builder
-@Table(name = "MOTIVATION")
-public class MotivationEntity implements Serializable {
+@Table(name = "MOTIVATION_REF_DATA")
+public class MotivationRefEntity implements Serializable {
 
     @Id
     @Column(name = "ID")
@@ -39,7 +39,7 @@ public class MotivationEntity implements Serializable {
     @Column(name = "DELETED")
     private LocalDateTime deleted;
 
-    public MotivationEntity(String motivationText, String friendlyText) {
+    public MotivationRefEntity(String motivationText, String friendlyText) {
         this.uuid = UUID.randomUUID();
         this.motivationText = motivationText;
         this.friendlyText = friendlyText;

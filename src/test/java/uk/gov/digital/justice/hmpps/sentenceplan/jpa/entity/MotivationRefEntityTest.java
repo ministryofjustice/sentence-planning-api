@@ -9,14 +9,14 @@ import java.time.LocalDateTime;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MotivationEntityTest {
+public class MotivationRefEntityTest {
 
     @Test
     public void shouldCreateDraftSentencePlan() {
         String motivationText = "Motivation_Text";
         String friendlyText = "Friendly_Text";
 
-        var motivation = new MotivationEntity(motivationText, friendlyText);
+        var motivation = new MotivationRefEntity(motivationText, friendlyText);
 
         assertThat(motivation.getUuid()).isNotNull();
         assertThat(motivation.getMotivationText()).isEqualTo(motivationText);
