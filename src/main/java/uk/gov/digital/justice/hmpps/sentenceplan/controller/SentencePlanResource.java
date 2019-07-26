@@ -4,14 +4,15 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.CreateSentencePlanRequest;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.SentencePlan;
+import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.SentencePlanService;
 
 import javax.validation.Valid;
+import java.util.List;
 import java.util.UUID;
 
 @Api(tags = {"Sentence Planning API"})
@@ -40,11 +41,52 @@ public class SentencePlanResource {
 
     @PostMapping(value = "/sentenceplan", produces = "application/json")
     @ApiOperation(value = "Create new sentence plan",
-            notes = "Creates a draft new sentence plan")
+            notes = "Creates a new sentence plan")
     ResponseEntity<SentencePlan> createSentencePlan(@ApiParam(value = "Offender details", required = true) @RequestBody @Valid CreateSentencePlanRequest createSentencePlanRequest) {
-        return ResponseEntity.ok(sentencePlanService.createSentencePlan(
+        return ResponseEntity.status(HttpStatus.CREATED).body(sentencePlanService.createSentencePlan(
                 createSentencePlanRequest.getOffenderId(),
                 createSentencePlanRequest.getOffenderReferenceType()));
     }
+
+    @PostMapping(value = "/sentenceplan/{sentencePlanUUID}/steps", produces = "application/json")
+    @ApiOperation(value = "Add a step to a sentence plan",
+            notes = "Creates a draft new sentence plan")
+    ResponseEntity<List<Step>> addStep(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Step details", required = true) @RequestBody @Valid AddSentencePlanStep step) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                sentencePlanService.addStep(sentencePlanUUID,
+                step.getOwner(),
+                step.getOwnerOther(),
+                step.getStrength(),
+                step.getDescription(),
+                step.getIntervention(),
+                step.getNeeds()));
+    }
+
+    @GetMapping(value = "/sentenceplan/{sentencePlanUUID}/steps", produces = "application/json")
+    @ApiOperation(value = "Get Sentence Plan steps from ID",
+            response = Step.class,
+            responseContainer = "List",
+            notes = "Request sentence plan steps")
+        ResponseEntity<List<Step>> getSentencePlanSteps(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID) {
+        return ResponseEntity.ok(sentencePlanService.getSentencePlanSteps(sentencePlanUUID));
+    }
+
+    @GetMapping(value = "/sentenceplan/{sentencePlanUUID}/steps/{stepId}", produces = "application/json")
+    @ApiOperation(value = "Get Sentence Plan step from ID",
+            response = Step.class,
+            notes = "Request a single sentence plan step")
+    ResponseEntity<Step> getSentencePlanStep(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Step ID") @PathVariable UUID stepId) {
+        return ResponseEntity.ok(sentencePlanService.getSentencePlanStep(sentencePlanUUID, stepId));
+    }
+
+    @GetMapping(value = "/sentenceplan/{sentencePlanUUID}/needs", produces = "application/json")
+    @ApiOperation(value = "Get Sentence Plan steps from ID",
+            response = Step.class,
+            responseContainer = "List",
+            notes = "Request sentence plan needs")
+    ResponseEntity<List<Need>> getSentencePlanNeeds(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID) {
+        return ResponseEntity.ok(sentencePlanService.getSentencePlanNeeds(sentencePlanUUID));
+    }
+
 
 }

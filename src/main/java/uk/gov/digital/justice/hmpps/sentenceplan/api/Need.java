@@ -7,12 +7,15 @@ import lombok.NoArgsConstructor;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.NeedEntity;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 public class Need {
+    @JsonProperty("id")
+    private UUID id;
     @JsonProperty("name")
     private String name;
     @JsonProperty("overThreshold")
@@ -28,7 +31,8 @@ public class Need {
 
 
     public static Need from(NeedEntity need) {
-        return new Need(need.getDescription(),
+        return new Need(need.getUuid(),
+                need.getDescription(),
                 need.getOverThreshold(),
                 need.getHarmRisk(),
                 need.getReoffendingRisk(),
