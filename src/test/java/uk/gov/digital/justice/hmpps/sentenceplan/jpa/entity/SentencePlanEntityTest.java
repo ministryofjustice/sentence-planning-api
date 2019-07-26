@@ -15,18 +15,18 @@ import static org.mockito.Mockito.mock;
 public class SentencePlanEntityTest {
 
     @Test
-    public void shouldCreateDraftSentencePlan() {
-        var offender = mock(OffenderEntity.class);
-        var sentencePlan = new SentencePlanEntity(offender);
+public void shouldCreateDraftSentencePlan() {
+    var offender = mock(OffenderEntity.class);
+    var sentencePlan = new SentencePlanEntity(offender);
 
-        assertThat(sentencePlan.getUuid()).isNotNull();
-        assertThat(sentencePlan.getCreatedOn()).isEqualToIgnoringSeconds(LocalDateTime.now());
-        assertThat(sentencePlan.getStartDate()).isEqualToIgnoringSeconds(LocalDateTime.now());
-        assertThat(sentencePlan.getEventType()).isEqualTo(EventType.CREATED);
-        assertThat(sentencePlan.getStatus()).isEqualTo(PlanStatus.DRAFT);
-        assertThat(sentencePlan.getData().steps).isEmpty();
-        assertThat(sentencePlan.getData().getChildSafeguardingIndicated()).isNull();
-        assertThat(sentencePlan.getData().getComplyWithChildProtectionPlanIndicated()).isNull();
-        assertThat(sentencePlan.getNeeds()).isEmpty();
-    }
+    assertThat(sentencePlan.getUuid()).isNotNull();
+    assertThat(sentencePlan.getCreatedOn()).isEqualToIgnoringSeconds(LocalDateTime.now());
+    assertThat(sentencePlan.getStartDate()).isEqualToIgnoringSeconds(LocalDateTime.now());
+    assertThat(sentencePlan.getEventType()).isEqualTo(EventType.CREATED);
+    assertThat(sentencePlan.getStatus()).isEqualTo(PlanStatus.DRAFT);
+    assertThat(sentencePlan.getData().steps).isEmpty();
+    assertThat(sentencePlan.getData().getChildSafeguardingIndicated()).isNull();
+    assertThat(sentencePlan.getData().getComplyWithChildProtectionPlanIndicated()).isNull();
+    assertThat(sentencePlan.getNeeds()).isEmpty();
+}
 }

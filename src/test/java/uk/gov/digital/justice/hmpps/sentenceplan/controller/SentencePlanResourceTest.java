@@ -91,7 +91,7 @@ public class SentencePlanResourceTest {
                 .as(SentencePlan.class);
 
         assertThat(result.getUuid()).isEqualTo(UUID.fromString(SENTENCE_PLAN_ID));
-        assertThat(result.getStatus()).isEqualTo(PlanStatus.ACTIVE);
+        assertThat(result.getStatus()).isEqualTo(PlanStatus.STARTED);
     }
 
     @Test
@@ -124,7 +124,7 @@ public class SentencePlanResourceTest {
             .header("Content-Type", "application/json")
             .post("/sentenceplan")
             .then()
-            .statusCode(200);
+            .statusCode(201);
 
         assessmentApi.verify();
     }
@@ -142,7 +142,7 @@ public class SentencePlanResourceTest {
                 .header("Content-Type", "application/json")
                 .post("/sentenceplan")
                 .then()
-                .statusCode(200)
+                .statusCode(201)
                 .extract()
                 .body()
                 .as(SentencePlan.class);

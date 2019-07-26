@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
 @Getter
 public class Step {
 
+    @JsonProperty("id")
+    private UUID id;
     @JsonProperty("owner")
     private StepOwner owner;
     @JsonProperty("ownerOther")
@@ -27,17 +29,18 @@ public class Step {
     private StepStatus status;
     @JsonProperty("needs")
     private List<UUID> needs;
-    @JsonProperty("interventions")
-    private Map<String,String> interventions;
+    @JsonProperty("intervention")
+    private String intervention;
 
     public static Step from(StepEntity step) {
-        return new Step(step.getOwner(),
+        return new Step(step.getId(),
+                step.getOwner(),
                 step.getOwnerOther(),
                 step.getDescription(),
                 step.getStrength(),
                 step.getStatus(),
                 step.getNeeds(),
-                step.getInterventions());
+                step.getIntervention());
     }
 
     public static List<Step> from(List<StepEntity> steps) {

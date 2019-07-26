@@ -2,11 +2,13 @@ package uk.gov.digital.justice.hmpps.sentenceplan.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.SentencePlan;
+import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.EntityNotFoundException;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.SentencePlanEntity;
+import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.StepEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import static net.logstash.logback.argument.StructuredArguments.value;
@@ -38,8 +40,42 @@ public class SentencePlanService {
 
     public SentencePlan getSentencePlanFromUuid(UUID sentencePlanUuid) {
         log.info("Retrieving Sentence Plan {}", sentencePlanUuid, value(EVENT,SENTENCE_PLAN_RETRIEVED));
-        return SentencePlan.from(Optional.ofNullable(sentencePlanRepository.findByUuid(sentencePlanUuid))
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Sentence Plan %s not found", sentencePlanUuid))));
+        return SentencePlan.from(getSentencePlanEntity(sentencePlanUuid));
     }
 
+    @Transactional
+    public List<Step> addStep(UUID sentencePlanUUID, StepOwner owner, String ownerOther, String strength, String description, String intervention, List<UUID> needs) {
+        var stepEntity = new StepEntity(owner,ownerOther,description,strength, StepStatus.NOT_IN_PROGRESS, needs, intervention);
+        var sentencePlan =  sentencePlanRepository.findByUuid(sentencePlanUUID);
+
+        if(sentencePlan.getStatus().equals(PlanStatus.DRAFT) && sentencePlan.getData().getSteps().isEmpty()) {
+            sentencePlan.setStatus(PlanStatus.STARTED);
+            log.info("Update Sentence Plan {} status to STARTED", sentencePlan.getUuid(), value(EVENT,SENTENCE_PLAN_STARTED));
+        }
+        sentencePlan.addStep(stepEntity);
+
+        log.info("Created Sentence Plan Step {}", sentencePlan.getUuid(), value(EVENT,SENTENCE_PLAN_STEP_CREATED));
+        return Step.from(sentencePlan.getData().getSteps());
+    }
+
+    public List<Step> getSentencePlanSteps(UUID sentencePlanUuid) {
+        log.info("Retrieving Sentence Plan Steps {}", sentencePlanUuid, value(EVENT,SENTENCE_PLAN_STEPS_RETRIEVED));
+        return Step.from(getSentencePlanEntity(sentencePlanUuid).getData().getSteps());
+    }
+
+    public Step getSentencePlanStep(UUID sentencePlanUuid, UUID stepId) {
+        log.info("Retrieving Sentence Plan {} Step {}",sentencePlanUuid, stepId, value(EVENT,SENTENCE_PLAN_STEP_RETRIEVED));
+        return Step.from(getSentencePlanEntity(sentencePlanUuid).getData().getSteps().stream().filter(s->s.getId().equals(stepId)).findAny()
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Step %s not found", stepId))));
+    }
+
+    public List<Need> getSentencePlanNeeds(UUID sentencePlanUuid) {
+        log.info("Retrieving Sentence Plan Needs {}", sentencePlanUuid, value(EVENT,SENTENCE_PLAN_NEEDS_RETRIEVED));
+        return Need.from(getSentencePlanEntity(sentencePlanUuid).getNeeds());
+    }
+
+    private SentencePlanEntity getSentencePlanEntity(UUID sentencePlanUuid) {
+        return Optional.ofNullable(sentencePlanRepository.findByUuid(sentencePlanUuid))
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Sentence Plan %s not found", sentencePlanUuid)));
+    }
 }

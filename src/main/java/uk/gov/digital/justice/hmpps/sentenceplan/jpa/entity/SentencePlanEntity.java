@@ -106,6 +106,10 @@ public class SentencePlanEntity implements Serializable {
         this.data.setChildSafeguardingIndicated(childSafeguardingIndicated);
         this.data.setComplyWithChildProtectionPlanIndicated(complyWithChildProtectionPlanIndicated);
     }
+
+    public void addStep(StepEntity stepEntity) {
+        this.data.steps.add(stepEntity);
+    }
 }
 
 
