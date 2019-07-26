@@ -25,7 +25,7 @@ public class MotivationResource {
         this.motivationService = motivationService;
     }
 
-    @GetMapping(value = "/motivation", produces = "application/json")
+    @GetMapping(value = "motivation/", produces = "application/json")
     @ApiOperation(value = "Gets all active Motivations as ref data for use in dropdowns or lists",
             response = Motivation.class, responseContainer="List",
             notes = "Get all active Motivations")

@@ -7,7 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.Motivation;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.MotivationRefEntity;
-import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.MotivationRespository;
+import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.MotivationRefDataRespository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,13 +20,13 @@ public class MotivationServiceTest {
 
 
     @Mock
-    MotivationRespository motivationRespository;
+    MotivationRefDataRespository motivationRefDataRespository;
 
     MotivationService motivationService;
 
     @Before
     public void setup() {
-        motivationService = new MotivationService(motivationRespository);
+        motivationService = new MotivationService(motivationRefDataRespository);
     }
 
     /**
@@ -35,13 +35,13 @@ public class MotivationServiceTest {
     @Test
     public void shouldReturnEmptyListIfNotDataExists() {
 
-        when(motivationRespository.findAllByDeletedIsNull()).thenReturn(new ArrayList<>(0));
+        when(motivationRefDataRespository.findAllByDeletedIsNull()).thenReturn(new ArrayList<>(0));
 
         List<Motivation> motivations = motivationService.getActiveMotivations();
 
 
-        verify( motivationRespository, times(1)).findAllByDeletedIsNull();
-        verifyNoMoreInteractions(motivationRespository);
+        verify(motivationRefDataRespository, times(1)).findAllByDeletedIsNull();
+        verifyNoMoreInteractions(motivationRefDataRespository);
 
         assertThat(motivations).hasSize(0);
     }
@@ -52,12 +52,12 @@ public class MotivationServiceTest {
     @Test
     public void shouldReturnIfNotExists() {
 
-        when(motivationRespository.findAllByDeletedIsNull()).thenReturn(List.of(new MotivationRefEntity("Motivation", "Friendly")));
+        when(motivationRefDataRespository.findAllByDeletedIsNull()).thenReturn(List.of(new MotivationRefEntity("Motivation", "Friendly")));
 
         List<Motivation> motivations = motivationService.getActiveMotivations();
 
-        verify( motivationRespository, times(1)).findAllByDeletedIsNull();
-        verifyNoMoreInteractions(motivationRespository);
+        verify(motivationRefDataRespository, times(1)).findAllByDeletedIsNull();
+        verifyNoMoreInteractions(motivationRefDataRespository);
 
         assertThat(motivations).hasSize(1);
 

@@ -7,7 +7,7 @@ import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.MotivationRefEntity;
 import java.util.List;
 
 @Repository
-public interface MotivationRespository extends CrudRepository<MotivationRefEntity, Long> {
+public interface MotivationRefDataRespository extends CrudRepository<MotivationRefEntity, Long> {
 
     List<MotivationRefEntity> findAllByDeletedIsNull();
 }
