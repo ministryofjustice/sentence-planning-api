@@ -20,12 +20,10 @@ CREATE TABLE IF NOT EXISTS MOTIVATION
 (
   ID                                SERIAL        PRIMARY KEY,
   UUID                              UUID          NOT NULL,
-  NEED_UUID                         TEXT          NOT NULL,
+  NEED_UUID                         UUID          NOT NULL,
   START_DATE                        DATE          NOT NULL,
   END_DATE                          DATE,
   CONSTRAINT motivation_uuid_idempotent UNIQUE (UUID),
+  CONSTRAINT fk_need_id FOREIGN KEY (NEED_UUID) REFERENCES NEED (UUID)
 );
-
---  Index for latest Motivation for a need
-CREATE INDEX motivation_need_uuid_end_date_null ON motivation (NEED_UUID, END_DATE) WHERE END_DATE IS NULL;
 

@@ -42,6 +42,10 @@ public class MotivationEntity implements Serializable {
         this.start = LocalDateTime.now();
     }
 
+    public boolean isEnded() {
+        return this.end != null;
+    }
+
     public void end() {
         this.end = LocalDateTime.now();
     }

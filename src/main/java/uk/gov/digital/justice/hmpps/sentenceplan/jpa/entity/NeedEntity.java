@@ -5,13 +5,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import uk.gov.digital.justice.hmpps.sentenceplan.application.LocalDateTimeAttributeConverter;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Entity
 @AllArgsConstructor
@@ -54,6 +55,9 @@ public class NeedEntity implements Serializable {
     @JoinColumn(name = "SENTENCE_PLAN_UUID", referencedColumnName = "UUID")
     private SentencePlanEntity sentencePlan;
 
+    @ManyToOne
+    @JoinColumn(name = "MOTIVATION_UUID", referencedColumnName = "UUID")
+    private List<MotivationEntity> motivations;
 
     public NeedEntity(String description, Boolean overThreshold, Boolean reoffendingRisk, Boolean harmRisk, Boolean lowScoreRisk, Boolean active, SentencePlanEntity sentencePlan) {
         this.uuid = UUID.randomUUID();
@@ -66,4 +70,13 @@ public class NeedEntity implements Serializable {
         this.createdOn = LocalDateTime.now();
         this.sentencePlan = sentencePlan;
     }
+
+    public List<MotivationEntity> getMotivationHistory() {
+        return this.motivations.stream().filter(me -> me.isEnded()).collect(Collectors.toList());
+    }
+
+    public Optional<MotivationEntity> getCurrentMotivation() {
+        return this.motivations.stream().filter(me -> !me.isEnded()).findFirst();
+    }
+
 }

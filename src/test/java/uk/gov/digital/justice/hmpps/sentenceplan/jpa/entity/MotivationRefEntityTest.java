@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MotivationRefEntityTest {
 
     @Test
-    public void shouldCreateDraftSentencePlan() {
+    public void shouldCreateMotivationRef() {
         String motivationText = "Motivation_Text";
         String friendlyText = "Friendly_Text";
 
