@@ -55,7 +55,7 @@ public class NeedEntity implements Serializable {
     @JoinColumn(name = "SENTENCE_PLAN_UUID", referencedColumnName = "UUID")
     private SentencePlanEntity sentencePlan;
 
-    @ManyToOne
+    @OneToMany
     @JoinColumn(name = "MOTIVATION_UUID", referencedColumnName = "UUID")
     private List<MotivationEntity> motivations;
 
@@ -77,6 +77,10 @@ public class NeedEntity implements Serializable {
 
     public Optional<MotivationEntity> getCurrentMotivation() {
         return this.motivations.stream().filter(me -> !me.isEnded()).findFirst();
+    }
+
+    public void addMotivation(MotivationEntity motivationEntity) {
+        motivations.add(motivationEntity);
     }
 
 }

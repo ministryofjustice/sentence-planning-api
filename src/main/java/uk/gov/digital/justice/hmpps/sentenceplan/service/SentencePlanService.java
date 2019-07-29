@@ -4,13 +4,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.EntityNotFoundException;
+import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.MotivationEntity;
+import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.NeedEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.SentencePlanEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.StepEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
+
 import javax.transaction.Transactional;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import static net.logstash.logback.argument.StructuredArguments.value;
 import static uk.gov.digital.justice.hmpps.sentenceplan.application.LogEvent.*;
 
@@ -74,8 +77,29 @@ public class SentencePlanService {
         return Need.from(getSentencePlanEntity(sentencePlanUuid).getNeeds());
     }
 
+    public void updateMotivations(UUID sentencePlanUuid, Map<UUID, UUID> motivations){
+        log.info("Updating Sentence Plan {} Motivations", sentencePlanUuid, value(EVENT,SENTENCE_PLAN_MOTIVATIONS_UPDATED));
+        var sentencePlan = getSentencePlanEntity(sentencePlanUuid);
+        Map<UUID,NeedEntity> planNeeds = sentencePlan.getNeeds().stream().collect(Collectors.toMap(NeedEntity::getUuid, need -> need));
+        motivations.forEach((key,value) -> planNeeds.computeIfPresent(key, (k,v)-> updateMotivation(v,value)));
+    }
+
+    private NeedEntity updateMotivation(NeedEntity needEntity, UUID motivationUUID) {
+        var currentMotivation = needEntity.getCurrentMotivation();
+        if(currentMotivation.isPresent()) {
+            if(!currentMotivation.get().getUuid().equals(motivationUUID)) {
+                currentMotivation.get().end();
+            }
+        }
+        currentMotivation.ifPresent(MotivationEntity::end);
+        needEntity.addMotivation(new MotivationEntity(needEntity.getUuid(),motivationUUID));
+        return needEntity;
+    }
+
     private SentencePlanEntity getSentencePlanEntity(UUID sentencePlanUuid) {
         return Optional.ofNullable(sentencePlanRepository.findByUuid(sentencePlanUuid))
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Sentence Plan %s not found", sentencePlanUuid)));
     }
+
+
 }

@@ -19,7 +19,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.Motivation;
+import uk.gov.digital.justice.hmpps.sentenceplan.api.MotivationRef;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.AssessmentNeed;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysAssessment;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysIdentifiers;
@@ -44,7 +44,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Sql(scripts = "classpath:motivation/before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
 @Sql(scripts = "classpath:motivation/after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
-public class MotivationResourceTest {
+public class MotivationRefResourceTest {
 
     @LocalServerPort
     int port;
@@ -82,14 +82,14 @@ public class MotivationResourceTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .as(Motivation[].class);
+                .as(MotivationRef[].class);
 
         assertThat(result).hasSize(1);
-        Motivation motivation = result[0];
+        MotivationRef motivationRef = result[0];
 
-        assertThat(motivation.getUUID()).isEqualTo(UUID.fromString("11111111-1111-1111-1111-111111111111"));
-        assertThat(motivation.getMotivationText()).isEqualTo("Motivation");
-        assertThat(motivation.getFriendlyText()).isEqualTo("Friendly");
+        assertThat(motivationRef.getUUID()).isEqualTo(UUID.fromString("11111111-1111-1111-1111-111111111111"));
+        assertThat(motivationRef.getMotivationText()).isEqualTo("MotivationRef");
+        assertThat(motivationRef.getFriendlyText()).isEqualTo("Friendly");
 
     }
 

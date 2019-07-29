@@ -21,9 +21,12 @@ CREATE TABLE IF NOT EXISTS MOTIVATION
   ID                                SERIAL        PRIMARY KEY,
   UUID                              UUID          NOT NULL,
   NEED_UUID                         UUID          NOT NULL,
+  MOTIVATION_REF_UUID               UUID          NOT NULL,
   START_DATE                        DATE          NOT NULL,
   END_DATE                          DATE,
   CONSTRAINT motivation_uuid_idempotent UNIQUE (UUID),
-  CONSTRAINT fk_need_id FOREIGN KEY (NEED_UUID) REFERENCES NEED (UUID)
+  CONSTRAINT fk_need_id FOREIGN KEY (NEED_UUID) REFERENCES NEED (UUID),
+  CONSTRAINT fk_mot_ref_id FOREIGN KEY (MOTIVATION_REF_UUID) REFERENCES MOTIVATION_REF_DATA (UUID)
+
 );
 

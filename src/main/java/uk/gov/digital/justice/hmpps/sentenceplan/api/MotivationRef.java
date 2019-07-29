@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class Motivation {
+public class MotivationRef {
     @JsonProperty("uuid")
     private UUID UUID;
     @JsonProperty("motivationText")
@@ -22,13 +22,13 @@ public class Motivation {
     private String friendlyText;
 
 
-    public static Motivation from(MotivationRefEntity motivation) {
-        return new Motivation(motivation.getUuid(),
+    public static MotivationRef from(MotivationRefEntity motivation) {
+        return new MotivationRef(motivation.getUuid(),
                 motivation.getMotivationText(),
                 motivation.getFriendlyText());
     }
 
-    public static List<Motivation> from(List<MotivationRefEntity> motivations) {
-        return motivations.stream().map(Motivation::from).collect(Collectors.toList());
+    public static List<MotivationRef> from(List<MotivationRefEntity> motivations) {
+        return motivations.stream().map(MotivationRef::from).collect(Collectors.toList());
     }
 }

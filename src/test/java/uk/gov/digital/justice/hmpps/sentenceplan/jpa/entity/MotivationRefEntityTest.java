@@ -15,11 +15,13 @@ public class MotivationEntityTest {
     @Test
     public void shouldCreateMotivation() {
         UUID needUUID = UUID.randomUUID();
+        UUID motivationUUID = UUID.randomUUID();
 
-        var motivation = new MotivationEntity(needUUID);
+        var motivation = new MotivationEntity(needUUID,motivationUUID);
 
         assertThat(motivation.getUuid()).isNotNull();
         assertThat(motivation.getNeedUuid()).isEqualTo(needUUID);
+        assertThat(motivation.getMotivationRefUuid()).isEqualTo(motivationUUID);
         assertThat(motivation.getStart()).isEqualToIgnoringSeconds(LocalDateTime.now());
         assertThat(motivation.getEnd()).isNull();
         assertThat(motivation.isEnded()).isFalse();
@@ -29,8 +31,9 @@ public class MotivationEntityTest {
     @Test
     public void shouldEndMotivation() {
         UUID needUUID = UUID.randomUUID();
+        UUID motivationUUID = UUID.randomUUID();
 
-        var motivation = new MotivationEntity(needUUID);
+        var motivation = new MotivationEntity(needUUID, motivationUUID);
 
         assertThat(motivation.getEnd()).isNull();
         assertThat(motivation.isEnded()).isFalse();

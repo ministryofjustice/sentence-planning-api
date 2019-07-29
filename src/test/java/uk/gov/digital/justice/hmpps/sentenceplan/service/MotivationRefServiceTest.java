@@ -15,17 +15,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MotivationServiceTest {
+public class MotivationRefServiceTest {
 
 
     @Mock
     MotivationRefDataRespository motivationRefDataRespository;
 
-    MotivationService motivationService;
+    MotivationRefService motivationRefService;
 
     @Before
     public void setup() {
-        motivationService = new MotivationService(motivationRefDataRespository);
+        motivationRefService = new MotivationRefService(motivationRefDataRespository);
     }
 
     /**
@@ -36,13 +36,13 @@ public class MotivationServiceTest {
 
         when(motivationRefDataRespository.findAllByDeletedIsNull()).thenReturn(new ArrayList<>(0));
 
-        List<Motivation> motivations = motivationService.getActiveMotivations();
+        List<MotivationRef> motivationRefs = motivationRefService.getActiveMotivations();
 
 
         verify(motivationRefDataRespository, times(1)).findAllByDeletedIsNull();
         verifyNoMoreInteractions(motivationRefDataRespository);
 
-        assertThat(motivations).hasSize(0);
+        assertThat(motivationRefs).hasSize(0);
     }
 
     /**
@@ -51,18 +51,18 @@ public class MotivationServiceTest {
     @Test
     public void shouldReturnIfNotExists() {
 
-        when(motivationRefDataRespository.findAllByDeletedIsNull()).thenReturn(List.of(new MotivationRefEntity("Motivation", "Friendly")));
+        when(motivationRefDataRespository.findAllByDeletedIsNull()).thenReturn(List.of(new MotivationRefEntity("MotivationRef", "Friendly")));
 
-        List<Motivation> motivations = motivationService.getActiveMotivations();
+        List<MotivationRef> motivationRefs = motivationRefService.getActiveMotivations();
 
         verify(motivationRefDataRespository, times(1)).findAllByDeletedIsNull();
         verifyNoMoreInteractions(motivationRefDataRespository);
 
-        assertThat(motivations).hasSize(1);
+        assertThat(motivationRefs).hasSize(1);
 
-        Motivation motivation = motivations.get(0);
-        assertThat(motivation.getMotivationText()).isEqualTo("Motivation");
-        assertThat(motivation.getFriendlyText()).isEqualTo("Friendly");
+        MotivationRef motivationRef = motivationRefs.get(0);
+        assertThat(motivationRef.getMotivationText()).isEqualTo("MotivationRef");
+        assertThat(motivationRef.getFriendlyText()).isEqualTo("Friendly");
 
     }
 

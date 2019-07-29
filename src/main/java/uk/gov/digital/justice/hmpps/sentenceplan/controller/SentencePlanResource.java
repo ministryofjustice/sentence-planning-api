@@ -12,8 +12,9 @@ import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.SentencePlanService;
 
 import javax.validation.Valid;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Api(tags = {"Sentence Planning API"})
 
@@ -80,12 +81,21 @@ public class SentencePlanResource {
     }
 
     @GetMapping(value = "/sentenceplan/{sentencePlanUUID}/needs", produces = "application/json")
-    @ApiOperation(value = "Get Sentence Plan steps from ID",
+    @ApiOperation(value = "Get Sentence Plan needs from ID",
             response = Step.class,
             responseContainer = "List",
             notes = "Request sentence plan needs")
     ResponseEntity<List<Need>> getSentencePlanNeeds(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID) {
         return ResponseEntity.ok(sentencePlanService.getSentencePlanNeeds(sentencePlanUUID));
+    }
+
+    @PostMapping(value = "/sentenceplan/{sentencePlanUUID}/motivations", produces = "application/json")
+    @ApiOperation(value = "Update the Motivations against Needs on a Sentence Plan",
+            notes = "Update Needs")
+    ResponseEntity updateMotivations(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @RequestBody Set<AssociateMotivationNeedRequest> request) {
+        Map<UUID,UUID> needs = request.stream().collect(Collectors.toMap(AssociateMotivationNeedRequest::getNeedUUID, AssociateMotivationNeedRequest::getMotivationUUID));
+        sentencePlanService.updateMotivations(sentencePlanUUID,needs);
+        return ResponseEntity.ok().build();
     }
 
 

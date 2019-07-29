@@ -6,6 +6,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import uk.gov.digital.justice.hmpps.sentenceplan.api.Motivation;
+import uk.gov.digital.justice.hmpps.sentenceplan.service.MotivationService;
+
+import java.util.List;
 
 @Api(tags = {"Sentence Planning API"})
 
@@ -15,19 +19,18 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class MotivationResource {
 
-    private MotivationService motivationService;
+    private MotivationRefService motivationRefService;
 
-    public MotivationResource(MotivationService motivationService) {
-        this.motivationService = motivationService;
+    public MotivationResource(MotivationRefService motivationRefService) {
+        this.motivationRefService = motivationRefService;
     }
-
 
     @GetMapping(value = "/motivation", produces = "application/json")
     @ApiOperation(value = "Gets all active Motivations as ref data for use in dropdowns or lists",
-            response = Motivation.class, responseContainer="List",
+            response = MotivationRef.class, responseContainer="List",
             notes = "Get all active Motivations")
-    ResponseEntity<List<Motivation>> getActiveMotivations() {
-        return ResponseEntity.ok(motivationService.getActiveMotivations());
+    ResponseEntity<List<MotivationRef>> getActiveMotivations() {
+        return ResponseEntity.ok(motivationRefService.getActiveMotivations());
     }
 
 }
