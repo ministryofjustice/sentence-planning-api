@@ -206,7 +206,7 @@ public class SentencePlanResourceTest {
     }
 
     @Test
-    public void shouldUpdateMotivationsWith() throws JsonProcessingException {
+    public void shouldUpdateMotivations() throws JsonProcessingException {
         setupMockRestServiceServer();
 
         var requestBody = List.of(
@@ -222,6 +222,23 @@ public class SentencePlanResourceTest {
                 .extract().statusCode();
 
         assertThat(result).isEqualTo(200);
+
+        var plan = given()
+                .when()
+                .header("Accept", "application/json")
+                .get("/sentenceplan/{0}", SENTENCE_PLAN_ID)
+                .then()
+                .statusCode(200)
+                .extract()
+                .body()
+                .as(SentencePlan.class);
+
+        assertThat(plan.getUuid()).isEqualTo(UUID.fromString(SENTENCE_PLAN_ID));
+
+        var needs = plan.getNeeds();
+        var need = needs.stream().filter(n -> n.getMotivationUUID() != null).findFirst().get();
+        assertThat(need.getMotivationUUID()).isEqualTo(UUID.fromString("38731914-701d-4b4e-abd3-1e0a6375f0b2"));
+
     }
 
     /*
@@ -251,7 +268,7 @@ public class SentencePlanResourceTest {
     }
 
     @Test
-    public void shouldUpdateMotivationsWithInvalidMotivation() throws JsonProcessingException {
+    public void shouldNotUpdateMotivationsWithInvalidMotivation() throws JsonProcessingException {
         setupMockRestServiceServer();
 
         var requestBody = List.of(
