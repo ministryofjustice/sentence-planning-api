@@ -10,17 +10,17 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MotivationEntityTest {
+public class MotivationRefEntityTest {
 
     @Test
     public void shouldCreateMotivation() {
         UUID needUUID = UUID.randomUUID();
+        var needEntity = NeedEntity.builder().uuid(needUUID).build();
         UUID motivationUUID = UUID.randomUUID();
 
-        var motivation = new MotivationEntity(needUUID,motivationUUID);
+        var motivation = new MotivationEntity(needEntity,motivationUUID);
 
-        assertThat(motivation.getUuid()).isNotNull();
-        assertThat(motivation.getNeedUuid()).isEqualTo(needUUID);
+        assertThat(motivation.getNeed().getUuid()).isEqualTo(needUUID);
         assertThat(motivation.getMotivationRefUuid()).isEqualTo(motivationUUID);
         assertThat(motivation.getStart()).isEqualToIgnoringSeconds(LocalDateTime.now());
         assertThat(motivation.getEnd()).isNull();
@@ -31,9 +31,11 @@ public class MotivationEntityTest {
     @Test
     public void shouldEndMotivation() {
         UUID needUUID = UUID.randomUUID();
+        var needEntity = NeedEntity.builder().uuid(needUUID).build();
+
         UUID motivationUUID = UUID.randomUUID();
 
-        var motivation = new MotivationEntity(needUUID, motivationUUID);
+        var motivation = new MotivationEntity(needEntity, motivationUUID);
 
         assertThat(motivation.getEnd()).isNull();
         assertThat(motivation.isEnded()).isFalse();

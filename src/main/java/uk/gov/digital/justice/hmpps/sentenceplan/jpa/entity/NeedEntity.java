@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -55,9 +56,8 @@ public class NeedEntity implements Serializable {
     @JoinColumn(name = "SENTENCE_PLAN_UUID", referencedColumnName = "UUID")
     private SentencePlanEntity sentencePlan;
 
-    @OneToMany
-    @JoinColumn(name = "MOTIVATION_UUID", referencedColumnName = "UUID")
-    private List<MotivationEntity> motivations;
+    @OneToMany(mappedBy = "need", cascade = CascadeType.PERSIST)
+    private List<MotivationEntity> motivations = new ArrayList<>();
 
     public NeedEntity(String description, Boolean overThreshold, Boolean reoffendingRisk, Boolean harmRisk, Boolean lowScoreRisk, Boolean active, SentencePlanEntity sentencePlan) {
         this.uuid = UUID.randomUUID();
@@ -79,7 +79,18 @@ public class NeedEntity implements Serializable {
         return this.motivations.stream().filter(me -> !me.isEnded()).findFirst();
     }
 
-    public void addMotivation(MotivationEntity motivationEntity) {
+    public static NeedEntity updateMotivation(NeedEntity needEntity, UUID newMotivationUUID) {
+        var currentMotivation = needEntity.getCurrentMotivation();
+        if(currentMotivation.isPresent()) {
+            if(!currentMotivation.get().getMotivationRefUuid().equals(newMotivationUUID)) {
+                currentMotivation.get().end();
+            }
+        }
+        needEntity.addMotivation(new MotivationEntity(needEntity,newMotivationUUID));
+        return needEntity;
+    }
+
+    private void addMotivation(MotivationEntity motivationEntity) {
         motivations.add(motivationEntity);
     }
 

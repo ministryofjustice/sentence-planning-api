@@ -5,17 +5,13 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.SentencePlan;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.Step;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.StepOwner;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.StepStatus;
+import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.EntityNotFoundException;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
@@ -160,6 +156,25 @@ public class SentencePlanServiceTest {
 
     }
 
+    @Test
+    public void updateMotivationsShouldNotSaveToRepositoryEmpty() {
+        var sentencePlan = getNewSentencePlan();
+
+        service.updateMotivations(sentencePlanUuid, new HashMap<>());
+        verify(sentencePlanRepository,times(0)).findByUuid(sentencePlanUuid);
+        verify(sentencePlanRepository,times(0)).save(sentencePlan);
+    }
+
+    @Test
+    public void updateMotivationsShouldSaveToRepository() {
+        var sentencePlan = getNewSentencePlan();
+        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
+
+        service.updateMotivations(sentencePlanUuid, Map.of(UUID.randomUUID(), UUID.randomUUID()));
+        verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
+        verify(sentencePlanRepository,times(1)).save(sentencePlan);
+    }
+
     private SentencePlanEntity getNewSentencePlan() {
         return SentencePlanEntity.builder()
                 .createdOn(LocalDateTime.of(2019,6,1, 11,00))
@@ -171,9 +186,8 @@ public class SentencePlanServiceTest {
 
     private SentencePlanEntity getSentencePlanWithSteps() {
 
-
         var needs = List.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
-       var steps = List.of(new StepEntity(PRACTITIONER, null, "a description", "a strength", StepStatus.NOT_IN_PROGRESS, needs, null));
+        var steps = List.of(new StepEntity(PRACTITIONER, null, "a description", "a strength", StepStatus.NOT_IN_PROGRESS, needs, null));
         return SentencePlanEntity.builder()
                 .createdOn(LocalDateTime.of(2019,6,1, 11,00))
                 .status(DRAFT)

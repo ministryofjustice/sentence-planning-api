@@ -17,10 +17,13 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
+import uk.gov.digital.justice.hmpps.sentenceplan.service.OffenderReferenceType;
+
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
+import static uk.gov.digital.justice.hmpps.sentenceplan.api.PlanStatus.DRAFT;
 
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")

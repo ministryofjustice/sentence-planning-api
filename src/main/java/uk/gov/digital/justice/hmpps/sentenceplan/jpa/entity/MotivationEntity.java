@@ -24,11 +24,9 @@ public class MotivationEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "UUID")
-    private UUID uuid;
-
-    @Column(name = "NEED_UUID")
-    private UUID needUuid;
+    @OneToOne
+    @JoinColumn(name = "NEED_UUID", referencedColumnName = "UUID")
+    private NeedEntity need;
 
     @Column(name = "MOTIVATION_REF_UUID")
     private UUID motivationRefUuid;
@@ -39,9 +37,8 @@ public class MotivationEntity implements Serializable {
     @Column(name = "END_DATE")
     private LocalDateTime end;
 
-    public MotivationEntity(UUID needUuid, UUID motivationRefUuid) {
-        this.uuid = UUID.randomUUID();
-        this.needUuid = needUuid;
+    public MotivationEntity(NeedEntity needEntity, UUID motivationRefUuid) {
+        this.need = needEntity;
         this.motivationRefUuid = motivationRefUuid;
         this.start = LocalDateTime.now();
     }
