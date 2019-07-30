@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.EntityNotFoundException;
-import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.MotivationEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.NeedEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.SentencePlanEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.StepEntity;
