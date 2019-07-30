@@ -79,14 +79,22 @@ public class NeedEntity implements Serializable {
         return this.motivations.stream().filter(me -> !me.isEnded()).findFirst();
     }
 
+    /*
+    There are three scenarios,
+    1) Adding a first motivationUUID onto a need where we want to add it.
+    2) Changing a motivationUUID from one to another where we want to end the current one and add it
+    3) Submitting the same motivationUUID where we don't want to end it or add it again
+     */
     public static NeedEntity updateMotivation(NeedEntity needEntity, UUID newMotivationUUID) {
         var currentMotivation = needEntity.getCurrentMotivation();
         if(currentMotivation.isPresent()) {
             if(!currentMotivation.get().getMotivationRefUuid().equals(newMotivationUUID)) {
                 currentMotivation.get().end();
+                needEntity.addMotivation(new MotivationEntity(needEntity,newMotivationUUID));
             }
+        } else {
+            needEntity.addMotivation(new MotivationEntity(needEntity, newMotivationUUID));
         }
-        needEntity.addMotivation(new MotivationEntity(needEntity,newMotivationUUID));
         return needEntity;
     }
 

@@ -64,8 +64,57 @@ public class NeedEntityTest {
         assertThat(need.getMotivationHistory()).hasSize(1);
     }
 
+    // New one.
     @Test
-    public void shouldUpdateMotivations() {
+    public void shouldUpdateMotivationsNew() {
+
+        // list.of is immutable;
+        List<MotivationEntity> motivations = new ArrayList<>();
+
+        var need = NeedEntity.builder().motivations(motivations).build();
+
+        assertThat(need.getCurrentMotivation().isPresent()).isFalse();
+        assertThat(need.getMotivationHistory()).hasSize(0);
+
+        var motivation1 = new MotivationEntity(null, UUID.randomUUID());
+        NeedEntity.updateMotivation(need, motivation1.getMotivationRefUuid());
+
+
+        assertThat(need.getCurrentMotivation().isPresent()).isTrue();
+        assertThat(need.getCurrentMotivation().get().getMotivationRefUuid()).isEqualTo(motivation1.getMotivationRefUuid());
+        assertThat(need.getMotivationHistory()).hasSize(0);
+
+    }
+
+    // Existing one.
+    @Test
+    public void shouldNotUpdateMotivationsExisting() {
+        var motivation1 = new MotivationEntity(null, UUID.randomUUID());
+        motivation1.end();
+        var motivation2 = new MotivationEntity(null, UUID.randomUUID());
+
+        // list.of is immutable;
+        List<MotivationEntity> motivations = new ArrayList<>();
+        motivations.add(motivation1);
+        motivations.add(motivation2);
+
+        var need = NeedEntity.builder().motivations(motivations).build();
+
+        assertThat(need.getCurrentMotivation().isPresent()).isTrue();
+        assertThat(need.getCurrentMotivation().get().getMotivationRefUuid()).isEqualTo(motivation2.getMotivationRefUuid());
+        assertThat(need.getMotivationHistory()).hasSize(1);
+
+        NeedEntity.updateMotivation(need, motivation2.getMotivationRefUuid());
+
+        assertThat(need.getCurrentMotivation().isPresent()).isTrue();
+        assertThat(need.getCurrentMotivation().get().getMotivationRefUuid()).isEqualTo(motivation2.getMotivationRefUuid());
+        assertThat(need.getMotivationHistory()).hasSize(1);
+
+    }
+
+    // Replace one.
+    @Test
+    public void shouldUpdateMotivationsReplace() {
         var motivation1 = new MotivationEntity(null, UUID.randomUUID());
         motivation1.end();
         var motivation2 = new MotivationEntity(null, UUID.randomUUID());
@@ -91,7 +140,7 @@ public class NeedEntityTest {
     }
 
     @Test
-    public void shouldUpdateMotivationsEmpty() {
+    public void shouldNotAddMotivationsEmpty() {
 
         var need = new NeedEntity();
 
@@ -106,7 +155,7 @@ public class NeedEntityTest {
 
 
     @Test
-    public void shouldUpdateMotivationsSame() {
+    public void shouldNotAddMotivationsSame() {
         var motivation1 = new MotivationEntity(null, UUID.randomUUID());
         motivation1.end();
         var motivation2 = new MotivationEntity(null, UUID.randomUUID());
