@@ -20,10 +20,7 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.CreateSentencePlanRequest;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.ErrorResponse;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.PlanStatus;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.SentencePlan;
+import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.AssessmentNeed;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysAssessment;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysIdentifiers;
@@ -45,8 +42,8 @@ import static uk.gov.digital.justice.hmpps.sentenceplan.api.PlanStatus.DRAFT;
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Sql(scripts = "classpath:before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
-@Sql(scripts = "classpath:after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
+@Sql(scripts = "classpath:sentencePlan/before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
+@Sql(scripts = "classpath:sentencePlan/after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
 public class SentencePlanResourceTest {
 
     @LocalServerPort
@@ -205,6 +202,90 @@ public class SentencePlanResourceTest {
                 .as(ErrorResponse.class);
 
         assertThat(result.getStatus()).isEqualTo(404);
+
+    }
+
+    @Test
+    public void shouldUpdateMotivations() throws JsonProcessingException {
+        setupMockRestServiceServer();
+
+        var requestBody = List.of(
+                new AssociateMotivationNeedRequest(UUID.fromString("11111111-1111-1111-1111-111111111111"), UUID.fromString("38731914-701d-4b4e-abd3-1e0a6375f0b2")));
+
+        var result = given()
+                .when()
+                .body(requestBody)
+                .header("Content-Type", "application/json")
+                .post("/sentenceplan/{0}/motivations", SENTENCE_PLAN_ID)
+                .then()
+                .statusCode(200)
+                .extract().statusCode();
+
+        assertThat(result).isEqualTo(200);
+
+        var plan = given()
+                .when()
+                .header("Accept", "application/json")
+                .get("/sentenceplan/{0}", SENTENCE_PLAN_ID)
+                .then()
+                .statusCode(200)
+                .extract()
+                .body()
+                .as(SentencePlan.class);
+
+        assertThat(plan.getUuid()).isEqualTo(UUID.fromString(SENTENCE_PLAN_ID));
+
+        var needs = plan.getNeeds();
+        var need = needs.stream().filter(n -> n.getMotivationUUID() != null).findFirst().get();
+        assertThat(need.getMotivationUUID()).isEqualTo(UUID.fromString("38731914-701d-4b4e-abd3-1e0a6375f0b2"));
+
+    }
+
+    /*
+    Currently the implementation uses computeIfPresent for updating motivations so an invalid uuid shouldn't cause a problem
+    Only test we can do is to demonstrate that we don't get an exception.
+    */
+    @Test
+    public void shouldUpdateMotivationsWithInvalidNeed() throws JsonProcessingException {
+        setupMockRestServiceServer();
+
+        var requestBody = List.of(
+                new AssociateMotivationNeedRequest(UUID.fromString("11111111-1111-1111-1111-111111111111"), UUID.fromString("38731914-701d-4b4e-abd3-1e0a6375f0b2")),
+                new AssociateMotivationNeedRequest(UUID.fromString("00000000-0000-0000-0000-000000000000"), UUID.fromString("38731914-701d-4b4e-abd3-1e0a6375f0b2"))
+                );
+
+        var result = given()
+                .when()
+                .body(requestBody)
+                .header("Content-Type", "application/json")
+                .post("/sentenceplan/{0}/motivations", SENTENCE_PLAN_ID)
+                .then()
+                .statusCode(200)
+                .extract().statusCode();
+
+        assertThat(result).isEqualTo(200);
+
+    }
+
+    @Test
+    public void shouldNotUpdateMotivationsWithInvalidMotivation() throws JsonProcessingException {
+        setupMockRestServiceServer();
+
+        var requestBody = List.of(
+                new AssociateMotivationNeedRequest(UUID.fromString("11111111-1111-1111-1111-111111111111"), UUID.fromString("38731914-701d-4b4e-abd3-1e0a6375f0b2")),
+                new AssociateMotivationNeedRequest(UUID.fromString("22222222-2222-2222-2222-222222222222"), UUID.fromString("00000000-0000-0000-0000-000000000000"))
+        );
+
+        var result = given()
+                .when()
+                .body(requestBody)
+                .header("Content-Type", "application/json")
+                .post("/sentenceplan/{0}/motivations", SENTENCE_PLAN_ID)
+                .then()
+                .statusCode(500)
+                .extract().statusCode();
+
+        assertThat(result).isEqualTo(500);
 
     }
 

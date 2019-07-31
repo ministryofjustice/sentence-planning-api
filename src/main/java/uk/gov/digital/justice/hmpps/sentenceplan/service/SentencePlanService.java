@@ -4,15 +4,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.EntityNotFoundException;
+import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.NeedEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.SentencePlanEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.StepEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
+
 import javax.transaction.Transactional;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
+
 import static net.logstash.logback.argument.StructuredArguments.value;
 import static uk.gov.digital.justice.hmpps.sentenceplan.application.LogEvent.*;
+import static uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.NeedEntity.updateMotivation;
 
 @Service
 @Slf4j
@@ -74,8 +77,21 @@ public class SentencePlanService {
         return Need.from(getSentencePlanEntity(sentencePlanUuid).getNeeds());
     }
 
+    @Transactional
+    public void updateMotivations(UUID sentencePlanUuid, Map<UUID, UUID> newMotivations){
+        if(newMotivations.size() > 0) {
+            var sentencePlan = getSentencePlanEntity(sentencePlanUuid);
+            var planNeeds = sentencePlan.getNeeds().stream().collect(Collectors.toMap(NeedEntity::getUuid, need -> need));
+            newMotivations.forEach((key, value) -> planNeeds.computeIfPresent(key, (k, v) -> updateMotivation(v, value)));
+            sentencePlanRepository.save(sentencePlan);
+            log.info("Updated Sentence Plan {} Motivations", sentencePlanUuid, value(EVENT, SENTENCE_PLAN_MOTIVATIONS_UPDATED));
+        }
+    }
+
     private SentencePlanEntity getSentencePlanEntity(UUID sentencePlanUuid) {
         return Optional.ofNullable(sentencePlanRepository.findByUuid(sentencePlanUuid))
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Sentence Plan %s not found", sentencePlanUuid)));
     }
+
+
 }

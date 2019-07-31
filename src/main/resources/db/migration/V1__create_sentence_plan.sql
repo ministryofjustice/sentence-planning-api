@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS NEED
   ID                                SERIAL        PRIMARY KEY,
   UUID                              UUID          NOT NULL,
   SENTENCE_PLAN_UUID                UUID          NULL,
+  NEED_UUID                         UUID          NULL,
   DESCRIPTION                       TEXT          NULL,
   OVER_THRESHOLD                    BOOLEAN       NULL,
   REOFFENDING_RISK                  BOOLEAN       NULL,
