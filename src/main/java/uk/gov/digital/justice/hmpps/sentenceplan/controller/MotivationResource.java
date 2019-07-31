@@ -11,7 +11,7 @@ import uk.gov.digital.justice.hmpps.sentenceplan.service.MotivationRefService;
 
 import java.util.List;
 
-@Api(tags = {"Sentence Planning API"})
+@Api(tags = {"Motivation Data API"})
 
 @RestController
 @RequestMapping(
