@@ -6,7 +6,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
-import uk.gov.digital.justice.hmpps.sentenceplan.application.EntityNotFoundException;
+import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.CurrentSentencePlanForOffenderExistsException;
+import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
 import java.time.LocalDateTime;
@@ -56,12 +57,29 @@ public class SentencePlanServiceTest {
         var offender = mock(OffenderEntity.class);;
 
         when(offenderService.getOffenderByType(oasysOffenderId,  OffenderReferenceType.OASYS)).thenReturn(offender);
+        when(sentencePlanRepository.findByOffenderUuid(any())).thenReturn(null);
+
         when(sentencePlanRepository.save(any())).thenReturn(getNewSentencePlan());
 
         service.createSentencePlan(oasysOffenderId, OffenderReferenceType.OASYS);
 
         verify(offenderService,times(1)).getOffenderByType(oasysOffenderId,  OffenderReferenceType.OASYS);
         verify(sentencePlanRepository,times(1)).save(any());
+    }
+
+
+    @Test
+    public void shouldNotCreateSentencePlanIfCurrentPlanExistsForOffender() {
+        var offender = mock(OffenderEntity.class);;
+
+        when(offenderService.getOffenderByType(oasysOffenderId,  OffenderReferenceType.OASYS)).thenReturn(offender);
+        when(sentencePlanRepository.findByOffenderUuid(any())).thenReturn(getNewSentencePlan());
+
+        var exception = catchThrowable(() -> { service.createSentencePlan(oasysOffenderId, OffenderReferenceType.OASYS); });
+        assertThat(exception).isInstanceOf(CurrentSentencePlanForOffenderExistsException.class);
+
+        verify(offenderService,times(1)).getOffenderByType(oasysOffenderId,  OffenderReferenceType.OASYS);
+        verify(sentencePlanRepository,never()).save(any());
     }
 
     @Test

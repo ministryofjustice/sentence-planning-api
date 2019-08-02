@@ -3,9 +3,10 @@ package uk.gov.digital.justice.hmpps.sentenceplan.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
-import uk.gov.digital.justice.hmpps.sentenceplan.application.EntityNotFoundException;
+import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
+import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.CurrentSentencePlanForOffenderExistsException;
 
 import javax.transaction.Transactional;
 import java.util.*;
@@ -33,6 +34,11 @@ public class SentencePlanService {
     @Transactional
     public SentencePlan createSentencePlan(String offenderId, OffenderReferenceType offenderReferenceType) {
         var offender = offenderService.getOffenderByType(offenderId, offenderReferenceType);
+
+        if(getCurrentSentencePlanForOffender(offender.getUuid()).isPresent()){
+            throw new CurrentSentencePlanForOffenderExistsException("Offender already has current sentence plan");
+        }
+
         var sentencePlan = new SentencePlanEntity(offender);
         assessmentService.addLatestAssessmentNeedsToPlan(sentencePlan);
         sentencePlanRepository.save(sentencePlan);
@@ -44,6 +50,11 @@ public class SentencePlanService {
     public SentencePlan getSentencePlanFromUuid(UUID sentencePlanUuid) {
         log.info("Retrieving Sentence Plan {}", sentencePlanUuid, value(EVENT,SENTENCE_PLAN_RETRIEVED));
         return SentencePlan.from(getSentencePlanEntity(sentencePlanUuid));
+    }
+
+    public Optional<SentencePlanEntity> getCurrentSentencePlanForOffender(UUID offenderUUID) {
+        log.info("Retrieving Sentence Plan for offender {}", offenderUUID, value(EVENT,SENTENCE_PLAN_RETRIEVED));
+        return Optional.ofNullable(sentencePlanRepository.findByOffenderUuid(offenderUUID));
     }
 
     @Transactional

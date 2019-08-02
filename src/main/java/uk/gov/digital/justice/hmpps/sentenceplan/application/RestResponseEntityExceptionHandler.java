@@ -5,6 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.ErrorResponse;
+import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.CurrentSentencePlanForOffenderExistsException;
+import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.NoOffenderAssessmentException;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -21,6 +23,13 @@ public class RestResponseEntityExceptionHandler {
                 .userMessage(e.getMessage()).build(), NOT_FOUND);
     }
 
+    @ExceptionHandler(CurrentSentencePlanForOffenderExistsException.class)
+    public ResponseEntity<ErrorResponse> handle(CurrentSentencePlanForOffenderExistsException e) {
+        log.error("CurrentSentencePlanForOffenderExistsException: {}", e.getMessage());
+        return new ResponseEntity<>(ErrorResponse.builder().status(400)
+                .developerMessage(e.getMessage())
+                .userMessage(e.getMessage()).build(), BAD_REQUEST);
+    }
 
     @ExceptionHandler(NoOffenderAssessmentException.class)
     public ResponseEntity<ErrorResponse> handle(NoOffenderAssessmentException e) {
