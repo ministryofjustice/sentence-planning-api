@@ -90,7 +90,7 @@ public class SentencePlanResource {
     }
 
     @GetMapping(value = "/sentenceplan/{sentencePlanUUID}/steps/{stepId}", produces = "application/json")
-    @ApiOperation(value = "Update Sentence Plan step from ID",
+    @ApiOperation(value = "Get Sentence Plan step from ID",
             response = Step.class,
             notes = "Request a single sentence plan step")
     ResponseEntity<Step> getSentencePlanStep(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Step ID") @PathVariable UUID stepId) {
