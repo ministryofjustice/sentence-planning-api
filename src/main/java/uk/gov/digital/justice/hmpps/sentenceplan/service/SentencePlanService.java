@@ -61,6 +61,15 @@ public class SentencePlanService {
         return Step.from(sentencePlan.getData().getSteps());
     }
 
+    @Transactional
+    public void updateStep(UUID sentencePlanUuid, UUID stepUuid, StepOwner owner, String ownerOther, String strength, String description, String intervention, List<UUID> needs, StepStatus status) {
+        var sentencePlan =  sentencePlanRepository.findByUuid(sentencePlanUuid);
+        sentencePlan.updateStep(stepUuid, owner, ownerOther, strength, description, status, intervention, needs);
+        sentencePlanRepository.save(sentencePlan);
+        log.info("Updated Step {} on Sentence Plan {} Motivations", stepUuid, sentencePlanUuid, value(EVENT, SENTENCE_PLAN_STEP_UPDATED));
+
+    }
+
     public List<Step> getSentencePlanSteps(UUID sentencePlanUuid) {
         log.info("Retrieving Sentence Plan Steps {}", sentencePlanUuid, value(EVENT,SENTENCE_PLAN_STEPS_RETRIEVED));
         return Step.from(getSentencePlanEntity(sentencePlanUuid).getData().getSteps());

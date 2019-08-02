@@ -11,6 +11,8 @@ import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.EventType;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.PlanStatus;
+import uk.gov.digital.justice.hmpps.sentenceplan.api.StepOwner;
+import uk.gov.digital.justice.hmpps.sentenceplan.api.StepStatus;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -70,7 +72,7 @@ public class SentencePlanEntity implements Serializable {
 
     public SentencePlanEntity(OffenderEntity offender) {
         this.offender = offender;
-        this.needs = new ArrayList();
+        this.needs = new ArrayList<>();
         this.uuid = UUID.randomUUID();
         this.createdOn = LocalDateTime.now();
         this.startDate = LocalDateTime.now();
@@ -80,7 +82,7 @@ public class SentencePlanEntity implements Serializable {
     }
 
     public SentencePlanEntity() {
-        this.needs = new ArrayList();
+        this.needs = new ArrayList<>();
     }
 
     private void addNeed(NeedEntity need) {
@@ -109,6 +111,11 @@ public class SentencePlanEntity implements Serializable {
 
     public void addStep(StepEntity stepEntity) {
         this.data.steps.add(stepEntity);
+    }
+
+    public void updateStep(UUID stepUUID, StepOwner owner, String ownerOther, String strength, String description, StepStatus stepStatus, String intervention, List<UUID> needs) {
+        var step = this.data.steps.stream().filter(stepEntity -> stepEntity.getId().equals(stepUUID)).findFirst();
+        step.ifPresent(stepEntity -> stepEntity.updateStep(owner, ownerOther, strength, description, stepStatus, needs, intervention));
     }
 }
 

@@ -64,6 +64,23 @@ public class SentencePlanResource {
                 step.getNeeds()));
     }
 
+    @PutMapping(value = "/sentenceplan/{sentencePlanUUID}/steps/{stepId}", produces = "application/json")
+    @ApiOperation(value = "Update Sentence Plan step from ID",
+            response = Step.class,
+            notes = "Request a single sentence plan step")
+    ResponseEntity<Step> getSentencePlanStep(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Step ID") @PathVariable UUID stepId, @ApiParam(value = "Step details", required = true) @RequestBody @Valid UpdateSentencePlanStep step) {
+        sentencePlanService.updateStep(sentencePlanUUID, stepId,
+                step.getOwner(),
+                step.getOwnerOther(),
+                step.getStrength(),
+                step.getDescription(),
+                step.getIntervention(),
+                step.getNeeds(),
+                step.getStatus()
+        );
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping(value = "/sentenceplan/{sentencePlanUUID}/steps", produces = "application/json")
     @ApiOperation(value = "Get Sentence Plan steps from ID",
             response = Step.class,
@@ -75,9 +92,8 @@ public class SentencePlanResource {
 
     @GetMapping(value = "/sentenceplan/{sentencePlanUUID}/steps/{stepId}", produces = "application/json")
     @ApiOperation(value = "Get Sentence Plan step from ID",
-            response = Step.class,
-            notes = "Request a single sentence plan step")
-    ResponseEntity<Step> getSentencePlanStep(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Step ID") @PathVariable UUID stepId) {
+            notes = "update a single sentence plan step")
+    ResponseEntity updateSentencePlanStep(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Step ID") @PathVariable UUID stepId) {
         return ResponseEntity.ok(sentencePlanService.getSentencePlanStep(sentencePlanUUID, stepId));
     }
 
