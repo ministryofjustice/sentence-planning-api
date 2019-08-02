@@ -21,6 +21,14 @@ public class RestResponseEntityExceptionHandler {
                 .userMessage(e.getMessage()).build(), NOT_FOUND);
     }
 
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ErrorResponse> handle(ValidationException e) {
+        log.error("ValidationException: {}", e.getMessage());
+        return new ResponseEntity<>(ErrorResponse.builder().status(400)
+                .developerMessage(e.getMessage())
+                .userMessage(e.getMessage()).build(), BAD_REQUEST);
+    }
+
 
     @ExceptionHandler(NoOffenderAssessmentException.class)
     public ResponseEntity<ErrorResponse> handle(NoOffenderAssessmentException e) {
