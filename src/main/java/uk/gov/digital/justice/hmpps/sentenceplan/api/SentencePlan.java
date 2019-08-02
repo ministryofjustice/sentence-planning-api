@@ -41,7 +41,7 @@ public class SentencePlan {
         var data = Optional.ofNullable(sentencePlan.getData()).orElseGet(() -> new SentencePlanPropertiesEntity());
 
         return new SentencePlan(sentencePlan.getUuid(), sentencePlan.getCreatedOn(), sentencePlan.getStatus(),
-                Step.from(data.getSteps()), Need.from(sentencePlan.getNeeds()),
+                Step.from(data.getSteps(), sentencePlan.getNeeds()), Need.from(sentencePlan.getNeeds()),
                 data.getServiceUserComments(), data.getPractitionerComments(),
                 data.getChildSafeguardingIndicated(), data.getComplyWithChildProtectionPlanIndicated());
     }

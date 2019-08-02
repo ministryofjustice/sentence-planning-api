@@ -236,8 +236,8 @@ public class SentencePlanResourceTest {
         assertThat(plan.getUuid()).isEqualTo(UUID.fromString(SENTENCE_PLAN_ID));
 
         var needs = plan.getNeeds();
-        var need = needs.stream().filter(n -> n.getMotivationUUID() != null).findFirst().get();
-        assertThat(need.getMotivationUUID()).isEqualTo(UUID.fromString("38731914-701d-4b4e-abd3-1e0a6375f0b2"));
+        var need = needs.stream().filter(n -> n.getMotivation().getUUID() != null).findFirst().get();
+        assertThat(need.getMotivation().getUUID()).isEqualTo(UUID.fromString("38731914-701d-4b4e-abd3-1e0a6375f0b2"));
 
     }
 
