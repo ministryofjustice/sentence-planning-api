@@ -10,4 +10,6 @@ import java.util.List;
 public interface MotivationRefDataRespository extends CrudRepository<MotivationRefEntity, Long> {
 
     List<MotivationRefEntity> findAllByDeletedIsNull();
+
+    List<MotivationRefEntity> findAll();
 }
