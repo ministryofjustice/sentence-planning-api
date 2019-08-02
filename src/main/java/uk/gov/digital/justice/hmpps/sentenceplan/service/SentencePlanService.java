@@ -63,9 +63,8 @@ public class SentencePlanService {
 
     @Transactional
     public void updateStep(UUID sentencePlanUuid, UUID stepUuid, StepOwner owner, String ownerOther, String strength, String description, String intervention, List<UUID> needs, StepStatus status) {
-        var sentencePlan =  sentencePlanRepository.findByUuid(sentencePlanUuid);
-        sentencePlan.updateStep(stepUuid, owner, ownerOther, strength, description, status, intervention, needs);
-        sentencePlanRepository.save(sentencePlan);
+        var stepEntity = getSentencePlanEntity(sentencePlanUuid).getData().getSteps().stream().filter(s->s.getId().equals(stepUuid)).findAny().orElseThrow(() -> new EntityNotFoundException(String.format("Step %s not found", stepUuid)));
+        stepEntity.updateStep(owner, ownerOther, strength, description, status, needs, intervention);
         log.info("Updated Step {} on Sentence Plan {} Motivations", stepUuid, sentencePlanUuid, value(EVENT, SENTENCE_PLAN_STEP_UPDATED));
 
     }
