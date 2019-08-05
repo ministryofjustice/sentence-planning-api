@@ -65,6 +65,7 @@ public class SentencePlanService {
     public void updateStep(UUID sentencePlanUuid, UUID stepUuid, StepOwner owner, String ownerOther, String strength, String description, String intervention, List<UUID> needs, StepStatus status) {
         var stepEntity = getStepEntity(sentencePlanUuid, stepUuid);
         stepEntity.updateStep(owner, ownerOther, description, strength, status, needs, intervention);
+
         log.info("Updated Step {} on Sentence Plan {} Motivations", stepUuid, sentencePlanUuid, value(EVENT, SENTENCE_PLAN_STEP_UPDATED));
 
     }

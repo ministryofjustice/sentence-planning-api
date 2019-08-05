@@ -177,14 +177,13 @@ public class SentencePlanServiceTest {
 
     @Test
     public void updateStepShouldSaveToRepository() {
-        var sentencePlan = getNewSentencePlan();
+        var sentencePlan = getSentencePlanWithSteps();
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
 
         StepEntity stepToUpdate = sentencePlan.getData().getSteps().stream().findFirst().get();
         service.updateStep(sentencePlanUuid, stepToUpdate.getId(), PRACTITIONER, null, "Strong", "Desc", "Inter", List.of(UUID.randomUUID()), StepStatus.COMPLETE);
 
         verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
-        verify(sentencePlanRepository,times(1)).save(sentencePlan);
     }
 
     private SentencePlanEntity getNewSentencePlan() {
