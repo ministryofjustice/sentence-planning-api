@@ -93,21 +93,4 @@ public class MotivationRefResourceTest {
 
     }
 
-
-    private MockRestServiceServer setupMockRestServiceServer() throws JsonProcessingException {
-        var assessmentApi = bindTo(oauthRestTemplate).ignoreExpectOrder(true).build();
-
-        var needs = List.of(new AssessmentNeed("Alcohol", true, true, true, true),
-                new AssessmentNeed("Accomodationßß", true, true, true, true));
-
-        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/12345"))
-                .andExpect(method(GET))
-                .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(12345L, "mr", "Gary", "Smith", "", "", new OasysIdentifiers("12345678"))), MediaType.APPLICATION_JSON));
-
-        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/12345/assessments/latest"))
-                .andExpect(method(GET))
-                .andRespond(withSuccess(mapper.writeValueAsString(new OasysAssessment(12345L, "ACTIVE", needs, true, true)), MediaType.APPLICATION_JSON));
-        return assessmentApi;
-    }
-
 }

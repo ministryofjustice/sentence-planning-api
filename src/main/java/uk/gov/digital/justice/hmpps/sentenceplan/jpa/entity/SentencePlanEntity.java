@@ -5,7 +5,6 @@ import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
@@ -17,11 +16,8 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import static java.util.Collections.EMPTY_LIST;
 
 @Entity
 @AllArgsConstructor
@@ -70,7 +66,7 @@ public class SentencePlanEntity implements Serializable {
 
     public SentencePlanEntity(OffenderEntity offender) {
         this.offender = offender;
-        this.needs = new ArrayList();
+        this.needs = new ArrayList<>();
         this.uuid = UUID.randomUUID();
         this.createdOn = LocalDateTime.now();
         this.startDate = LocalDateTime.now();
@@ -80,7 +76,7 @@ public class SentencePlanEntity implements Serializable {
     }
 
     public SentencePlanEntity() {
-        this.needs = new ArrayList();
+        this.needs = new ArrayList<>();
     }
 
     private void addNeed(NeedEntity need) {

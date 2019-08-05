@@ -202,6 +202,17 @@ public class SentencePlanServiceTest {
         verify(sentencePlanRepository,times(1)).save(sentencePlan);
     }
 
+    @Test
+    public void updateStepShouldSaveToRepository() {
+        var sentencePlan = getSentencePlanWithSteps();
+        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
+
+        StepEntity stepToUpdate = sentencePlan.getData().getSteps().stream().findFirst().get();
+        service.updateStep(sentencePlanUuid, stepToUpdate.getId(), PRACTITIONER, null, "Strong", "Desc", "Inter", List.of(UUID.randomUUID()), StepStatus.COMPLETE);
+
+        verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
+    }
+
     private SentencePlanEntity getNewSentencePlan() {
         return SentencePlanEntity.builder()
                 .createdOn(LocalDateTime.of(2019,6,1, 11,00))
