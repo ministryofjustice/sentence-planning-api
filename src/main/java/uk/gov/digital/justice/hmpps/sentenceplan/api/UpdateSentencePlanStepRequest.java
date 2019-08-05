@@ -16,7 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @ApiModel(description = "Add a new Sentence Plan Step")
-public class UpdateSentencePlanStep {
+public class UpdateSentencePlanStepRequest {
 
 
     @ApiModelProperty(required = true, value = "The owner of the Step")

@@ -63,8 +63,8 @@ public class SentencePlanService {
 
     @Transactional
     public void updateStep(UUID sentencePlanUuid, UUID stepUuid, StepOwner owner, String ownerOther, String strength, String description, String intervention, List<UUID> needs, StepStatus status) {
-        var stepEntity = getSentencePlanEntity(sentencePlanUuid).getData().getSteps().stream().filter(s->s.getId().equals(stepUuid)).findAny().orElseThrow(() -> new EntityNotFoundException(String.format("Step %s not found", stepUuid)));
-        stepEntity.updateStep(owner, ownerOther, strength, description, status, needs, intervention);
+        var stepEntity = getStepEntity(sentencePlanUuid, stepUuid);
+        stepEntity.updateStep(owner, ownerOther, description, strength, status, needs, intervention);
         log.info("Updated Step {} on Sentence Plan {} Motivations", stepUuid, sentencePlanUuid, value(EVENT, SENTENCE_PLAN_STEP_UPDATED));
 
     }
@@ -76,8 +76,7 @@ public class SentencePlanService {
 
     public Step getSentencePlanStep(UUID sentencePlanUuid, UUID stepId) {
         log.info("Retrieving Sentence Plan {} Step {}",sentencePlanUuid, stepId, value(EVENT,SENTENCE_PLAN_STEP_RETRIEVED));
-        return Step.from(getSentencePlanEntity(sentencePlanUuid).getData().getSteps().stream().filter(s->s.getId().equals(stepId)).findAny()
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Step %s not found", stepId))));
+        return Step.from(getStepEntity(sentencePlanUuid, stepId));
     }
 
     public List<Need> getSentencePlanNeeds(UUID sentencePlanUuid) {
@@ -94,6 +93,12 @@ public class SentencePlanService {
             sentencePlanRepository.save(sentencePlan);
             log.info("Updated Sentence Plan {} Motivations", sentencePlanUuid, value(EVENT, SENTENCE_PLAN_MOTIVATIONS_UPDATED));
         }
+    }
+
+    private StepEntity getStepEntity(UUID sentencePlanUuid, UUID stepUuid) {
+        return getSentencePlanEntity(sentencePlanUuid).getData().getSteps().stream()
+                .filter(s->s.getId().equals(stepUuid)).findAny()
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Step %s not found", stepUuid)));
     }
 
     private SentencePlanEntity getSentencePlanEntity(UUID sentencePlanUuid) {

@@ -67,7 +67,7 @@ public class SentencePlanResource {
     @PutMapping(value = "/sentenceplan/{sentencePlanUUID}/steps/{stepId}", produces = "application/json")
     @ApiOperation(value = "Update Sentence Plan step from ID",
             notes = "Update a single sentence plan step")
-    ResponseEntity updateSentencePlanStep(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Step ID") @PathVariable UUID stepId, @ApiParam(value = "Step details", required = true) @RequestBody @Valid UpdateSentencePlanStep step) {
+    ResponseEntity updateSentencePlanStep(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Step ID") @PathVariable UUID stepId, @ApiParam(value = "Step details", required = true) @RequestBody @Valid UpdateSentencePlanStepRequest step) {
         sentencePlanService.updateStep(sentencePlanUUID, stepId,
                 step.getOwner(),
                 step.getOwnerOther(),

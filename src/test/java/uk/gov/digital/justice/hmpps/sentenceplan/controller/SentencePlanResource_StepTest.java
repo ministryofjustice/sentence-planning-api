@@ -50,6 +50,7 @@ public class SentencePlanResource_StepTest {
     
     private final String SENTENCE_PLAN_ID = "11111111-1111-1111-1111-111111111111";
     private final String STEP_ID = "11111111-1111-1111-1111-111111111111";
+    private final String NOT_FOUND_STEP_ID = "00000000-0000-0000-0000-000000000000";
     private final String EMPTY_STEPS_SENTENCE_PLAN_ID = "22222222-2222-2222-2222-222222222222";
     private final String NOT_FOUND_SENTENCE_PLAN_ID = "99999999-9999-9999-9999-999999999999";
 
@@ -166,6 +167,56 @@ public class SentencePlanResource_StepTest {
                 .jsonPath().getList(".", Step.class);
 
         assertThat(result).hasSize(0);
+    }
+
+    @Test
+    public void shouldUpdateStepOnExistingPlan() {
+
+        var requestBody = new UpdateSentencePlanStepRequest(SERVICE_USER, StepStatus.COMPLETE, null, "strong", "desc", null, List.of(UUID.randomUUID()));
+
+        var result = given()
+                .when()
+                .body(requestBody)
+                .header("Content-Type", "application/json")
+                .put("/sentenceplan/{0}/steps/{1}", SENTENCE_PLAN_ID, STEP_ID)
+                .then()
+                .statusCode(200)
+                .extract().statusCode();
+
+        assertThat(result).isEqualTo(200);
+
+        var updatedStep = given()
+                .when()
+                .header("Accept", "application/json")
+                .get("/sentenceplan/{0}/steps/{1}", SENTENCE_PLAN_ID, STEP_ID)
+                .then()
+                .statusCode(200)
+                .extract()
+                .body()
+                .as(Step.class);
+
+        assertThat(updatedStep.getDescription()).isEqualTo("desc");
+        assertThat(updatedStep.getStrength()).isEqualTo("strong");
+        assertThat(updatedStep.getIntervention()).isNull();
+        assertThat(updatedStep.getOwnerOther()).isNull();
+        assertThat(updatedStep.getOwner()).isEqualTo(SERVICE_USER);
+    }
+
+    @Test
+    public void shouldNotUpdateInvalidStep() {
+
+        var requestBody = new UpdateSentencePlanStepRequest(SERVICE_USER, StepStatus.COMPLETE, null, "strong", "desc", null, List.of(UUID.randomUUID()));
+
+        var result = given()
+                .when()
+                .body(requestBody)
+                .header("Content-Type", "application/json")
+                .put("/sentenceplan/{0}/steps/{1}", SENTENCE_PLAN_ID, NOT_FOUND_STEP_ID)
+                .then()
+                .statusCode(404)
+                .extract().statusCode();
+
+        assertThat(result).isEqualTo(404);
     }
 
 
