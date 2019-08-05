@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS SENTENCE_PLAN
   START_DATE                         TIMESTAMP    NOT NULL,
   END_DATE                           TIMESTAMP    NULL,
   OFFENDER_UUID                      UUID         NOT NULL,
-  CONSTRAINT sentence_plan_uuid_idempotent UNIQUE (UUID,START_DATE),
+  CONSTRAINT sentence_plan_uuid_idempotent UNIQUE (UUID),
   CONSTRAINT fk_sentenceplan_offender FOREIGN KEY (OFFENDER_UUID) REFERENCES OFFENDER (UUID)
 );
 
@@ -45,7 +45,8 @@ CREATE TABLE IF NOT EXISTS NEED
   LOW_SCORE_RISK                    BOOLEAN       NULL,
   ACTIVE                            BOOLEAN       NOT NULL,
   CREATED_ON                        TIMESTAMP     NOT NULL,
-  CONSTRAINT need_uuid_idempotent UNIQUE (UUID)
+  CONSTRAINT need_uuid_idempotent UNIQUE (UUID),
+  CONSTRAINT fk_need_sentenceplan FOREIGN KEY (SENTENCE_PLAN_UUID) REFERENCES SENTENCE_PLAN (UUID)
 );
 
 DROP TABLE IF EXISTS INTERVENTION;

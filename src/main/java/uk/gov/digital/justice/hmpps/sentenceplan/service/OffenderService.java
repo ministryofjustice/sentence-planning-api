@@ -2,7 +2,7 @@ package uk.gov.digital.justice.hmpps.sentenceplan.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import uk.gov.digital.justice.hmpps.sentenceplan.application.EntityNotFoundException;
+import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.OASYSAssessmentAPIClient;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysOffender;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.OffenderEntity;

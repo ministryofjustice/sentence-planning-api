@@ -3,11 +3,10 @@ package uk.gov.digital.justice.hmpps.sentenceplan.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
-import uk.gov.digital.justice.hmpps.sentenceplan.application.EntityNotFoundException;
-import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.NeedEntity;
-import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.SentencePlanEntity;
-import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.StepEntity;
+import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
+import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
+import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.CurrentSentencePlanForOffenderExistsException;
 
 import javax.transaction.Transactional;
 import java.util.*;
@@ -23,16 +22,23 @@ public class SentencePlanService {
     private SentencePlanRepository sentencePlanRepository;
     private OffenderService offenderService;
     private AssessmentService assessmentService;
+    private MotivationRefService motivationRefService;
 
-    public SentencePlanService(SentencePlanRepository sentencePlanRepository, OffenderService offenderService, AssessmentService assessmentService) {
+    public SentencePlanService(SentencePlanRepository sentencePlanRepository, OffenderService offenderService, AssessmentService assessmentService, MotivationRefService motivationRefService) {
         this.sentencePlanRepository = sentencePlanRepository;
         this.offenderService = offenderService;
         this.assessmentService = assessmentService;
+        this.motivationRefService = motivationRefService;
     }
 
     @Transactional
     public SentencePlan createSentencePlan(String offenderId, OffenderReferenceType offenderReferenceType) {
         var offender = offenderService.getOffenderByType(offenderId, offenderReferenceType);
+
+        if(getCurrentSentencePlanForOffender(offender.getUuid()).isPresent()){
+            throw new CurrentSentencePlanForOffenderExistsException("Offender already has current sentence plan");
+        }
+
         var sentencePlan = new SentencePlanEntity(offender);
         assessmentService.addLatestAssessmentNeedsToPlan(sentencePlan);
         sentencePlanRepository.save(sentencePlan);
@@ -44,6 +50,11 @@ public class SentencePlanService {
     public SentencePlan getSentencePlanFromUuid(UUID sentencePlanUuid) {
         log.info("Retrieving Sentence Plan {}", sentencePlanUuid, value(EVENT,SENTENCE_PLAN_RETRIEVED));
         return SentencePlan.from(getSentencePlanEntity(sentencePlanUuid));
+    }
+
+    public Optional<SentencePlanEntity> getCurrentSentencePlanForOffender(UUID offenderUUID) {
+        log.info("Retrieving Sentence Plan for offender {}", offenderUUID, value(EVENT,SENTENCE_PLAN_RETRIEVED));
+        return Optional.ofNullable(sentencePlanRepository.findByOffenderUuid(offenderUUID));
     }
 
     @Transactional
@@ -58,7 +69,7 @@ public class SentencePlanService {
         sentencePlan.addStep(stepEntity);
 
         log.info("Created Sentence Plan Step {}", sentencePlan.getUuid(), value(EVENT,SENTENCE_PLAN_STEP_CREATED));
-        return Step.from(sentencePlan.getData().getSteps());
+        return Step.from(sentencePlan.getData().getSteps(), sentencePlan.getNeeds());
     }
 
     @Transactional
@@ -72,7 +83,8 @@ public class SentencePlanService {
 
     public List<Step> getSentencePlanSteps(UUID sentencePlanUuid) {
         log.info("Retrieving Sentence Plan Steps {}", sentencePlanUuid, value(EVENT,SENTENCE_PLAN_STEPS_RETRIEVED));
-        return Step.from(getSentencePlanEntity(sentencePlanUuid).getData().getSteps());
+        var sentencePlanEntity = getSentencePlanEntity(sentencePlanUuid);
+        return Step.from(sentencePlanEntity.getData().getSteps(), sentencePlanEntity.getNeeds());
     }
 
     public Step getSentencePlanStep(UUID sentencePlanUuid, UUID stepId) {
@@ -90,7 +102,8 @@ public class SentencePlanService {
         if(newMotivations.size() > 0) {
             var sentencePlan = getSentencePlanEntity(sentencePlanUuid);
             var planNeeds = sentencePlan.getNeeds().stream().collect(Collectors.toMap(NeedEntity::getUuid, need -> need));
-            newMotivations.forEach((key, value) -> planNeeds.computeIfPresent(key, (k, v) -> updateMotivation(v, value)));
+            var motivationRefs = motivationRefService.getAllMotivations();
+            newMotivations.forEach((key, value) -> planNeeds.computeIfPresent(key, (k, v) -> updateMotivation(v, value, motivationRefs)));
             sentencePlanRepository.save(sentencePlan);
             log.info("Updated Sentence Plan {} Motivations", sentencePlanUuid, value(EVENT, SENTENCE_PLAN_MOTIVATIONS_UPDATED));
         }

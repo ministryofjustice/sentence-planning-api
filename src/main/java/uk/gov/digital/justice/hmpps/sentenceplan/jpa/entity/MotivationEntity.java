@@ -28,8 +28,9 @@ public class MotivationEntity implements Serializable {
     @JoinColumn(name = "NEED_UUID", referencedColumnName = "UUID")
     private NeedEntity need;
 
-    @Column(name = "MOTIVATION_REF_UUID")
-    private UUID motivationRefUuid;
+    @OneToOne
+    @JoinColumn(name = "MOTIVATION_REF_UUID", referencedColumnName = "UUID")
+    private MotivationRefEntity motivationRef;
 
     @Column(name = "START_DATE")
     private LocalDateTime start;
@@ -37,9 +38,9 @@ public class MotivationEntity implements Serializable {
     @Column(name = "END_DATE")
     private LocalDateTime end;
 
-    public MotivationEntity(NeedEntity needEntity, UUID motivationRefUuid) {
+    public MotivationEntity(NeedEntity needEntity, MotivationRefEntity motivationRef) {
         this.need = needEntity;
-        this.motivationRefUuid = motivationRefUuid;
+        this.motivationRef = motivationRef;
         this.start = LocalDateTime.now();
     }
 

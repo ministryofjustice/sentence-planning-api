@@ -17,11 +17,15 @@ public class MotivationRefEntityTest {
         UUID needUUID = UUID.randomUUID();
         var needEntity = NeedEntity.builder().uuid(needUUID).build();
         UUID motivationUUID = UUID.randomUUID();
+        var motivationEntity = MotivationRefEntity.builder()
+                .motivationText("test")
+                .friendlyText("test")
+                .uuid(motivationUUID).build();
 
-        var motivation = new MotivationEntity(needEntity,motivationUUID);
+        var motivation = new MotivationEntity(needEntity,motivationEntity);
 
         assertThat(motivation.getNeed().getUuid()).isEqualTo(needUUID);
-        assertThat(motivation.getMotivationRefUuid()).isEqualTo(motivationUUID);
+        assertThat(motivation.getMotivationRef().getUuid()).isEqualTo(motivationUUID);
         assertThat(motivation.getStart()).isEqualToIgnoringSeconds(LocalDateTime.now());
         assertThat(motivation.getEnd()).isNull();
         assertThat(motivation.isEnded()).isFalse();
@@ -34,8 +38,12 @@ public class MotivationRefEntityTest {
         var needEntity = NeedEntity.builder().uuid(needUUID).build();
 
         UUID motivationUUID = UUID.randomUUID();
+        var motivationEntity = MotivationRefEntity.builder()
+                .motivationText("test")
+                .friendlyText("test")
+                .uuid(motivationUUID).build();
 
-        var motivation = new MotivationEntity(needEntity, motivationUUID);
+        var motivation = new MotivationEntity(needEntity, motivationEntity);
 
         assertThat(motivation.getEnd()).isNull();
         assertThat(motivation.isEnded()).isFalse();

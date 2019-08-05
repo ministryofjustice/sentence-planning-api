@@ -150,6 +150,41 @@ public class SentencePlanResourceTest {
     }
 
     @Test
+    public void shouldNotCreateNewSentencePlanIfCurrentPlanExistsForOffender() throws JsonProcessingException {
+
+        setupMockRestServiceServer();
+
+        var requestBody = new CreateSentencePlanRequest("12345", OffenderReferenceType.OASYS);
+
+        var result = given()
+                .when()
+                .body(requestBody)
+                .header("Content-Type", "application/json")
+                .post("/sentenceplan")
+                .then()
+                .statusCode(201)
+                .extract()
+                .body()
+                .as(SentencePlan.class);
+
+        assertThat(result.getStatus()).isEqualTo(DRAFT);
+
+        var errorResult = given()
+                .when()
+                .body(requestBody)
+                .header("Content-Type", "application/json")
+                .post("/sentenceplan")
+                .then()
+                .statusCode(400)
+                .extract()
+                .body()
+                .as(ErrorResponse.class);
+
+        assertThat(errorResult.getStatus()).isEqualTo(400);
+
+    }
+
+    @Test
     public void shouldReturn400WhenCreatingPlanWithoutAnAssessment() throws JsonProcessingException {
 
         var assessmentApi = bindTo(oauthRestTemplate).ignoreExpectOrder(true).build();
@@ -236,8 +271,8 @@ public class SentencePlanResourceTest {
         assertThat(plan.getUuid()).isEqualTo(UUID.fromString(SENTENCE_PLAN_ID));
 
         var needs = plan.getNeeds();
-        var need = needs.stream().filter(n -> n.getMotivationUUID() != null).findFirst().get();
-        assertThat(need.getMotivationUUID()).isEqualTo(UUID.fromString("38731914-701d-4b4e-abd3-1e0a6375f0b2"));
+        var need = needs.stream().filter(n -> n.getMotivation().getUUID() != null).findFirst().get();
+        assertThat(need.getMotivation().getUUID()).isEqualTo(UUID.fromString("38731914-701d-4b4e-abd3-1e0a6375f0b2"));
 
     }
 

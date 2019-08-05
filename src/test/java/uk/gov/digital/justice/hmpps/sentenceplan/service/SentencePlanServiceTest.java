@@ -6,12 +6,14 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
-import uk.gov.digital.justice.hmpps.sentenceplan.application.EntityNotFoundException;
+import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.CurrentSentencePlanForOffenderExistsException;
+import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static java.util.Collections.EMPTY_LIST;
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
@@ -31,15 +33,23 @@ public class SentencePlanServiceTest {
     @Mock
     private AssessmentService assessmentService;
 
+    @Mock
+    private MotivationRefService motivationRefService;
+
     private final String oasysOffenderId = "123456789";
 
     private SentencePlanService service;
 
     private final UUID sentencePlanUuid = UUID.fromString("11111111-1111-1111-1111-111111111111");
 
+    private List<MotivationRefEntity> motivations;
+
     @Before
     public void setup() {
-        service = new SentencePlanService(sentencePlanRepository, offenderService, assessmentService);
+        motivations = List.of(new MotivationRefEntity("motivation 1", "motivation 1"),
+                new MotivationRefEntity("motivation 1", "motivation 1"));
+        when(motivationRefService.getAllMotivations()).thenReturn(motivations);
+        service = new SentencePlanService(sentencePlanRepository, offenderService, assessmentService, motivationRefService);
     }
 
     @Test
@@ -47,6 +57,8 @@ public class SentencePlanServiceTest {
         var offender = mock(OffenderEntity.class);;
 
         when(offenderService.getOffenderByType(oasysOffenderId,  OffenderReferenceType.OASYS)).thenReturn(offender);
+        when(sentencePlanRepository.findByOffenderUuid(any())).thenReturn(null);
+
         when(sentencePlanRepository.save(any())).thenReturn(getNewSentencePlan());
 
         service.createSentencePlan(oasysOffenderId, OffenderReferenceType.OASYS);
@@ -55,12 +67,27 @@ public class SentencePlanServiceTest {
         verify(sentencePlanRepository,times(1)).save(any());
     }
 
+
+    @Test
+    public void shouldNotCreateSentencePlanIfCurrentPlanExistsForOffender() {
+        var offender = mock(OffenderEntity.class);;
+
+        when(offenderService.getOffenderByType(oasysOffenderId,  OffenderReferenceType.OASYS)).thenReturn(offender);
+        when(sentencePlanRepository.findByOffenderUuid(any())).thenReturn(getNewSentencePlan());
+
+        var exception = catchThrowable(() -> { service.createSentencePlan(oasysOffenderId, OffenderReferenceType.OASYS); });
+        assertThat(exception).isInstanceOf(CurrentSentencePlanForOffenderExistsException.class);
+
+        verify(offenderService,times(1)).getOffenderByType(oasysOffenderId,  OffenderReferenceType.OASYS);
+        verify(sentencePlanRepository,never()).save(any());
+    }
+
     @Test
     public void shouldAddStepToSentencePlan() {
 
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(getNewSentencePlan());
 
-        var needs = List.of(UUID.randomUUID());
+        var needs = List.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
 
         var steps = service.addStep(sentencePlanUuid, PRACTITIONER, null, "a strength", "a description", null, needs);
 
@@ -71,7 +98,7 @@ public class SentencePlanServiceTest {
         assertThat(step.getIntervention()).isNull();
         assertThat(step.getOwnerOther()).isNull();
         assertThat(step.getOwner()).isEqualTo(PRACTITIONER);
-        assertThat(step.getNeeds()).isEqualTo(needs);
+        assertThat(step.getNeeds()).hasSize(1);
 
         verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
     }
@@ -127,7 +154,7 @@ public class SentencePlanServiceTest {
         assertThat(step.getIntervention()).isNull();
         assertThat(step.getOwnerOther()).isNull();
         assertThat(step.getOwner()).isEqualTo(PRACTITIONER);
-        assertThat(step.getNeeds()).contains(UUID.fromString("11111111-1111-1111-1111-111111111111"));
+        assertThat(step.getNeeds().get(0).getId()).isEqualTo(UUID.fromString("11111111-1111-1111-1111-111111111111"));
     }
 
     @Test
@@ -191,7 +218,7 @@ public class SentencePlanServiceTest {
                 .createdOn(LocalDateTime.of(2019,6,1, 11,00))
                 .status(DRAFT)
                 .uuid(sentencePlanUuid)
-                .needs(new ArrayList<>())
+                .needs(List.of(NeedEntity.builder().uuid(UUID.fromString("11111111-1111-1111-1111-111111111111")).description("description").motivations(EMPTY_LIST).build()))
                 .data(new SentencePlanPropertiesEntity()).build();
     }
 
@@ -203,7 +230,7 @@ public class SentencePlanServiceTest {
                 .createdOn(LocalDateTime.of(2019,6,1, 11,00))
                 .status(DRAFT)
                 .uuid(sentencePlanUuid)
-                .needs(new ArrayList<>())
+                .needs(List.of(NeedEntity.builder().uuid(UUID.fromString("11111111-1111-1111-1111-111111111111")).description("description").motivations(EMPTY_LIST).build()))
                 .data(SentencePlanPropertiesEntity.builder().steps(steps).build()).build();
     }
 

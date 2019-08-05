@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import uk.gov.digital.justice.hmpps.sentenceplan.api.MotivationRef;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -80,23 +81,25 @@ public class NeedEntity implements Serializable {
     }
 
     /*
-    There are three scenarios,
-    1) Adding a first motivationUUID onto a need where we want to add it.
-    2) Changing a motivationUUID from one to another where we want to end the current one and add it
-    3) Submitting the same motivationUUID where we don't want to end it or add it again
-     */
-    public static NeedEntity updateMotivation(NeedEntity needEntity, UUID newMotivationUUID) {
+There are three scenarios,
+1) Adding a first motivationUUID onto a need where we want to add it.
+2) Changing a motivationUUID from one to another where we want to end the current one and add it
+3) Submitting the same motivationUUID where we don't want to end it or add it again
+ */
+    public static NeedEntity updateMotivation(NeedEntity needEntity, UUID newMotivationUUID, List<MotivationRefEntity> motivationsRefs) {
         var currentMotivation = needEntity.getCurrentMotivation();
+        var newMotivationRef = motivationsRefs.stream().filter(m->m.getUuid().equals(newMotivationUUID)).findFirst();
         if(currentMotivation.isPresent()) {
-            if(!currentMotivation.get().getMotivationRefUuid().equals(newMotivationUUID)) {
+            if(!currentMotivation.get().getMotivationRef().getUuid().equals(newMotivationUUID)) {
                 currentMotivation.get().end();
-                needEntity.addMotivation(new MotivationEntity(needEntity,newMotivationUUID));
+                needEntity.addMotivation(new MotivationEntity(needEntity,newMotivationRef.orElseThrow(() -> new RuntimeException("Unknown Motivation Reference Type"))));
             }
         } else {
-            needEntity.addMotivation(new MotivationEntity(needEntity, newMotivationUUID));
+            needEntity.addMotivation(new MotivationEntity(needEntity, newMotivationRef.orElseThrow(() -> new RuntimeException("Unknown Motivation Reference Type"))));
         }
         return needEntity;
     }
+
 
     private void addMotivation(MotivationEntity motivationEntity) {
         motivations.add(motivationEntity);
