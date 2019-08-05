@@ -189,6 +189,18 @@ public class StepEntityTest {
         assertThat(step.getIntervention()).isEqualTo(interventionUpdate);
     }
 
+    @Test
+    public void shouldUpdateStepPriority() {
+
+        var step = createValidStep();
+
+        assertThat(step.getPriority()).isEqualTo(0);
+
+        step.setPriority(5);
+
+        assertThat(step.getPriority()).isEqualTo(5);
+    }
+
     private static StepEntity createValidStep() {
         return new StepEntity(owner, null, description, strength, status, createNeedList() , null);
     }

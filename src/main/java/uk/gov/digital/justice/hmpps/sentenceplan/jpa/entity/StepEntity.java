@@ -23,6 +23,7 @@ public class StepEntity implements Serializable {
     private StepStatus status;
     private List<UUID> needs;
     private String intervention;
+    private int priority;
 
 
     public StepEntity(StepOwner owner, String ownerOther, String description, String strength, StepStatus status, List<UUID> needs, String intervention) {
