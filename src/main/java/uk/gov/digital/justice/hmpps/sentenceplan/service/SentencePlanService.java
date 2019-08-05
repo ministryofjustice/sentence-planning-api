@@ -74,7 +74,8 @@ public class SentencePlanService {
 
     @Transactional
     public void updateStep(UUID sentencePlanUuid, UUID stepUuid, StepOwner owner, String ownerOther, String strength, String description, String intervention, List<UUID> needs, StepStatus status) {
-        var stepEntity = getStepEntity(sentencePlanUuid, stepUuid);
+        var sentencePlanEntity = getSentencePlanEntity(sentencePlanUuid);
+        var stepEntity = getStepEntity(sentencePlanEntity, stepUuid);
         stepEntity.updateStep(owner, ownerOther, description, strength, status, needs, intervention);
 
         log.info("Updated Step {} on Sentence Plan {} Motivations", stepUuid, sentencePlanUuid, value(EVENT, SENTENCE_PLAN_STEP_UPDATED));
@@ -89,7 +90,8 @@ public class SentencePlanService {
 
     public Step getSentencePlanStep(UUID sentencePlanUuid, UUID stepId) {
         log.info("Retrieving Sentence Plan {} Step {}",sentencePlanUuid, stepId, value(EVENT,SENTENCE_PLAN_STEP_RETRIEVED));
-        return Step.from(getStepEntity(sentencePlanUuid, stepId));
+        var sentencePlanEntity = getSentencePlanEntity(sentencePlanUuid);
+        return Step.from(getStepEntity(sentencePlanEntity, stepId), sentencePlanEntity.getNeeds());
     }
 
     public List<Need> getSentencePlanNeeds(UUID sentencePlanUuid) {
@@ -109,8 +111,8 @@ public class SentencePlanService {
         }
     }
 
-    private StepEntity getStepEntity(UUID sentencePlanUuid, UUID stepUuid) {
-        return getSentencePlanEntity(sentencePlanUuid).getData().getSteps().stream()
+    private StepEntity getStepEntity(SentencePlanEntity sentencePlanEntity, UUID stepUuid) {
+        return sentencePlanEntity.getData().getSteps().stream()
                 .filter(s->s.getId().equals(stepUuid)).findAny()
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Step %s not found", stepUuid)));
     }
