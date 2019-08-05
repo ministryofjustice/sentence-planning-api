@@ -2,6 +2,7 @@ package uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity;
 
 import lombok.*;
 import org.springframework.util.StringUtils;
+import uk.gov.digital.justice.hmpps.sentenceplan.api.Step;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.StepOwner;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.StepStatus;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.ValidationException;
@@ -41,14 +42,10 @@ public class StepEntity implements Serializable {
         this.owner = owner;
         this.ownerOther = ownerOther;
 
-        // Overwrite the description
-        if(StringUtils.isEmpty(intervention)) {
-            this.description = description;
-            this.intervention = intervention;
-        } else {
-            this.description = intervention;
-            this.intervention = intervention;
-        }
+        // Overwrite the description if there is an intervention.
+        this.description = StringUtils.isEmpty(intervention) ? description : intervention;
+
+        this.intervention = intervention;
 
         this.strength = strength;
         this.status = status;
@@ -76,5 +73,10 @@ public class StepEntity implements Serializable {
         if(StringUtils.isEmpty(intervention) && StringUtils.isEmpty(description)){
             throw new ValidationException("Description must be specified if intervention is not specified");
         }
+    }
+
+    public static StepEntity updatePriority(StepEntity stepEntity, int priority) {
+        stepEntity.setPriority(priority);
+        return stepEntity;
     }
 }

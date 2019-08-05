@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
+import uk.gov.digital.justice.hmpps.sentenceplan.application.ValidationException;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.CurrentSentencePlanForOffenderExistsException;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.*;
@@ -200,6 +201,32 @@ public class SentencePlanServiceTest {
         service.updateMotivations(sentencePlanUuid, Map.of(UUID.randomUUID(), UUID.randomUUID()));
         verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
         verify(sentencePlanRepository,times(1)).save(sentencePlan);
+    }
+
+    @Test
+    public void updateStepPriorityShouldNotSaveToRepositoryEmpty() {
+        var sentencePlan = getNewSentencePlan();
+
+        service.updateStepPriorities(sentencePlanUuid, new HashMap<>());
+        verify(sentencePlanRepository,times(0)).findByUuid(sentencePlanUuid);
+        verify(sentencePlanRepository,times(0)).save(sentencePlan);
+
+    }
+
+    @Test
+    public void updateStepPriorityShouldSaveToRepository() {
+        var sentencePlan = getNewSentencePlan();
+        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
+
+        service.updateStepPriorities(sentencePlanUuid, Map.of(UUID.randomUUID(), 0, UUID.randomUUID(), 1));
+        verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
+        verify(sentencePlanRepository,times(1)).save(sentencePlan);
+    }
+
+    @Test(expected = ValidationException.class)
+    public void updateStepPriorityShouldDetectDuplicatePriority() {
+        service.updateStepPriorities(sentencePlanUuid, Map.of(UUID.randomUUID(), 0, UUID.randomUUID(), 0));
+        verifyZeroInteractions(sentencePlanRepository);
     }
 
     @Test
