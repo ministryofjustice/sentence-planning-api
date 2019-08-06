@@ -68,7 +68,18 @@ public class SentencePlanService {
             sentencePlan.setStatus(PlanStatus.STARTED);
             log.info("Update Sentence Plan {} status to STARTED", sentencePlan.getUuid(), value(EVENT,SENTENCE_PLAN_STARTED));
         }
+
+        // Set the priority to lowest
+        var steps = sentencePlan.getData().getSteps();
+        stepEntity.setPriority(steps.size());
+        // Map to a set to get a unique set of values
+        Set<Integer> uniqueValues = steps.stream().map(StepEntity::getPriority).collect(Collectors.toSet());
+        if(uniqueValues.size() < steps.size()) {
+            throw new ValidationException("Steps with duplicate priority found.");
+        }
+
         sentencePlan.addStep(stepEntity);
+
 
         log.info("Created Sentence Plan Step {}", sentencePlan.getUuid(), value(EVENT,SENTENCE_PLAN_STEP_CREATED));
         return Step.from(sentencePlan.getData().getSteps(), sentencePlan.getNeeds());

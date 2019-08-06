@@ -21,6 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static uk.gov.digital.justice.hmpps.sentenceplan.api.PlanStatus.*;
 import static uk.gov.digital.justice.hmpps.sentenceplan.api.StepOwner.PRACTITIONER;
+import static uk.gov.digital.justice.hmpps.sentenceplan.api.StepOwner.SERVICE_USER;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SentencePlanServiceTest {
@@ -100,7 +101,39 @@ public class SentencePlanServiceTest {
         assertThat(step.getOwner()).isEqualTo(PRACTITIONER);
         assertThat(step.getNeeds()).hasSize(1);
 
+        //Priority should be lowest
+        assertThat(step.getPriority()).isEqualTo(0);
+
         verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
+    }
+
+    @Test
+    public void shouldAddStepToSentencePlanPriority() {
+
+        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(getNewSentencePlan());
+
+        var needs = List.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
+
+        var steps = service.addStep(sentencePlanUuid, PRACTITIONER, null, "a strength", "a description", null, needs);
+
+        assertThat(steps.size()).isEqualTo(1);
+        var step = steps.get(0);
+        //Priority should be lowest
+        assertThat(step.getPriority()).isEqualTo(0);
+
+
+        var newSteps = service.addStep(sentencePlanUuid, SERVICE_USER, null, "a strength", "a description", null, needs);
+
+        assertThat(newSteps.size()).isEqualTo(2);
+        //Now the new priority should be lowest
+        assertThat(newSteps.get(0).getPriority()).isEqualTo(0);
+        assertThat(newSteps.get(0).getOwner()).isEqualTo(PRACTITIONER);
+
+        assertThat(newSteps.get(1).getPriority()).isEqualTo(1);
+        assertThat(newSteps.get(1).getOwner()).isEqualTo(SERVICE_USER);
+
+
+        verify(sentencePlanRepository,times(2)).findByUuid(sentencePlanUuid);
     }
 
     @Test
