@@ -68,7 +68,6 @@ public class SentencePlanServiceTest {
         verify(sentencePlanRepository,times(1)).save(any());
     }
 
-
     @Test
     public void shouldNotCreateSentencePlanIfCurrentPlanExistsForOffender() {
         var offender = mock(OffenderEntity.class);;
@@ -146,7 +145,7 @@ public class SentencePlanServiceTest {
     @Test
     public void shouldGetStepsForSentencePlan() {
 
-        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(getSentencePlanWithSteps());
+        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(getSentencePlanWithOneStep());
         var steps = service.getSentencePlanSteps(sentencePlanUuid);
         assertThat(steps.size()).isEqualTo(1);
         var step = steps.get(0);
@@ -213,7 +212,7 @@ public class SentencePlanServiceTest {
 
     }
 
-    @Test
+    @Test(expected = ValidationException.class)
     public void updateStepPriorityShouldSaveToRepository() {
         var sentencePlan = getNewSentencePlan();
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
@@ -229,9 +228,19 @@ public class SentencePlanServiceTest {
         verifyZeroInteractions(sentencePlanRepository);
     }
 
+    @Test(expected = ValidationException.class)
+    public void updateStepPriorityNotUpdatePriorityIfNotAllSteps() {
+        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(getSentencePlanWithMultipleSteps());
+
+        var tooFewPriorities = Map.of(UUID.randomUUID(), 0);
+
+        service.updateStepPriorities(sentencePlanUuid, tooFewPriorities);
+        verifyZeroInteractions(sentencePlanRepository);
+    }
+
     @Test
     public void updateStepShouldSaveToRepository() {
-        var sentencePlan = getSentencePlanWithSteps();
+        var sentencePlan = getSentencePlanWithOneStep();
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
 
         StepEntity stepToUpdate = sentencePlan.getData().getSteps().stream().findFirst().get();
@@ -249,10 +258,11 @@ public class SentencePlanServiceTest {
                 .data(new SentencePlanPropertiesEntity()).build();
     }
 
-    private SentencePlanEntity getSentencePlanWithSteps() {
+    private SentencePlanEntity getSentencePlanWithOneStep() {
 
         var needs = List.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
-        var steps = List.of(new StepEntity(PRACTITIONER, null, "a description", "a strength", StepStatus.NOT_IN_PROGRESS, needs, null));
+        var steps = new ArrayList<StepEntity>();
+        steps.add(new StepEntity(PRACTITIONER, null, "a description", "a strength", StepStatus.NOT_IN_PROGRESS, needs, null));
         return SentencePlanEntity.builder()
                 .createdOn(LocalDateTime.of(2019,6,1, 11,00))
                 .status(DRAFT)
@@ -261,4 +271,13 @@ public class SentencePlanServiceTest {
                 .data(SentencePlanPropertiesEntity.builder().steps(steps).build()).build();
     }
 
-}
+    private SentencePlanEntity getSentencePlanWithMultipleSteps() {
+        var needs = List.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
+        var newStep = new StepEntity(PRACTITIONER, null, "two description", "two strength", StepStatus.IN_PROGRESS, needs, null);
+        var sentencePlan = getSentencePlanWithOneStep();
+        sentencePlan.addStep(newStep);
+        return sentencePlan;
+    }
+
+
+    }

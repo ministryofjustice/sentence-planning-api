@@ -125,12 +125,17 @@ public class SentencePlanService {
 
             var sentencePlan = getSentencePlanEntity(sentencePlanUuid);
             var planSteps = sentencePlan.getData().getSteps().stream().collect(Collectors.toMap(StepEntity::getId, step -> step));
+
+            // We also need to check that we're updating all the steps otherwise they will get out of step (no pun intended).
+            if(planSteps.size() != priorities.size()) {
+                throw new ValidationException("Need to update the priority for all steps.");
+            }
+
             priorities.forEach((key, value) -> planSteps.computeIfPresent(key, (k, v) -> updatePriority(v, value)));
             sentencePlanRepository.save(sentencePlan);
             log.info("Updated Sentence Plan {} Step priority", sentencePlanUuid, value(EVENT, SENTENCE_PLAN_STEP_PRIORITY_UPDATED));
         }
     }
-
 
     private StepEntity getStepEntity(SentencePlanEntity sentencePlanEntity, UUID stepUuid) {
         return sentencePlanEntity.getData().getSteps().stream()
