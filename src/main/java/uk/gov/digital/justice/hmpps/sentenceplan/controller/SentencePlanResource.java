@@ -109,10 +109,19 @@ public class SentencePlanResource {
     @PostMapping(value = "/sentenceplan/{sentencePlanUUID}/motivations", produces = "application/json")
     @ApiOperation(value = "Update the Motivations against Needs on a Sentence Plan",
             notes = "Update Needs")
-    ResponseEntity updateMotivations(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @RequestBody Set<AssociateMotivationNeedRequest> request) {
+    ResponseEntity updateMotivations(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @RequestBody List<AssociateMotivationNeedRequest> request) {
         Map<UUID,UUID> needs = request.stream().collect(Collectors.toMap(AssociateMotivationNeedRequest::getNeedUUID, AssociateMotivationNeedRequest::getMotivationUUID));
         sentencePlanService.updateMotivations(sentencePlanUUID,needs);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping(value = "/sentenceplan/{sentencePlanUUID}/steps/priority", produces = "application/json")
+    @ApiOperation(value = "Set the priorities of steps on a Sentence Plan",
+            notes = "Set Priority")
+    ResponseEntity<List<UpdateStepPriorityRequest>> updateStepPriority(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @RequestBody List<UpdateStepPriorityRequest> request) {
+        Map<UUID,Integer> steps = request.stream().collect(Collectors.toMap(UpdateStepPriorityRequest::getStepUUID, UpdateStepPriorityRequest::getPriority));
+        sentencePlanService.updateStepPriorities(sentencePlanUUID, steps);
+        return ResponseEntity.ok(request);
     }
 
 

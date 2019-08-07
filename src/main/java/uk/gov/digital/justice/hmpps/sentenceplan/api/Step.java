@@ -32,6 +32,8 @@ public class Step {
     private List<Need> needs;
     @JsonProperty("intervention")
     private String intervention;
+    @JsonProperty("priority")
+    private Integer priority;
 
     public static Step from(StepEntity step, List<NeedEntity> needs) {
         return new Step(step.getId(),
@@ -41,7 +43,8 @@ public class Step {
                 step.getStrength(),
                 step.getStatus(),
                 Need.from(needs.stream().filter(n-> step.getNeeds().contains(n.getUuid())).collect(Collectors.toList())),
-                step.getIntervention());
+                step.getIntervention(),
+                step.getPriority());
     }
 
     public static List<Step> from(List<StepEntity> steps, List<NeedEntity> needs) {

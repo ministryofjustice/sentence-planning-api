@@ -3,6 +3,7 @@ package uk.gov.digital.justice.hmpps.sentenceplan.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
+import uk.gov.digital.justice.hmpps.sentenceplan.application.ValidationException;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 import static net.logstash.logback.argument.StructuredArguments.value;
 import static uk.gov.digital.justice.hmpps.sentenceplan.application.LogEvent.*;
 import static uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.NeedEntity.updateMotivation;
+import static uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.StepEntity.updatePriority;
 
 @Service
 @Slf4j
@@ -66,7 +68,18 @@ public class SentencePlanService {
             sentencePlan.setStatus(PlanStatus.STARTED);
             log.info("Update Sentence Plan {} status to STARTED", sentencePlan.getUuid(), value(EVENT,SENTENCE_PLAN_STARTED));
         }
+
+        // Set the priority to lowest
+        var steps = sentencePlan.getData().getSteps();
+        stepEntity.setPriority(steps.size());
+        // Map to a set to get a unique set of values
+        Set<Integer> uniqueValues = steps.stream().map(StepEntity::getPriority).collect(Collectors.toSet());
+        if(uniqueValues.size() < steps.size()) {
+            throw new ValidationException("Steps with duplicate priority found.");
+        }
+
         sentencePlan.addStep(stepEntity);
+
 
         log.info("Created Sentence Plan Step {}", sentencePlan.getUuid(), value(EVENT,SENTENCE_PLAN_STEP_CREATED));
         return Step.from(sentencePlan.getData().getSteps(), sentencePlan.getNeeds());
@@ -108,6 +121,30 @@ public class SentencePlanService {
             newMotivations.forEach((key, value) -> planNeeds.computeIfPresent(key, (k, v) -> updateMotivation(v, value, motivationRefs)));
             sentencePlanRepository.save(sentencePlan);
             log.info("Updated Sentence Plan {} Motivations", sentencePlanUuid, value(EVENT, SENTENCE_PLAN_MOTIVATIONS_UPDATED));
+        }
+    }
+
+    @Transactional
+    public void updateStepPriorities(UUID sentencePlanUuid, Map<UUID, Integer> priorities){
+        if(priorities.size() > 0) {
+
+            // Map to a set to get a unique set of values
+            Set<Integer> uniqueValues = new HashSet<>(priorities.values());
+            if(uniqueValues.size() < priorities.size()) {
+                throw new ValidationException("Steps with duplicate priority found.");
+            }
+
+            var sentencePlan = getSentencePlanEntity(sentencePlanUuid);
+            var planSteps = sentencePlan.getData().getSteps().stream().collect(Collectors.toMap(StepEntity::getId, step -> step));
+
+            // We also need to check that we're updating all the steps otherwise they will get out of step (no pun intended).
+            if(planSteps.size() != priorities.size()) {
+                throw new ValidationException("Need to update the priority for all steps.");
+            }
+
+            priorities.forEach((key, value) -> planSteps.computeIfPresent(key, (k, v) -> updatePriority(v, value)));
+            sentencePlanRepository.save(sentencePlan);
+            log.info("Updated Sentence Plan {} Step priority", sentencePlanUuid, value(EVENT, SENTENCE_PLAN_STEP_PRIORITY_UPDATED));
         }
     }
 
