@@ -57,7 +57,8 @@ public class StepEntity implements Serializable {
     }
 
     public void addProgress(ProgressEntity progressEntity) {
-        progress.add(progressEntity);
+        this.progress.add(progressEntity);
+        this.status = progressEntity.getStatus();
     }
 
     public static StepEntity updatePriority(StepEntity stepEntity, int priority) {
