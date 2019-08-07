@@ -280,6 +280,19 @@ public class SentencePlanServiceTest {
         service.updateStep(sentencePlanUuid, stepToUpdate.getId(), PRACTITIONER, null, "Strong", "Desc", "Inter", List.of(UUID.randomUUID()), StepStatus.COMPLETE);
 
         verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
+        verify(sentencePlanRepository,times(1)).save(sentencePlan);
+    }
+
+    @Test
+    public void progressStepShouldSaveToRepository() {
+        var sentencePlan = getSentencePlanWithOneStep();
+        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
+
+        StepEntity stepToProgress = sentencePlan.getData().getSteps().stream().findFirst().get();
+        service.progressStep(sentencePlanUuid, stepToProgress.getId(), StepStatus.NOT_COMPLETED, "", LocalDateTime.now(), "Desc");
+
+        verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
+        verify(sentencePlanRepository,times(1)).save(sentencePlan);
     }
 
     private SentencePlanEntity getNewSentencePlan() {

@@ -10,6 +10,7 @@ import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepo
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.CurrentSentencePlanForOffenderExistsException;
 
 import javax.transaction.Transactional;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -90,7 +91,7 @@ public class SentencePlanService {
         var sentencePlanEntity = getSentencePlanEntity(sentencePlanUuid);
         var stepEntity = getStepEntity(sentencePlanEntity, stepUuid);
         stepEntity.updateStep(owner, ownerOther, description, strength, status, needs, intervention);
-
+        sentencePlanRepository.save(sentencePlanEntity);
         log.info("Updated Step {} on Sentence Plan {} Motivations", stepUuid, sentencePlanUuid, value(EVENT, SENTENCE_PLAN_STEP_UPDATED));
 
     }
@@ -146,6 +147,16 @@ public class SentencePlanService {
             sentencePlanRepository.save(sentencePlan);
             log.info("Updated Sentence Plan {} Step priority", sentencePlanUuid, value(EVENT, SENTENCE_PLAN_STEP_PRIORITY_UPDATED));
         }
+    }
+
+    @Transactional
+    public void progressStep(UUID sentencePlanUuid, UUID stepId, StepStatus status, String practitionerComments, LocalDateTime created, String createdBy) {
+        var sentencePlanEntity = getSentencePlanEntity(sentencePlanUuid);
+        var stepEntity = getStepEntity(sentencePlanEntity, stepId);
+        var progressEntity = new ProgressEntity(status, practitionerComments, created, createdBy);
+        stepEntity.addProgress(progressEntity);
+        sentencePlanRepository.save(sentencePlanEntity);
+
     }
 
     private StepEntity getStepEntity(SentencePlanEntity sentencePlanEntity, UUID stepUuid) {
