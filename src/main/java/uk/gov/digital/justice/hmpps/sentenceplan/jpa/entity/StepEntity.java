@@ -2,12 +2,12 @@ package uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity;
 
 import lombok.*;
 import org.springframework.util.StringUtils;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.Step;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.StepOwner;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.StepStatus;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.ValidationException;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,12 +25,14 @@ public class StepEntity implements Serializable {
     private List<UUID> needs;
     private String intervention;
     private int priority;
+    private List<ProgressEntity> progress;
 
 
     public StepEntity(StepOwner owner, String ownerOther, String description, String strength, StepStatus status, List<UUID> needs, String intervention) {
 
         updateStep(owner, ownerOther, description, strength, status, needs, intervention);
         this.id = UUID.randomUUID();
+        this.progress = new ArrayList<>(0);
     }
 
     public void updateStep(StepOwner owner, String ownerOther, String description, String strength, StepStatus status, List<UUID> needs, String intervention) {
@@ -54,6 +56,15 @@ public class StepEntity implements Serializable {
         this.needs = needs;
     }
 
+    public void addProgress(ProgressEntity progressEntity) {
+        progress.add(progressEntity);
+    }
+
+    public static StepEntity updatePriority(StepEntity stepEntity, int priority) {
+        stepEntity.setPriority(priority);
+        return stepEntity;
+    }
+
     private void validateNeeds(List<UUID> needs) {
         if(needs == null || needs.size() < 1) {
             throw new ValidationException("Step must address one or more needs");
@@ -73,10 +84,5 @@ public class StepEntity implements Serializable {
         if(StringUtils.isEmpty(intervention) && StringUtils.isEmpty(description)){
             throw new ValidationException("Description must be specified if intervention is not specified");
         }
-    }
-
-    public static StepEntity updatePriority(StepEntity stepEntity, int priority) {
-        stepEntity.setPriority(priority);
-        return stepEntity;
     }
 }
