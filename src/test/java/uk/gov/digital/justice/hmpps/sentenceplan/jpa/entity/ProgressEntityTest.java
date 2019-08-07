@@ -21,11 +21,11 @@ public class ProgressEntityTest {
     @Test
     public void shouldCreateStep() {
 
-        var progressEntity = new ProgressEntity(status, practitionerComments, created, createdBy);
+        var progressEntity = new ProgressEntity(status, practitionerComments, createdBy);
 
         assertThat(progressEntity.getStatus()).isEqualTo(status);
         assertThat(progressEntity.getPractitionerComments()).isEqualTo(practitionerComments);
-        assertThat(progressEntity.getCreated()).isEqualTo(created);
+        assertThat(progressEntity.getCreated()).isEqualToIgnoringSeconds(created);
         assertThat(progressEntity.getCreatedBy()).isEqualTo(createdBy);
     }
 }

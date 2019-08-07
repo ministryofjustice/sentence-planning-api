@@ -150,10 +150,11 @@ public class SentencePlanService {
     }
 
     @Transactional
-    public void progressStep(UUID sentencePlanUuid, UUID stepId, StepStatus status, String practitionerComments, LocalDateTime created, String createdBy) {
+    public void progressStep(UUID sentencePlanUuid, UUID stepId, StepStatus status, String practitionerComments) {
         var sentencePlanEntity = getSentencePlanEntity(sentencePlanUuid);
         var stepEntity = getStepEntity(sentencePlanEntity, stepId);
-        var progressEntity = new ProgressEntity(status, practitionerComments, created, createdBy);
+        // TODO: Presumably createdBy comes from the Auth headers?
+        var progressEntity = new ProgressEntity(status, practitionerComments, "ANONYMOUS");
         stepEntity.addProgress(progressEntity);
         sentencePlanRepository.save(sentencePlanEntity);
 

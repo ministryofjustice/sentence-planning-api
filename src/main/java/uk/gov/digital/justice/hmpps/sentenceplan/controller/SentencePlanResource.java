@@ -124,5 +124,13 @@ public class SentencePlanResource {
         return ResponseEntity.ok(request);
     }
 
+    @PostMapping(value = "/sentenceplan/{sentencePlanUUID}/steps/{stepId}/progress", produces = "application/json")
+    @ApiOperation(value = "Progress a step",
+            notes = "Progress a Step")
+    ResponseEntity progressStep(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Step ID") @PathVariable UUID stepId, @RequestBody ProgressStepRequest request) {
+        sentencePlanService.progressStep(sentencePlanUUID, stepId, request.getStatus(), request.getPractitionerComments());
+        return ResponseEntity.ok(request);
+    }
+
 
 }

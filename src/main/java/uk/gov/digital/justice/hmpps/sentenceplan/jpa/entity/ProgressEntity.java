@@ -20,4 +20,11 @@ public class ProgressEntity implements Serializable {
     private String practitionerComments;
     private LocalDateTime created;
     private String createdBy;
+
+    public ProgressEntity(StepStatus stepStatus, String practitionerComments, String createdBy) {
+        this.status = stepStatus;
+        this.practitionerComments = practitionerComments;
+        this.created = LocalDateTime.now();
+        this.createdBy = createdBy;
+    }
 }

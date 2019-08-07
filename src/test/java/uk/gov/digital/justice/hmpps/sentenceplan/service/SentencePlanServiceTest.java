@@ -289,7 +289,7 @@ public class SentencePlanServiceTest {
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
 
         StepEntity stepToProgress = sentencePlan.getData().getSteps().stream().findFirst().get();
-        service.progressStep(sentencePlanUuid, stepToProgress.getId(), StepStatus.NOT_COMPLETED, "", LocalDateTime.now(), "Desc");
+        service.progressStep(sentencePlanUuid, stepToProgress.getId(), StepStatus.NOT_COMPLETED, "");
 
         verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
         verify(sentencePlanRepository,times(1)).save(sentencePlan);
