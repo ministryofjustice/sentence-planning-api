@@ -7,6 +7,7 @@ import uk.gov.digital.justice.hmpps.sentenceplan.api.StepOwner;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.StepStatus;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.ValidationException;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -199,6 +200,20 @@ public class StepEntityTest {
         step.setPriority(5);
 
         assertThat(step.getPriority()).isEqualTo(5);
+    }
+
+    @Test
+    public void shouldAddProgress() {
+
+        var step = createValidStep();
+
+        assertThat(step.getStatus()).isEqualTo(status);
+
+        var newProgress = new ProgressEntity(StepStatus.COMPLETE, "", LocalDateTime.now(), "");
+        step.addProgress(newProgress);
+
+        assertThat(step.getStatus()).isEqualTo(StepStatus.COMPLETE);
+        assertThat(step.getProgress()).hasSize(1);
     }
 
     private static StepEntity createValidStep() {

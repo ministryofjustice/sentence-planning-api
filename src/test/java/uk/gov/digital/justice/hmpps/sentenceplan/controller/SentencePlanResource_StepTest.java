@@ -219,5 +219,53 @@ public class SentencePlanResource_StepTest {
         assertThat(result).isEqualTo(404);
     }
 
+    @Test
+    public void shouldProgressStep() {
+
+        var requestBody = new ProgressStepRequest(StepStatus.NOT_COMPLETED, "He didn't done do it");
+
+        var result = given()
+                .when()
+                .body(requestBody)
+                .header("Content-Type", "application/json")
+                .post("/sentenceplan/{0}/steps/{1}/progress", SENTENCE_PLAN_ID, STEP_ID)
+                .then()
+                .statusCode(200)
+                .extract().statusCode();
+
+        assertThat(result).isEqualTo(200);
+
+        var progressedStep = given()
+                .when()
+                .header("Accept", "application/json")
+                .get("/sentenceplan/{0}/steps/{1}", SENTENCE_PLAN_ID, STEP_ID)
+                .then()
+                .statusCode(200)
+                .extract()
+                .body()
+                .as(Step.class);
+
+        assertThat(progressedStep.getProgressList()).hasSize(1);
+        assertThat(progressedStep.getProgressList().get(0).getStatus()).isEqualTo(StepStatus.NOT_COMPLETED);
+        assertThat(progressedStep.getProgressList().get(0).getPractitionerComments()).isEqualTo("He didn't done do it");
+
+    }
+
+    @Test
+    public void shouldNotProgressInvalidStep() {
+
+        var requestBody = new UpdateSentencePlanStepRequest(SERVICE_USER, StepStatus.COMPLETE, null, "strong", "desc", null, List.of(UUID.randomUUID()));
+
+        var result = given()
+                .when()
+                .body(requestBody)
+                .header("Content-Type", "application/json")
+                .post("/sentenceplan/{0}/steps/{1}/progress", SENTENCE_PLAN_ID, NOT_FOUND_STEP_ID)
+                .then()
+                .statusCode(404)
+                .extract().statusCode();
+
+        assertThat(result).isEqualTo(404);
+    }
 
 }
