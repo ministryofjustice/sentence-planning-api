@@ -62,7 +62,7 @@ public class SentencePlanService {
 
     @Transactional
     public List<Step> addStep(UUID sentencePlanUUID, StepOwner owner, String ownerOther, String strength, String description, String intervention, List<UUID> needs) {
-        var stepEntity = new StepEntity(owner,ownerOther,description,strength, StepStatus.NOT_IN_PROGRESS, needs, intervention);
+        var stepEntity = new StepEntity(owner,ownerOther,description,strength, StepStatus.IN_PROGRESS, needs, intervention);
         var sentencePlan =  sentencePlanRepository.findByUuid(sentencePlanUUID);
 
         if(sentencePlan.getStatus().equals(PlanStatus.DRAFT) && sentencePlan.getData().getSteps().isEmpty()) {

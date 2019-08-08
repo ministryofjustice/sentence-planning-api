@@ -27,7 +27,7 @@ public class StepEntityTest {
     private static final String descriptionUpdate = "DescriptionU";
     private static final String strengthUpdate = "StrengthU";
     private static final String interventionUpdate = "InterventionU";
-    private static final StepStatus statusUpdate = StepStatus.NOT_COMPLETED;
+    private static final StepStatus statusUpdate = StepStatus.PARTIALLY_COMPLETED;
 
     @Test
     public void shouldCreateStepWithNeeds() {
@@ -209,10 +209,10 @@ public class StepEntityTest {
 
         assertThat(step.getStatus()).isEqualTo(status);
 
-        var newProgress = new ProgressEntity(StepStatus.COMPLETE, "", LocalDateTime.now(), "");
+        var newProgress = new ProgressEntity(StepStatus.COMPLETED, "", LocalDateTime.now(), "");
         step.addProgress(newProgress);
 
-        assertThat(step.getStatus()).isEqualTo(StepStatus.COMPLETE);
+        assertThat(step.getStatus()).isEqualTo(StepStatus.COMPLETED);
         assertThat(step.getProgress()).hasSize(1);
     }
 
