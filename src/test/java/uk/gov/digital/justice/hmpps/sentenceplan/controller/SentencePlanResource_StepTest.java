@@ -172,7 +172,7 @@ public class SentencePlanResource_StepTest {
     @Test
     public void shouldUpdateStepOnExistingPlan() {
 
-        var requestBody = new UpdateSentencePlanStepRequest(SERVICE_USER, StepStatus.COMPLETE, null, "strong", "desc", null, List.of(UUID.randomUUID()));
+        var requestBody = new UpdateSentencePlanStepRequest(SERVICE_USER, StepStatus.COMPLETED, null, "strong", "desc", null, List.of(UUID.randomUUID()));
 
         var result = given()
                 .when()
@@ -205,7 +205,7 @@ public class SentencePlanResource_StepTest {
     @Test
     public void shouldNotUpdateInvalidStep() {
 
-        var requestBody = new UpdateSentencePlanStepRequest(SERVICE_USER, StepStatus.COMPLETE, null, "strong", "desc", null, List.of(UUID.randomUUID()));
+        var requestBody = new UpdateSentencePlanStepRequest(SERVICE_USER, StepStatus.COMPLETED, null, "strong", "desc", null, List.of(UUID.randomUUID()));
 
         var result = given()
                 .when()
@@ -222,7 +222,7 @@ public class SentencePlanResource_StepTest {
     @Test
     public void shouldProgressStep() {
 
-        var requestBody = new ProgressStepRequest(StepStatus.NOT_COMPLETED, "He didn't done do it");
+        var requestBody = new ProgressStepRequest(StepStatus.PARTIALLY_COMPLETED, "He didn't done do it");
 
         var result = given()
                 .when()
@@ -246,7 +246,7 @@ public class SentencePlanResource_StepTest {
                 .as(Step.class);
 
         assertThat(progressedStep.getProgressList()).hasSize(1);
-        assertThat(progressedStep.getProgressList().get(0).getStatus()).isEqualTo(StepStatus.NOT_COMPLETED);
+        assertThat(progressedStep.getProgressList().get(0).getStatus()).isEqualTo(StepStatus.PARTIALLY_COMPLETED);
         assertThat(progressedStep.getProgressList().get(0).getPractitionerComments()).isEqualTo("He didn't done do it");
 
     }
@@ -254,7 +254,7 @@ public class SentencePlanResource_StepTest {
     @Test
     public void shouldNotProgressInvalidStep() {
 
-        var requestBody = new UpdateSentencePlanStepRequest(SERVICE_USER, StepStatus.COMPLETE, null, "strong", "desc", null, List.of(UUID.randomUUID()));
+        var requestBody = new UpdateSentencePlanStepRequest(SERVICE_USER, StepStatus.COMPLETED, null, "strong", "desc", null, List.of(UUID.randomUUID()));
 
         var result = given()
                 .when()

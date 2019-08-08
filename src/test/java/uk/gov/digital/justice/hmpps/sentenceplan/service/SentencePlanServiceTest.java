@@ -277,7 +277,7 @@ public class SentencePlanServiceTest {
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
 
         StepEntity stepToUpdate = sentencePlan.getData().getSteps().stream().findFirst().get();
-        service.updateStep(sentencePlanUuid, stepToUpdate.getId(), PRACTITIONER, null, "Strong", "Desc", "Inter", List.of(UUID.randomUUID()), StepStatus.COMPLETE);
+        service.updateStep(sentencePlanUuid, stepToUpdate.getId(), PRACTITIONER, null, "Strong", "Desc", "Inter", List.of(UUID.randomUUID()), StepStatus.COMPLETED);
 
         verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
         verify(sentencePlanRepository,times(1)).save(sentencePlan);
@@ -289,7 +289,7 @@ public class SentencePlanServiceTest {
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
 
         StepEntity stepToProgress = sentencePlan.getData().getSteps().stream().findFirst().get();
-        service.progressStep(sentencePlanUuid, stepToProgress.getId(), StepStatus.NOT_COMPLETED, "");
+        service.progressStep(sentencePlanUuid, stepToProgress.getId(), StepStatus.ABANDONED, "");
 
         verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
         verify(sentencePlanRepository,times(1)).save(sentencePlan);
@@ -308,7 +308,7 @@ public class SentencePlanServiceTest {
 
         var needs = List.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
         var steps = new ArrayList<StepEntity>();
-        steps.add(new StepEntity(PRACTITIONER, null, "a description", "a strength", StepStatus.NOT_IN_PROGRESS, needs, null));
+        steps.add(new StepEntity(PRACTITIONER, null, "a description", "a strength", StepStatus.PAUSED, needs, null));
         return SentencePlanEntity.builder()
                 .createdOn(LocalDateTime.of(2019,6,1, 11,00))
                 .status(DRAFT)
