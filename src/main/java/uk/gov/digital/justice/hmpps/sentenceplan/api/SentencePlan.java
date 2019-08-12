@@ -29,8 +29,6 @@ public class SentencePlan {
     private List<Need> needs;
     @JsonProperty("serviceUserComments")
     private String serviceUserComments;
-    @JsonProperty("practitionerComments")
-    private String practitionerComments;
     @JsonProperty("childSafeguardingIndicated")
     private Boolean childSafeguardingIndicated;
     @JsonProperty("complyWithChildProtectionPlanIndicated")
@@ -42,7 +40,7 @@ public class SentencePlan {
 
         return new SentencePlan(sentencePlan.getUuid(), sentencePlan.getCreatedOn(), sentencePlan.getStatus(),
                 Step.from(data.getSteps(), sentencePlan.getNeeds()), Need.from(sentencePlan.getNeeds()),
-                data.getServiceUserComments(), data.getPractitionerComments(),
+                data.getServiceUserComments(),
                 data.getChildSafeguardingIndicated(), data.getComplyWithChildProtectionPlanIndicated());
     }
 }
