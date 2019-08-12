@@ -295,6 +295,17 @@ public class SentencePlanServiceTest {
         verify(sentencePlanRepository,times(1)).save(sentencePlan);
     }
 
+    @Test
+    public void UpdateServiceUserCommentsSaveToRepository() {
+        var sentencePlan = getSentencePlanWithOneStep();
+        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
+
+        service.setServiceUserComments(sentencePlanUuid, "anything");
+
+        verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
+        verify(sentencePlanRepository,times(1)).save(sentencePlan);
+    }
+
     private SentencePlanEntity getNewSentencePlan() {
         return SentencePlanEntity.builder()
                 .createdOn(LocalDateTime.of(2019,6,1, 11,00))

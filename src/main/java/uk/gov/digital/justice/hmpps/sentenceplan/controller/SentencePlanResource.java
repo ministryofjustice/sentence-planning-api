@@ -127,9 +127,17 @@ public class SentencePlanResource {
     @PostMapping(value = "/sentenceplan/{sentencePlanUUID}/steps/{stepId}/progress", produces = "application/json")
     @ApiOperation(value = "Progress a step",
             notes = "Progress a Step")
-    ResponseEntity progressStep(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Step ID") @PathVariable UUID stepId, @RequestBody ProgressStepRequest request) {
+    ResponseEntity<ProgressStepRequest> progressStep(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Step ID") @PathVariable UUID stepId, @RequestBody ProgressStepRequest request) {
         sentencePlanService.progressStep(sentencePlanUUID, stepId, request.getStatus(), request.getPractitionerComments());
         return ResponseEntity.ok(request);
+    }
+
+    @PostMapping(value = "/sentenceplan/{sentencePlanUUID}/serviceUserComments", produces = "application/json")
+    @ApiOperation(value = "Set the value of the service user comments",
+            notes = "Set service user comments")
+    ResponseEntity setServiceUserComments(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @RequestBody String serviceUserComment) {
+        sentencePlanService.setServiceUserComments(sentencePlanUUID, serviceUserComment);
+        return ResponseEntity.ok().build();
     }
 
 

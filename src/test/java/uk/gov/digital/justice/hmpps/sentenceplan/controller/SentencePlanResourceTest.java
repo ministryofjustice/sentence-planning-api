@@ -347,6 +347,37 @@ public class SentencePlanResourceTest {
         assertThat(result1.getPriority()).isEqualTo(1);
     }
 
+    @Test
+    public void shouldUpdateServiceUserComment() throws JsonProcessingException {
+        setupMockRestServiceServer();
+
+        var requestBody = "I didn't done do it";
+
+        var result = given()
+                .when()
+                .body(requestBody)
+                .header("Content-Type", "application/json")
+                .post("/sentenceplan/{0}/serviceUserComments", SENTENCE_PLAN_ID)
+                .then()
+                .statusCode(200)
+                .extract().statusCode();
+
+        assertThat(result).isEqualTo(200);
+
+        var plan = given()
+                .when()
+                .header("Accept", "application/json")
+                .get("/sentenceplan/{0}", SENTENCE_PLAN_ID)
+                .then()
+                .statusCode(200)
+                .extract()
+                .body()
+                .as(SentencePlan.class);
+
+        assertThat(plan.getUuid()).isEqualTo(UUID.fromString(SENTENCE_PLAN_ID));
+        assertThat(plan.getServiceUserComments()).isEqualTo(requestBody);
+    }
+
     private MockRestServiceServer setupMockRestServiceServer() throws JsonProcessingException {
         var assessmentApi = bindTo(oauthRestTemplate).ignoreExpectOrder(true).build();
 
