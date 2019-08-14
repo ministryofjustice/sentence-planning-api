@@ -7,6 +7,7 @@ import uk.gov.digital.justice.hmpps.sentenceplan.api.StepStatus;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.ValidationException;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -26,6 +27,7 @@ public class StepEntity implements Serializable {
     private String intervention;
     private int priority;
     private List<ProgressEntity> progress;
+    private LocalDateTime updated;
 
 
     public StepEntity(StepOwner owner, String ownerOther, String description, String strength, StepStatus status, List<UUID> needs, String intervention) {
@@ -54,11 +56,13 @@ public class StepEntity implements Serializable {
 
         // When we update a step we just overwrite whatever needs there are, we don't try to merge/deduplicate the list
         this.needs = needs;
+
     }
 
     public void addProgress(ProgressEntity progressEntity) {
         this.progress.add(progressEntity);
         this.status = progressEntity.getStatus();
+        this.updated = progressEntity.getCreated();
     }
 
     public static StepEntity updatePriority(StepEntity stepEntity, int priority) {

@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.NeedEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.StepEntity;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -35,6 +37,8 @@ public class Step {
     private Integer priority;
     @JsonProperty("progress")
     private List<StepProgress> progressList;
+    @JsonProperty("updated")
+    private LocalDateTime updated;
 
     public static Step from(StepEntity step, List<NeedEntity> needs) {
         return new Step(step.getId(),
@@ -46,7 +50,8 @@ public class Step {
                 Need.from(needs.stream().filter(n-> step.getNeeds().contains(n.getUuid())).collect(Collectors.toList())),
                 step.getIntervention(),
                 step.getPriority(),
-                StepProgress.from(step.getProgress()));
+                StepProgress.from(step.getProgress()),
+                step.getUpdated());
     }
 
     public static List<Step> from(List<StepEntity> steps, List<NeedEntity> needs) {
