@@ -249,6 +249,7 @@ public class SentencePlanResource_StepTest {
         assertThat(progressedStep.getProgressList().get(0).getStatus()).isEqualTo(StepStatus.PARTIALLY_COMPLETED);
         assertThat(progressedStep.getProgressList().get(0).getPractitionerComments()).isEqualTo("He didn't done do it");
 
+        assertThat(progressedStep.getUpdated()).isEqualTo(progressedStep.getProgressList().get(0).getCreated());
     }
 
     @Test
