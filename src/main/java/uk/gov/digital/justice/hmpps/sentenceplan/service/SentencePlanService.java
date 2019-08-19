@@ -163,6 +163,14 @@ public class SentencePlanService {
 
     }
 
+    @Transactional
+    public void setServiceUserComments(UUID sentencePlanUuid, String serviceUserComments) {
+        var sentencePlanEntity = getSentencePlanEntity(sentencePlanUuid);
+        sentencePlanEntity.getData().setServiceUserComments(serviceUserComments);
+        sentencePlanRepository.save(sentencePlanEntity);
+
+    }
+
     private StepEntity getStepEntity(SentencePlanEntity sentencePlanEntity, UUID stepUuid) {
         return sentencePlanEntity.getData().getSteps().stream()
                 .filter(s->s.getId().equals(stepUuid)).findAny()
