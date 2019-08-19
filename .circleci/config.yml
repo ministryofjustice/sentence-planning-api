@@ -178,7 +178,7 @@ workflows:
           requires:
             - deploy_dev
       - deploy_preprod:
-          context: sentence-planning-api-preprod
+          context: sentence-planning-preprod
           requires:
             - request-preprod-approval
 #      - request-prod-approval:
