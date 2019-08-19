@@ -21,15 +21,15 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
-import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.AssessmentNeed;
-import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysAssessment;
-import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysIdentifiers;
-import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysOffender;
+import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.OffenderReferenceType;
+
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import static io.restassured.RestAssured.given;
+import static java.util.Collections.EMPTY_LIST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
@@ -60,6 +60,8 @@ public class SentencePlanResourceTest {
     
     private final String SENTENCE_PLAN_ID = "11111111-1111-1111-1111-111111111111";
     private final String NOT_FOUND_SENTENCE_PLAN_ID = "99999999-9999-9999-9999-999999999999";
+    private final long OASYS_OFFENDER_ID = 123456;
+
 
     @Before
     public void setup() {
@@ -90,6 +92,37 @@ public class SentencePlanResourceTest {
         assertThat(result.getUuid()).isEqualTo(UUID.fromString(SENTENCE_PLAN_ID));
         assertThat(result.getStatus()).isEqualTo(PlanStatus.STARTED);
     }
+
+    @Test
+    public void shouldGetSentencePlanSummaries() throws JsonProcessingException {
+
+        var assessmentApi = bindTo(oauthRestTemplate).ignoreExpectOrder(true).build();
+
+        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123456/properSentencePlans"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(
+                        mapper.writeValueAsString(List.of(
+                            new OasysSentencePlan(12345L, LocalDate.of(2010, 1,1), null, EMPTY_LIST)
+                        )), MediaType.APPLICATION_JSON));
+
+        var result = given()
+                .when()
+                .header("Accept", "application/json")
+                .get("/offender/{0}/sentenceplans/", OASYS_OFFENDER_ID)
+                .then()
+                .statusCode(200)
+                .extract()
+                .body()
+                .jsonPath().getList(".", SentencePlanSummary.class);
+
+        assertThat(result.get(0).getPlanId()).isEqualTo(SENTENCE_PLAN_ID);
+        assertThat(result.get(0).getCreatedDate()).isEqualTo(LocalDate.of(2019,6,27));
+
+        assertThat(result.get(2).getPlanId()).isEqualTo("12345");
+        assertThat(result.get(2).getCreatedDate()).isEqualTo(LocalDate.of(2010,1,1));
+
+    }
+
 
     @Test
     public void shouldReturnNotFoundForNonexistentPlan() {
@@ -351,7 +384,7 @@ public class SentencePlanResourceTest {
         var assessmentApi = bindTo(oauthRestTemplate).ignoreExpectOrder(true).build();
 
         var needs = List.of(new AssessmentNeed("Alcohol", true, true, true, true),
-                new AssessmentNeed("Accomodationßß", true, true, true, true));
+                new AssessmentNeed("Accomodation", true, true, true, true));
 
         assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/12345"))
                 .andExpect(method(GET))

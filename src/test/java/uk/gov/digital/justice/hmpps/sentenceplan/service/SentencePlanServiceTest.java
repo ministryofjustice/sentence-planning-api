@@ -7,10 +7,14 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.ValidationException;
+import uk.gov.digital.justice.hmpps.sentenceplan.client.OASYSAssessmentAPIClient;
+import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysSentencePlan;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.CurrentSentencePlanForOffenderExistsException;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -38,6 +42,9 @@ public class SentencePlanServiceTest {
     @Mock
     private MotivationRefService motivationRefService;
 
+    @Mock
+    private OASYSAssessmentAPIClient oasysAssessmentAPIClient;
+
     private final String oasysOffenderId = "123456789";
 
     private SentencePlanService service;
@@ -51,7 +58,7 @@ public class SentencePlanServiceTest {
         motivations = List.of(new MotivationRefEntity("motivation 1", "motivation 1"),
                 new MotivationRefEntity("motivation 1", "motivation 1"));
         when(motivationRefService.getAllMotivations()).thenReturn(motivations);
-        service = new SentencePlanService(sentencePlanRepository, offenderService, assessmentService, motivationRefService);
+        service = new SentencePlanService(sentencePlanRepository, offenderService, assessmentService, motivationRefService, oasysAssessmentAPIClient);
     }
 
     @Test
@@ -60,8 +67,8 @@ public class SentencePlanServiceTest {
 
         when(offenderService.getOffenderByType(oasysOffenderId,  OffenderReferenceType.OASYS)).thenReturn(offender);
         when(sentencePlanRepository.findByOffenderUuid(any())).thenReturn(null);
-
-        when(sentencePlanRepository.save(any())).thenReturn(getNewSentencePlan());
+        when(sentencePlanRepository.findByOffenderUuid(any())).thenReturn(EMPTY_LIST);
+        when(sentencePlanRepository.save(any())).thenReturn(getNewSentencePlan(sentencePlanUuid));
 
         service.createSentencePlan(oasysOffenderId, OffenderReferenceType.OASYS);
 
@@ -74,7 +81,7 @@ public class SentencePlanServiceTest {
         var offender = mock(OffenderEntity.class);;
 
         when(offenderService.getOffenderByType(oasysOffenderId,  OffenderReferenceType.OASYS)).thenReturn(offender);
-        when(sentencePlanRepository.findByOffenderUuid(any())).thenReturn(getNewSentencePlan());
+        when(sentencePlanRepository.findByOffenderUuid(any())).thenReturn(List.of(getNewSentencePlan(sentencePlanUuid)));  when(sentencePlanRepository.findByOffenderUuid(any())).thenReturn(List.of(getNewSentencePlan(sentencePlanUuid)));
 
         var exception = catchThrowable(() -> { service.createSentencePlan(oasysOffenderId, OffenderReferenceType.OASYS); });
         assertThat(exception).isInstanceOf(CurrentSentencePlanForOffenderExistsException.class);
@@ -86,7 +93,7 @@ public class SentencePlanServiceTest {
     @Test
     public void shouldAddStepToSentencePlan() {
 
-        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(getNewSentencePlan());
+        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(getNewSentencePlan(sentencePlanUuid));
 
         var needs = List.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
 
@@ -110,7 +117,7 @@ public class SentencePlanServiceTest {
     @Test
     public void shouldAddStepToSentencePlanPriority() {
 
-        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(getNewSentencePlan());
+        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(getNewSentencePlan(sentencePlanUuid));
 
         var needs = List.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
 
@@ -139,7 +146,7 @@ public class SentencePlanServiceTest {
     @Test
     public void shouldUpdatePlanStatusToSTARTEDWhenFirstStepIsAdded() {
 
-        var sentencePlan =  getNewSentencePlan();
+        var sentencePlan =  getNewSentencePlan(sentencePlanUuid);
 
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
 
@@ -159,7 +166,7 @@ public class SentencePlanServiceTest {
     @Test
     public void shouldNotUpdatePlanStatusFirstStepIsAddedButStatusIsNotDRAFT() {
 
-        var sentencePlan =  getNewSentencePlan();
+        var sentencePlan =  getNewSentencePlan(sentencePlanUuid);
         sentencePlan.setStatus(COMPLETE);
 
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
@@ -192,14 +199,14 @@ public class SentencePlanServiceTest {
 
     @Test
     public void getSentencePlanShouldRetrievePlanFromRepository() {
-        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(getNewSentencePlan());
+        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(getNewSentencePlan(sentencePlanUuid));
         service.getSentencePlanFromUuid(sentencePlanUuid);
         verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
     }
 
     @Test
     public void getSentencePlanShouldReturnSentencePlanFromEntity() {
-        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(getNewSentencePlan());
+        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(getNewSentencePlan(sentencePlanUuid));
         var result =  service.getSentencePlanFromUuid(sentencePlanUuid);
         assertThat(result.getUuid()).isEqualTo(sentencePlanUuid);
         assertThat(result.getCreatedOn()).isEqualTo(LocalDateTime.of(2019,6,1, 11,00));
@@ -218,7 +225,7 @@ public class SentencePlanServiceTest {
 
     @Test
     public void updateMotivationsShouldNotSaveToRepositoryEmpty() {
-        var sentencePlan = getNewSentencePlan();
+        var sentencePlan = getNewSentencePlan(sentencePlanUuid);
 
         service.updateMotivations(sentencePlanUuid, new HashMap<>());
         verify(sentencePlanRepository,times(0)).findByUuid(sentencePlanUuid);
@@ -227,7 +234,7 @@ public class SentencePlanServiceTest {
 
     @Test
     public void updateMotivationsShouldSaveToRepository() {
-        var sentencePlan = getNewSentencePlan();
+        var sentencePlan = getNewSentencePlan(sentencePlanUuid);
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
 
         service.updateMotivations(sentencePlanUuid, Map.of(UUID.randomUUID(), UUID.randomUUID()));
@@ -237,7 +244,7 @@ public class SentencePlanServiceTest {
 
     @Test
     public void updateStepPriorityShouldNotSaveToRepositoryEmpty() {
-        var sentencePlan = getNewSentencePlan();
+        var sentencePlan = getNewSentencePlan(sentencePlanUuid);
 
         service.updateStepPriorities(sentencePlanUuid, new HashMap<>());
         verify(sentencePlanRepository,times(0)).findByUuid(sentencePlanUuid);
@@ -247,7 +254,7 @@ public class SentencePlanServiceTest {
 
     @Test(expected = ValidationException.class)
     public void updateStepPriorityShouldSaveToRepository() {
-        var sentencePlan = getNewSentencePlan();
+        var sentencePlan = getNewSentencePlan(sentencePlanUuid);
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
 
         service.updateStepPriorities(sentencePlanUuid, Map.of(UUID.randomUUID(), 0, UUID.randomUUID(), 1));
@@ -276,7 +283,7 @@ public class SentencePlanServiceTest {
         var sentencePlan = getSentencePlanWithOneStep();
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
 
-        StepEntity stepToUpdate = sentencePlan.getData().getSteps().stream().findFirst().get();
+        var stepToUpdate = sentencePlan.getData().getSteps().stream().findFirst().get();
         service.updateStep(sentencePlanUuid, stepToUpdate.getId(), PRACTITIONER, null, "Strong", "Desc", "Inter", List.of(UUID.randomUUID()), StepStatus.COMPLETED);
 
         verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
@@ -288,18 +295,89 @@ public class SentencePlanServiceTest {
         var sentencePlan = getSentencePlanWithOneStep();
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
 
-        StepEntity stepToProgress = sentencePlan.getData().getSteps().stream().findFirst().get();
+        var stepToProgress = sentencePlan.getData().getSteps().stream().findFirst().get();
         service.progressStep(sentencePlanUuid, stepToProgress.getId(), StepStatus.ABANDONED, "");
 
         verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
         verify(sentencePlanRepository,times(1)).save(sentencePlan);
     }
 
-    private SentencePlanEntity getNewSentencePlan() {
+    @Test
+    public void getSentencePlansForOffenderShouldReturnOASysPlans() {
+
+        var offender = new OffenderEntity(1L, UUID.fromString("11111111-1111-1111-1111-111111111111"), 12345L, null,null,EMPTY_LIST);
+        var legacyPlan =  OasysSentencePlan.builder()
+                .completedDate(LocalDate.of(2019,1,1))
+                .createdDate(LocalDate.of(2018,1,1))
+                .oasysSetId(123456L).build();
+
+
+        when(oasysAssessmentAPIClient.getSentencePlansForOffender(12345L)).thenReturn(List.of(legacyPlan));
+        when(offenderService.getOffenderByType("12345", OffenderReferenceType.OASYS)).thenReturn(offender);
+        when(sentencePlanRepository.findByOffenderUuid(offender.getUuid())).thenReturn(EMPTY_LIST);
+
+        var result = service.getSentencePlansForOffender(12345L).get(0);
+
+        assertThat(result.getPlanId()).isEqualTo("123456");
+        assertThat(result.getCreatedDate()).isEqualTo(LocalDate.of(2018,1,1));
+        assertThat(result.getCompletedDate()).isEqualTo (LocalDate.of(2019,1,1));
+        verify(oasysAssessmentAPIClient, times(1)).getSentencePlansForOffender(12345L);
+
+    }
+
+    @Test
+    public void getSentencePlansForOffenderShouldReturnNewPlans() {
+
+        var offender = new OffenderEntity(1L, UUID.fromString("11111111-1111-1111-1111-111111111111"), 12345L, null,null,EMPTY_LIST);
+        when(oasysAssessmentAPIClient.getSentencePlansForOffender(12345L)).thenReturn(EMPTY_LIST);
+        when(offenderService.getOffenderByType("12345", OffenderReferenceType.OASYS)).thenReturn(offender);
+        when(sentencePlanRepository.findByOffenderUuid(offender.getUuid())).thenReturn(List.of(getNewSentencePlan(sentencePlanUuid)));
+
+        var result = service.getSentencePlansForOffender(12345L).get(0);
+
+        assertThat(result.getPlanId()).isEqualTo("11111111-1111-1111-1111-111111111111");
+        assertThat(result.getCreatedDate()).isEqualTo(LocalDate.of(2019,6,1));
+        assertThat(result.getCompletedDate()).isNull();
+        verify(sentencePlanRepository, times(1)).findByOffenderUuid(UUID.fromString("11111111-1111-1111-1111-111111111111"));
+
+    }
+
+    @Test
+    public void getSentencePlansForOffenderShouldOrderPlansByCreatedDate() {
+
+        var offender = new OffenderEntity(1L, UUID.fromString("11111111-1111-1111-1111-111111111111"), 12345L, null,null,EMPTY_LIST);
+        var legacyPlan =  OasysSentencePlan.builder()
+                .completedDate(LocalDate.of(2019,1,1))
+                .createdDate(LocalDate.of(2018,1,1))
+                .oasysSetId(123456L).build();
+        when(oasysAssessmentAPIClient.getSentencePlansForOffender(12345L)).thenReturn(List.of(legacyPlan));
+        when(offenderService.getOffenderByType("12345", OffenderReferenceType.OASYS)).thenReturn(offender);
+
+        var sentencePlan1 = getNewSentencePlan(UUID.fromString("11111111-1111-1111-1111-111111111111"));
+        var sentencePlan2 = getNewSentencePlan(UUID.fromString("22222222-2222-2222-2222-222222222222"));
+        var sentencePlan3 = getNewSentencePlan(UUID.fromString("33333333-3333-3333-3333-333333333333"));
+        sentencePlan1.setCreatedOn(LocalDateTime.of(2019,1,2,1,0));
+        sentencePlan2.setCreatedOn(LocalDateTime.of(2019,1,1,1,0));
+        sentencePlan3.setCreatedOn(LocalDateTime.of(2019,1,3,1,0));
+
+        when(sentencePlanRepository.findByOffenderUuid(offender.getUuid())).thenReturn(List.of(sentencePlan1,sentencePlan2,sentencePlan3));
+
+        var result = service.getSentencePlansForOffender(12345L);
+        assertThat(result).hasSize(4);
+
+        assertThat(result.get(3).getPlanId()).isEqualTo("123456");
+        assertThat(result.get(2).getPlanId()).isEqualTo("22222222-2222-2222-2222-222222222222");
+        assertThat(result.get(1).getPlanId()).isEqualTo("11111111-1111-1111-1111-111111111111");
+        assertThat(result.get(0).getPlanId()).isEqualTo("33333333-3333-3333-3333-333333333333");
+
+    }
+
+
+    private SentencePlanEntity getNewSentencePlan(UUID uuid) {
         return SentencePlanEntity.builder()
                 .createdOn(LocalDateTime.of(2019,6,1, 11,00))
                 .status(DRAFT)
-                .uuid(sentencePlanUuid)
+                .uuid(uuid)
                 .needs(List.of(NeedEntity.builder().uuid(UUID.fromString("11111111-1111-1111-1111-111111111111")).description("description").motivations(EMPTY_LIST).build()))
                 .data(new SentencePlanPropertiesEntity()).build();
     }
@@ -326,4 +404,5 @@ public class SentencePlanServiceTest {
     }
 
 
-    }
+
+}

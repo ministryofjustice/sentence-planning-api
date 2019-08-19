@@ -42,10 +42,10 @@ public class OffenderServiceTest {
 
         var offender = new OasysOffender(123456L,"Mr", "John", "Smith","","",new OasysIdentifiers("12345"));
 
-        when(offenderRespository.findByOasysOffednerId("123456")).thenReturn(Optional.empty());
+        when(offenderRespository.findByOasysOffenderId(123456L)).thenReturn(Optional.empty());
 
 
-        when(oasysAssessmentAPIClient.getOffenderById("123456"))
+        when(oasysAssessmentAPIClient.getOffenderById(123456L))
                 .thenReturn(Optional.ofNullable(offender));
 
         offenderService.getOffenderByType("123456", OffenderReferenceType.OASYS);
@@ -58,20 +58,20 @@ public class OffenderServiceTest {
     @Test
     public void shouldNotGetOffenderFromOasysIfExistsInRepository() {
 
-        var offender = new OffenderEntity(1L, UUID.randomUUID(), "123456","", "", EMPTY_LIST);
+        var offender = new OffenderEntity(1L, UUID.randomUUID(), 123456L,"", "", EMPTY_LIST);
 
-        when(offenderRespository.findByOasysOffednerId("123456")).thenReturn(Optional.ofNullable(offender));
+        when(offenderRespository.findByOasysOffenderId(123456L)).thenReturn(Optional.ofNullable(offender));
 
         offenderService.getOffenderByType("123456", OffenderReferenceType.OASYS);
 
         verify( offenderRespository, never()).save(any());
-        verify( oasysAssessmentAPIClient, never()).getOffenderById(any());
+        verify( oasysAssessmentAPIClient, never()).getOffenderById(123456L);
     }
 
     @Test
     public void shouldThrowExceptionWhenOffenderNotFound() {
-        when(offenderRespository.findByOasysOffednerId("123456")).thenReturn(Optional.empty());
-        when(oasysAssessmentAPIClient.getOffenderById("123456"))
+        when(offenderRespository.findByOasysOffenderId(123456L)).thenReturn(Optional.empty());
+        when(oasysAssessmentAPIClient.getOffenderById(123456L))
                 .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> {  offenderService.getOffenderByType("123456",OffenderReferenceType.OASYS);})

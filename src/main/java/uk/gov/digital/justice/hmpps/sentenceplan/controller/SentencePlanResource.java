@@ -40,6 +40,13 @@ public class SentencePlanResource {
         return ResponseEntity.ok(sentencePlanService.getSentencePlanFromUuid(sentencePlanUUID));
     }
 
+    @GetMapping(value = "/offender/{offenderId}/sentenceplans", produces = "application/json")
+    @ApiOperation(value = "Gets a list of Sentence Plans for an Offender",
+            response = SentencePlan.class,
+            notes = "Request sentence plans for offender. Includes both new and OASYs sentence plans")
+    ResponseEntity<List<SentencePlanSummary>> getSentencePlansForOffender(@ApiParam(value = "Offender ID") @PathVariable("offenderId") Long oasysOffenderId) {
+        return ResponseEntity.ok(sentencePlanService.getSentencePlansForOffender(oasysOffenderId));
+    }
 
     @PostMapping(value = "/sentenceplan", produces = "application/json")
     @ApiOperation(value = "Create new sentence plan",

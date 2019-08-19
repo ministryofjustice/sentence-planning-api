@@ -4,13 +4,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.ValidationException;
+import uk.gov.digital.justice.hmpps.sentenceplan.client.OASYSAssessmentAPIClient;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.CurrentSentencePlanForOffenderExistsException;
 
 import javax.transaction.Transactional;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,12 +26,14 @@ public class SentencePlanService {
     private OffenderService offenderService;
     private AssessmentService assessmentService;
     private MotivationRefService motivationRefService;
+    private OASYSAssessmentAPIClient oasysAssessmentAPIClient;
 
-    public SentencePlanService(SentencePlanRepository sentencePlanRepository, OffenderService offenderService, AssessmentService assessmentService, MotivationRefService motivationRefService) {
+    public SentencePlanService(SentencePlanRepository sentencePlanRepository, OffenderService offenderService, AssessmentService assessmentService, MotivationRefService motivationRefService, OASYSAssessmentAPIClient oasysAssessmentAPIClient) {
         this.sentencePlanRepository = sentencePlanRepository;
         this.offenderService = offenderService;
         this.assessmentService = assessmentService;
         this.motivationRefService = motivationRefService;
+        this.oasysAssessmentAPIClient = oasysAssessmentAPIClient;
     }
 
     @Transactional
@@ -57,7 +59,8 @@ public class SentencePlanService {
 
     public Optional<SentencePlanEntity> getCurrentSentencePlanForOffender(UUID offenderUUID) {
         log.info("Retrieving Sentence Plan for offender {}", offenderUUID, value(EVENT,SENTENCE_PLAN_RETRIEVED));
-        return Optional.ofNullable(sentencePlanRepository.findByOffenderUuid(offenderUUID));
+        var sentencePlans =  sentencePlanRepository.findByOffenderUuid(offenderUUID);
+        return sentencePlans.stream().filter(s -> s.getEndDate() == null).findFirst();
     }
 
     @Transactional
@@ -74,7 +77,7 @@ public class SentencePlanService {
         var steps = sentencePlan.getData().getSteps();
         stepEntity.setPriority(steps.size());
         // Map to a set to get a unique set of values
-        Set<Integer> uniqueValues = steps.stream().map(StepEntity::getPriority).collect(Collectors.toSet());
+        var uniqueValues = steps.stream().map(StepEntity::getPriority).collect(Collectors.toSet());
         if(uniqueValues.size() < steps.size()) {
             throw new ValidationException("Steps with duplicate priority found.");
         }
@@ -172,4 +175,23 @@ public class SentencePlanService {
     }
 
 
+    public List<SentencePlanSummary> getSentencePlansForOffender(Long oasysOffenderId) {
+        var offenderUuid = offenderService.getOffenderByType(Long.toString(oasysOffenderId), OffenderReferenceType.OASYS).getUuid();
+        var newSentencePlans = sentencePlanRepository.findByOffenderUuid(offenderUuid);
+
+        var oasysSentencePlans = oasysAssessmentAPIClient.getSentencePlansForOffender(oasysOffenderId);
+
+        var sentencePlanSummaries = new ArrayList<SentencePlanSummary>();
+
+        newSentencePlans.stream().forEach(s ->
+                sentencePlanSummaries.add(new SentencePlanSummary(s.getUuid().toString(), s.getCreatedOn(), s.getEndDate(), false))
+        );
+
+        oasysSentencePlans.stream().forEach(s ->
+                sentencePlanSummaries.add(new SentencePlanSummary(Long.toString(s.getOasysSetId()), s.getCreatedDate(), s.getCompletedDate(), true))
+        );
+        log.info("Returning {} sentence plans for Offender {}", sentencePlanSummaries.size(), oasysOffenderId, value(EVENT,SENTENCE_PLANS_RETRIEVED));
+        return sentencePlanSummaries.stream().sorted(Comparator.comparing(SentencePlanSummary::getCreatedDate).reversed()).collect(Collectors.toList());
+
+    }
 }
