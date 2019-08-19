@@ -34,7 +34,7 @@ public class AssessmentServiceTest {
     @Before
     public void setup() {
         assessmentService = new AssessmentService(oasysAssessmentAPIClient);
-        sentencePlanEntity = new SentencePlanEntity(new OffenderEntity("123456", "123456"));
+        sentencePlanEntity = new SentencePlanEntity(new OffenderEntity(123456L, "123456"));
     }
 
     @Test
@@ -43,7 +43,7 @@ public class AssessmentServiceTest {
                 new AssessmentNeed("Alcohol",true,true,true,true));
         var oasysAssessment = new OasysAssessment(123456,"ACTIVE", needs,true, true);
 
-        when(oasysAssessmentAPIClient.getLatestLayer3AssessmentForOffender("123456"))
+        when(oasysAssessmentAPIClient.getLatestLayer3AssessmentForOffender(123456L))
                 .thenReturn(Optional.ofNullable(oasysAssessment));
         assertThat(sentencePlanEntity.getNeeds()).isEmpty();
         assessmentService.addLatestAssessmentNeedsToPlan(sentencePlanEntity);
@@ -52,7 +52,7 @@ public class AssessmentServiceTest {
 
     @Test
     public void shouldThrowExceptionWhenNoAssessmentExistsForOffender() {
-        when(oasysAssessmentAPIClient.getLatestLayer3AssessmentForOffender("123456"))
+        when(oasysAssessmentAPIClient.getLatestLayer3AssessmentForOffender(123456L))
                 .thenReturn(Optional.empty());
         assertThatThrownBy(() -> {  assessmentService.addLatestAssessmentNeedsToPlan(sentencePlanEntity);})
                 .isInstanceOf(NoOffenderAssessmentException.class);

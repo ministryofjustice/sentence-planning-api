@@ -9,6 +9,6 @@ import java.util.Optional;
 @Repository
 public interface OffenderRespository extends CrudRepository<OffenderEntity, Long> {
 
-    Optional<OffenderEntity> findByOasysOffednerId(String offenderId);
+    Optional<OffenderEntity> findByOasysOffenderId(long offenderId);
 
 }

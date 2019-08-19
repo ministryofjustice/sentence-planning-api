@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS OFFENDER
 (
   ID                                SERIAL        PRIMARY KEY,
   UUID                              UUID          NOT NULL,
-  OASYS_OFFENDER_ID                 TEXT          NULL,
+  OASYS_OFFENDER_ID                 BIGINT        NULL,
   NOMIS_OFFENDER_ID                 TEXT          NULL,
   DELIUS_OFFENDER_ID                TEXT          NULL,
   CONSTRAINT offender_uuid_idempotent UNIQUE (UUID),

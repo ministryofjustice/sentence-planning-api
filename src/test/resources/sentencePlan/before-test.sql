@@ -4,7 +4,7 @@ DELETE FROM sentenceplanapitest.need WHERE true;
 DELETE FROM sentenceplanapitest.sentence_plan where true;
 DELETE FROM sentenceplanapitest.offender WHERE true;
 
-INSERT INTO sentenceplanapitest.offender (uuid, oasys_offender_id, nomis_offender_id, delius_offender_id) VALUES ('11111111-1111-1111-1111-111111111111', null, null, null);
+INSERT INTO sentenceplanapitest.offender (uuid, oasys_offender_id, nomis_offender_id, delius_offender_id) VALUES ('11111111-1111-1111-1111-111111111111', 123456, null, null);
 
 INSERT INTO sentenceplanapitest.sentence_plan (uuid, status, data, event_type, created_on, start_date, end_date, offender_uuid) VALUES ('11111111-1111-1111-1111-111111111111', 'STARTED', '{"steps": [ {"id": "11111111-1111-1111-1111-111111111111", "needs": ["11111111-1111-1111-1111-111111111111", "22222222-2222-2222-2222-222222222222"], "owner": "PRACTITIONER", "status": "COMPLETED", "strength": "strength", "ownerOther": null, "description": "description", "intervention": null, "progress": []}], "serviceUserComments": "comments"}', '0', '2019-06-27 09:57:32.366026', '2019-06-27 09:57:32.365964', '2019-06-27 09:57:32.365216', '11111111-1111-1111-1111-111111111111');
 

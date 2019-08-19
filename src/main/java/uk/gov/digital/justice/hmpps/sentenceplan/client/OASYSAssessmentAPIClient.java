@@ -2,13 +2,19 @@ package uk.gov.digital.justice.hmpps.sentenceplan.client;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.LogEvent;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysAssessment;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysOffender;
+import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysSentencePlan;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.exception.OasysClientException;
+
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -24,7 +30,7 @@ public class OASYSAssessmentAPIClient {
         this.assessmentApiBasePath = assessmentApiBasePath;
     }
 
-    public Optional<OasysOffender> getOffenderById(String oasysOffenderId) {
+    public Optional<OasysOffender> getOffenderById(long oasysOffenderId) {
         try {
             return Optional.ofNullable(restTemplate.getForEntity(assessmentApiBasePath + "/offenders/oasysOffenderId/{oasysOffenderId}", OasysOffender.class, oasysOffenderId).getBody());
         }
@@ -36,15 +42,13 @@ public class OASYSAssessmentAPIClient {
             log.error("Failed to retrieve assessment for offender", LogEvent.OASYS_ASSESSMENT_CLIENT_FAILURE);
             throw new OasysClientException("Failed to retrieve assessment for offender");
         }
-
-
     }
 
-    public Optional<OasysAssessment> getLatestLayer3AssessmentForOffender(String oasysOffenderId) {
-
-
+    public Optional<OasysAssessment> getLatestLayer3AssessmentForOffender(long oasysOffenderId) {
         try {
-           return Optional.ofNullable(restTemplate.getForEntity(assessmentApiBasePath + "/offenders/oasysOffenderId/{oasysOffenderId}/assessments/latest", OasysAssessment.class, oasysOffenderId).getBody());
+           return Optional.ofNullable(restTemplate.getForEntity(
+                   assessmentApiBasePath + "/offenders/oasysOffenderId/{oasysOffenderId}/assessments/latest",
+                   OasysAssessment.class, oasysOffenderId).getBody());
         }
         catch(HttpClientErrorException e) {
             if(e.getRawStatusCode() == 404) {
@@ -53,6 +57,22 @@ public class OASYSAssessmentAPIClient {
             }
             log.error("Failed to retrieve assessment for offender", LogEvent.OASYS_ASSESSMENT_CLIENT_FAILURE);
             throw new OasysClientException("Failed to retrieve assessment for offender");
+        }
+    }
+
+    public List<OasysSentencePlan> getSentencePlansForOffender(long oasysOffenderId) {
+        try {
+            return restTemplate.exchange(
+                    assessmentApiBasePath + "/offenders/oasysOffenderId/{oasysOffenderId}/properSentencePlans",
+                    HttpMethod.GET,null, new ParameterizedTypeReference<List<OasysSentencePlan>>(){}, oasysOffenderId).getBody();
+        }
+        catch(HttpClientErrorException e) {
+            if(e.getRawStatusCode() == 404) {
+                log.info("Sentence Plans for offender {} not found", oasysOffenderId, LogEvent.OASYS_ASSESSMENT_NOT_FOUND);
+                return Collections.emptyList();
+            }
+            log.error("Failed to retrieve sentence plans for offender", LogEvent.OASYS_ASSESSMENT_CLIENT_FAILURE);
+            throw new OasysClientException("Failed to retrieve sentence plans for offender");
         }
     }
 }

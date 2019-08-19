@@ -24,19 +24,19 @@ private OASYSAssessmentAPIClient oasysAssessmentAPIClient;
     public OffenderEntity getOffenderByType(String offenderId, OffenderReferenceType offenderReferenceType) {
         switch (offenderReferenceType) {
             case OASYS:
-                return retrieveOasysOffender(offenderId);
+                return retrieveOasysOffender(Long.valueOf(offenderId));
         }
         throw new RuntimeException("Unknown offender reference type");
     }
 
-    private OffenderEntity retrieveOasysOffender(String offenderId) {
-         return offenderRespository.findByOasysOffednerId(offenderId).orElseGet(
+    private OffenderEntity retrieveOasysOffender(long offenderId) {
+         return offenderRespository.findByOasysOffenderId(offenderId).orElseGet(
                  () -> saveOASysOffender(oasysAssessmentAPIClient.getOffenderById(offenderId)
                          .orElseThrow(() -> new EntityNotFoundException(String.format("Offender %s not found", offenderId)))));
     }
 
     private OffenderEntity saveOASysOffender(OasysOffender oasysOffender) {
-        var offender = new OffenderEntity(oasysOffender.getOasysOffenderId().toString(), oasysOffender.getIdentifiers().getNomisId());
+        var offender = new OffenderEntity(oasysOffender.getOasysOffenderId(), oasysOffender.getIdentifiers().getNomisId());
         offenderRespository.save(offender);
         return offender;
     }
