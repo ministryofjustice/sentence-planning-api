@@ -125,6 +125,31 @@ public class SentencePlanResourceTest {
 
 
     @Test
+    public void shouldGetLegacySentencePlanIfExists() throws JsonProcessingException {
+
+        var assessmentApi = bindTo(oauthRestTemplate).ignoreExpectOrder(true).build();
+
+        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123456/properSentencePlans"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(
+                        mapper.writeValueAsString(List.of(
+                                new OasysSentencePlan(12345L, LocalDate.of(2010, 1,1), null, EMPTY_LIST)
+                        )), MediaType.APPLICATION_JSON));
+
+        var result = given()
+                .when()
+                .header("Accept", "application/json")
+                .get("/offender/{0}/sentenceplan/{1}", OASYS_OFFENDER_ID, 12345L)
+                .then()
+                .statusCode(200)
+                .extract()
+                .body()
+                .as(OasysSentencePlan.class);
+
+        assertThat(result.getOasysSetId()).isEqualTo(12345L);
+    }
+
+    @Test
     public void shouldReturnNotFoundForNonexistentPlan() {
         var result = given()
                 .when()

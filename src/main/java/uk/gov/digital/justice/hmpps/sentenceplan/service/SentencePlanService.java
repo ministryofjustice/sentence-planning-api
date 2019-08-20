@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.ValidationException;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.OASYSAssessmentAPIClient;
+import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysSentencePlan;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
@@ -201,5 +202,11 @@ public class SentencePlanService {
         log.info("Returning {} sentence plans for Offender {}", sentencePlanSummaries.size(), oasysOffenderId, value(EVENT,SENTENCE_PLANS_RETRIEVED));
         return sentencePlanSummaries.stream().sorted(Comparator.comparing(SentencePlanSummary::getCreatedDate).reversed()).collect(Collectors.toList());
 
+    }
+
+    public OasysSentencePlan getLegacySentencePlan(Long oasysOffenderId, String sentencePlanId) {
+        var oasysSentencePlans = oasysAssessmentAPIClient.getSentencePlansForOffender(oasysOffenderId);
+        return oasysSentencePlans.stream().filter(s->s.getOasysSetId().equals(Long.valueOf(sentencePlanId))).findFirst()
+            .orElseThrow(() ->new EntityNotFoundException("OASys sentence plan does not exist for offender."));
     }
 }

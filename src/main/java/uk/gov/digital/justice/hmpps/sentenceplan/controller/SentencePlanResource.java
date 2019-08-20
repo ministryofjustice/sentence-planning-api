@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
+import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysSentencePlan;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.SentencePlanService;
 
 import javax.validation.Valid;
@@ -40,11 +41,20 @@ public class SentencePlanResource {
         return ResponseEntity.ok(sentencePlanService.getSentencePlanFromUuid(sentencePlanUUID));
     }
 
+    @GetMapping(value = "/offender/{offenderId}/sentenceplan/{sentencePlanId}", produces = "application/json")
+    @ApiOperation(value = "Gets an Oasys Sentence Plan from it's ID",
+            response = SentencePlan.class,
+            notes = "Request sentence plan")
+    ResponseEntity<OasysSentencePlan> getOASysSentencePlan(@ApiParam(value = "Oasys Offender ID") @PathVariable("offenderId") Long oasysOffenderId, @ApiParam(value = "Oasys Sentence Plan ID") @PathVariable("sentencePlanId") String sentencePlanId) {
+        return ResponseEntity.ok(sentencePlanService.getLegacySentencePlan(oasysOffenderId, sentencePlanId));
+    }
+
+
     @GetMapping(value = "/offender/{offenderId}/sentenceplans", produces = "application/json")
     @ApiOperation(value = "Gets a list of Sentence Plans for an Offender",
             response = SentencePlan.class,
             notes = "Request sentence plans for offender. Includes both new and OASYs sentence plans")
-    ResponseEntity<List<SentencePlanSummary>> getSentencePlansForOffender(@ApiParam(value = "Offender ID") @PathVariable("offenderId") Long oasysOffenderId) {
+    ResponseEntity<List<SentencePlanSummary>> getSentencePlansForOffender(@ApiParam(value = "OASys Offender ID") @PathVariable("offenderId") Long oasysOffenderId) {
         return ResponseEntity.ok(sentencePlanService.getSentencePlansForOffender(oasysOffenderId));
     }
 
