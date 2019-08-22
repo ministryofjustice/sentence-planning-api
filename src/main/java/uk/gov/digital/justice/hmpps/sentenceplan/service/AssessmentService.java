@@ -9,30 +9,39 @@ import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.NeedEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.SentencePlanEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.NoOffenderAssessmentException;
 
+import java.time.Clock;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class AssessmentService {
+    public static final int UPDATE_INTERVAL_MINUTES = 10;
     private OASYSAssessmentAPIClient oasysAssessmentAPIClient;
+    private Clock clock;
 
-
-    public AssessmentService(OASYSAssessmentAPIClient oasysAssessmentAPIClient) {
+    public AssessmentService(OASYSAssessmentAPIClient oasysAssessmentAPIClient, Clock clock) {
         this.oasysAssessmentAPIClient = oasysAssessmentAPIClient;
+        this.clock = clock;
     }
 
     public void addLatestAssessmentNeedsToPlan(SentencePlanEntity sentencePlanEntity) {
-        log.info("Adding new assessment needs to sentence plan {}", sentencePlanEntity.getUuid());
-        var oasysAssessment = oasysAssessmentAPIClient.getLatestLayer3AssessmentForOffender(
-                sentencePlanEntity.getOffender().getOasysOffenderId())
-                .orElseThrow(NoOffenderAssessmentException::new);
 
-        sentencePlanEntity.setSafeguardingRisks(oasysAssessment.getChildSafeguardingIndicated(), oasysAssessment.getComplyWithChildProtectionPlanIndicated());
-        sentencePlanEntity.addNeeds(getNeedsFromOasysAssessment(oasysAssessment, sentencePlanEntity));
+        if(sentencePlanEntity.getNeedsLastupdatedOn() == null || sentencePlanEntity.getNeedsLastupdatedOn().isBefore(LocalDateTime.now(clock).minusMinutes(UPDATE_INTERVAL_MINUTES))) {
+            log.info("Adding new assessment needs to sentence plan {}", sentencePlanEntity.getUuid());
+            var oasysAssessment = oasysAssessmentAPIClient.getLatestLayer3AssessmentForOffender(
+                    sentencePlanEntity.getOffender().getOasysOffenderId())
+                    .orElseThrow(NoOffenderAssessmentException::new);
+
+            sentencePlanEntity.setSafeguardingRisks(oasysAssessment.getChildSafeguardingIndicated(), oasysAssessment.getComplyWithChildProtectionPlanIndicated());
+            sentencePlanEntity.addNeeds(getNeedsFromOasysAssessment(oasysAssessment, sentencePlanEntity));
+            sentencePlanEntity.setNeedsLastupdatedOn(LocalDateTime.now(clock));
+        }
     }
+
     private List<NeedEntity> getNeedsFromOasysAssessment(OasysAssessment assessment, SentencePlanEntity sentencePlanEntity) {
      List<AssessmentNeed> needs = assessment.getNeeds() == null ? Collections.emptyList() : assessment.getNeeds();
       return needs.stream()

@@ -8,7 +8,9 @@ import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.NeedEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.StepEntity;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -50,7 +52,7 @@ public class Step {
                 Need.from(needs.stream().filter(n-> step.getNeeds().contains(n.getUuid())).collect(Collectors.toList())),
                 step.getIntervention(),
                 step.getPriority(),
-                StepProgress.from(step.getProgress()),
+                StepProgress.from(Optional.ofNullable(step.getProgress()).orElse(Collections.emptyList())),
                 step.getUpdated());
     }
 

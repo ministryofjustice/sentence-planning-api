@@ -57,6 +57,9 @@ public class SentencePlanEntity implements Serializable {
     @Column(name = "END_DATE")
     private LocalDateTime endDate;
 
+    @Column(name = "NEEDS_LASTED_UPDATED_ON")
+    private LocalDateTime needsLastupdatedOn;
+
     @ManyToOne
     @JoinColumn(name = "OFFENDER_UUID", referencedColumnName = "UUID")
     private OffenderEntity offender;
