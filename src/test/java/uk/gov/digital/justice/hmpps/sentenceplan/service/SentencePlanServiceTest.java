@@ -382,6 +382,30 @@ public class SentencePlanServiceTest {
         verify(sentencePlanRepository,times(1)).save(sentencePlan);
     }
 
+    @Test
+    public void getLegacySentencePlanShouldReturnPlanForId() {
+
+        var offender = new OffenderEntity(1L, UUID.fromString("11111111-1111-1111-1111-111111111111"), 12345L, null,null,EMPTY_LIST);
+        var legacyPlan1 =  OasysSentencePlan.builder()
+                .completedDate(LocalDate.of(2019,1,1))
+                .createdDate(LocalDate.of(2018,1,1))
+                .oasysSetId(1L).build();
+
+        var legacyPlan2 =  OasysSentencePlan.builder()
+                .completedDate(LocalDate.of(2018,1,1))
+                .createdDate(LocalDate.of(2017,1,1))
+                .oasysSetId(2L).build();
+
+        when(oasysAssessmentAPIClient.getSentencePlansForOffender(12345L)).thenReturn(List.of(legacyPlan1, legacyPlan2));
+
+        var result = service.getLegacySentencePlan(12345L, "1");
+
+        assertThat(result.getOasysSetId()).isEqualTo(1L);
+        assertThat(result.getCompletedDate()).isEqualTo(LocalDate.of(2019,1,1));
+        assertThat(result.getCreatedDate()).isEqualTo(LocalDate.of(2018,1,1));
+    }
+
+
     private SentencePlanEntity getNewSentencePlan(UUID uuid) {
 
         return SentencePlanEntity.builder()
