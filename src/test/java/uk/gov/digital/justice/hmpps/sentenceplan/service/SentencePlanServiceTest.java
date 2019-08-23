@@ -390,7 +390,7 @@ public class SentencePlanServiceTest {
 
         var comment = new AddCommentRequest("Any Comment", SERVICE_USER);
 
-        service.addComments(sentencePlanUuid, List.of(comment));
+        service.addSentencePlanComments(sentencePlanUuid, List.of(comment));
 
         verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
         verify(sentencePlanRepository,times(1)).save(sentencePlan);
@@ -400,7 +400,7 @@ public class SentencePlanServiceTest {
     public void addNoCommentsShouldNotSaveToRepository() {
         var sentencePlan = getSentencePlanWithOneStep();
 
-        service.addComments(sentencePlanUuid, List.of());
+        service.addSentencePlanComments(sentencePlanUuid, List.of());
 
         verify(sentencePlanRepository,times(0)).findByUuid(sentencePlanUuid);
         verify(sentencePlanRepository,times(0)).save(sentencePlan);
@@ -415,7 +415,7 @@ public class SentencePlanServiceTest {
         var comment2 = new AddCommentRequest("Any Other Comment", SERVICE_USER);
 
 
-        service.addComments(sentencePlanUuid, List.of(comment1, comment2));
+        service.addSentencePlanComments(sentencePlanUuid, List.of(comment1, comment2));
 
         verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
         verify(sentencePlanRepository,times(1)).save(sentencePlan);

@@ -175,16 +175,22 @@ public class SentencePlanService {
     }
 
     @Transactional
-    public void addComments(UUID sentencePlanUUID, List<AddCommentRequest> comments) {
+    public void addSentencePlanComments(UUID sentencePlanUUID, List<AddCommentRequest> comments) {
         if (comments.size() > 0) {
             var sentencePlanEntity = sentencePlanRepository.findByUuid(sentencePlanUUID);
 
             // TODO: Presumably createdBy comes from the Auth headers?
             comments.forEach(comment -> sentencePlanEntity.addComment(new CommentEntity(comment.getComments(), comment.getOwner(), "ANONYMOUS")));
 
-            log.info("Added Comments {}", sentencePlanEntity.getUuid(), value(EVENT, SENTENCE_PLAN_STEP_CREATED));
+            log.info("Added Comments {}", sentencePlanEntity.getUuid(), value(EVENT, SENTENCE_PLAN_COMMENTS_CREATED));
             sentencePlanRepository.save(sentencePlanEntity);
         }
+    }
+
+    public List<Comment> getSentencePlanComments(UUID sentencePlanUuid) {
+        log.info("Retrieving Sentence Plan Comments {}", sentencePlanUuid, value(EVENT, SENTENCE_PLAN_COMMENTS_RETRIEVED));
+        var sentencePlanEntity = getSentencePlanEntity(sentencePlanUuid);
+        return Comment.from(sentencePlanEntity.getData().getComments());
     }
 
     public List<SentencePlanSummary> getSentencePlansForOffender(Long oasysOffenderId) {
