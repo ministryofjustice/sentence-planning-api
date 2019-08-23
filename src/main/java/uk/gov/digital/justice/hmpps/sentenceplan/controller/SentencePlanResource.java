@@ -9,10 +9,10 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
+import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysSentencePlan;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.SentencePlanService;
 
 import javax.validation.Valid;
-import java.util.*;
 import java.util.stream.Collectors;
 import java.util.List;
 import java.util.UUID;
@@ -31,7 +31,6 @@ public class SentencePlanResource {
         this.sentencePlanService = sentencePlanService;
     }
 
-
     @GetMapping(value = "/sentenceplan/{sentencePlanUUID}", produces = "application/json")
     @ApiOperation(value = "Gets a Sentence Plan from it's ID",
             response = SentencePlan.class,
@@ -40,11 +39,20 @@ public class SentencePlanResource {
         return ResponseEntity.ok(sentencePlanService.getSentencePlanFromUuid(sentencePlanUUID));
     }
 
+    @GetMapping(value = "/offender/{offenderId}/sentenceplan/{sentencePlanId}", produces = "application/json")
+    @ApiOperation(value = "Gets an Oasys Sentence Plan from it's ID",
+            response = SentencePlan.class,
+            notes = "Request sentence plan")
+    ResponseEntity<OasysSentencePlan> getOASysSentencePlan(@ApiParam(value = "Oasys Offender ID") @PathVariable("offenderId") Long oasysOffenderId, @ApiParam(value = "Oasys Sentence Plan ID") @PathVariable("sentencePlanId") String sentencePlanId) {
+        return ResponseEntity.ok(sentencePlanService.getLegacySentencePlan(oasysOffenderId, sentencePlanId));
+    }
+
+
     @GetMapping(value = "/offender/{offenderId}/sentenceplans", produces = "application/json")
     @ApiOperation(value = "Gets a list of Sentence Plans for an Offender",
             response = SentencePlan.class,
             notes = "Request sentence plans for offender. Includes both new and OASYs sentence plans")
-    ResponseEntity<List<SentencePlanSummary>> getSentencePlansForOffender(@ApiParam(value = "Offender ID") @PathVariable("offenderId") Long oasysOffenderId) {
+    ResponseEntity<List<SentencePlanSummary>> getSentencePlansForOffender(@ApiParam(value = "OASys Offender ID") @PathVariable("offenderId") Long oasysOffenderId) {
         return ResponseEntity.ok(sentencePlanService.getSentencePlansForOffender(oasysOffenderId));
     }
 
@@ -117,7 +125,7 @@ public class SentencePlanResource {
     @ApiOperation(value = "Update the Motivations against Needs on a Sentence Plan",
             notes = "Update Needs")
     ResponseEntity updateMotivations(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @RequestBody List<AssociateMotivationNeedRequest> request) {
-        Map<UUID,UUID> needs = request.stream().collect(Collectors.toMap(AssociateMotivationNeedRequest::getNeedUUID, AssociateMotivationNeedRequest::getMotivationUUID));
+        var needs = request.stream().collect(Collectors.toMap(AssociateMotivationNeedRequest::getNeedUUID, AssociateMotivationNeedRequest::getMotivationUUID));
         sentencePlanService.updateMotivations(sentencePlanUUID,needs);
         return ResponseEntity.ok().build();
     }
@@ -126,7 +134,7 @@ public class SentencePlanResource {
     @ApiOperation(value = "Set the priorities of steps on a Sentence Plan",
             notes = "Set Priority")
     ResponseEntity<List<UpdateStepPriorityRequest>> updateStepPriority(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @RequestBody List<UpdateStepPriorityRequest> request) {
-        Map<UUID,Integer> steps = request.stream().collect(Collectors.toMap(UpdateStepPriorityRequest::getStepUUID, UpdateStepPriorityRequest::getPriority));
+        var steps = request.stream().collect(Collectors.toMap(UpdateStepPriorityRequest::getStepUUID, UpdateStepPriorityRequest::getPriority));
         sentencePlanService.updateStepPriorities(sentencePlanUUID, steps);
         return ResponseEntity.ok(request);
     }

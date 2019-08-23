@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.ValidationException;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.OASYSAssessmentAPIClient;
+import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysSentencePlan;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
@@ -51,13 +52,14 @@ public class SentencePlanService {
         return SentencePlan.from(sentencePlan);
     }
 
-
+    @Transactional
     public SentencePlan getSentencePlanFromUuid(UUID sentencePlanUuid) {
         log.info("Retrieving Sentence Plan {}", sentencePlanUuid, value(EVENT,SENTENCE_PLAN_RETRIEVED));
-        return SentencePlan.from(getSentencePlanEntity(sentencePlanUuid));
+        var sentencePlanEntity = getSentencePlanEntityWithUpdatedNeeds(sentencePlanUuid);
+        return SentencePlan.from(sentencePlanEntity);
     }
 
-    public Optional<SentencePlanEntity> getCurrentSentencePlanForOffender(UUID offenderUUID) {
+    private Optional<SentencePlanEntity> getCurrentSentencePlanForOffender(UUID offenderUUID) {
         log.info("Retrieving Sentence Plan for offender {}", offenderUUID, value(EVENT,SENTENCE_PLAN_RETRIEVED));
         var sentencePlans =  sentencePlanRepository.findByOffenderUuid(offenderUUID);
         return sentencePlans.stream().filter(s -> s.getEndDate() == null).findFirst();
@@ -66,7 +68,7 @@ public class SentencePlanService {
     @Transactional
     public List<Step> addStep(UUID sentencePlanUUID, StepOwner owner, String ownerOther, String strength, String description, String intervention, List<UUID> needs) {
         var stepEntity = new StepEntity(owner,ownerOther,description,strength, StepStatus.IN_PROGRESS, needs, intervention);
-        var sentencePlan =  sentencePlanRepository.findByUuid(sentencePlanUUID);
+        var sentencePlan =  getSentencePlanEntity(sentencePlanUUID);
 
         if(sentencePlan.getStatus().equals(PlanStatus.DRAFT) && sentencePlan.getData().getSteps().isEmpty()) {
             sentencePlan.setStatus(PlanStatus.STARTED);
@@ -83,7 +85,6 @@ public class SentencePlanService {
         }
 
         sentencePlan.addStep(stepEntity);
-
 
         log.info("Created Sentence Plan Step {}", sentencePlan.getUuid(), value(EVENT,SENTENCE_PLAN_STEP_CREATED));
         return Step.from(sentencePlan.getData().getSteps(), sentencePlan.getNeeds());
@@ -111,9 +112,11 @@ public class SentencePlanService {
         return Step.from(getStepEntity(sentencePlanEntity, stepId), sentencePlanEntity.getNeeds());
     }
 
+    @Transactional
     public List<Need> getSentencePlanNeeds(UUID sentencePlanUuid) {
         log.info("Retrieving Sentence Plan Needs {}", sentencePlanUuid, value(EVENT,SENTENCE_PLAN_NEEDS_RETRIEVED));
-        return Need.from(getSentencePlanEntity(sentencePlanUuid).getNeeds());
+        var sentencePlanEntity = getSentencePlanEntityWithUpdatedNeeds(sentencePlanUuid);
+        return Need.from(sentencePlanEntity.getNeeds());
     }
 
     @Transactional
@@ -170,6 +173,19 @@ public class SentencePlanService {
         sentencePlanRepository.save(sentencePlanEntity);
 
     }
+  
+    @Transactional
+    public void addComments(UUID sentencePlanUUID, List<AddCommentRequest> comments) {
+        if(comments.size() > 0) {
+            var sentencePlanEntity = sentencePlanRepository.findByUuid(sentencePlanUUID);
+
+            // TODO: Presumably createdBy comes from the Auth headers?
+            comments.forEach(comment -> sentencePlanEntity.addComment(new CommentEntity(comment.getComments(), comment.getOwner(), "ANONYMOUS")));
+
+            log.info("Added Comments {}", sentencePlanEntity.getUuid(), value(EVENT, SENTENCE_PLAN_STEP_CREATED));
+            sentencePlanRepository.save(sentencePlanEntity);
+        }
+    }
 
     public List<SentencePlanSummary> getSentencePlansForOffender(Long oasysOffenderId) {
         var offenderUuid = offenderService.getOffenderByType(Long.toString(oasysOffenderId), OffenderReferenceType.OASYS).getUuid();
@@ -190,18 +206,11 @@ public class SentencePlanService {
         return sentencePlanSummaries.stream().sorted(Comparator.comparing(SentencePlanSummary::getCreatedDate).reversed()).collect(Collectors.toList());
 
     }
-
-    @Transactional
-    public void addComments(UUID sentencePlanUUID, List<AddCommentRequest> comments) {
-        if(comments.size() > 0) {
-            var sentencePlanEntity = sentencePlanRepository.findByUuid(sentencePlanUUID);
-
-            // TODO: Presumably createdBy comes from the Auth headers?
-            comments.forEach(comment -> sentencePlanEntity.addComment(new CommentEntity(comment.getComments(), comment.getOwner(), "ANONYMOUS")));
-
-            log.info("Added Comments {}", sentencePlanEntity.getUuid(), value(EVENT, SENTENCE_PLAN_STEP_CREATED));
-            sentencePlanRepository.save(sentencePlanEntity);
-        }
+  
+    public OasysSentencePlan getLegacySentencePlan(Long oasysOffenderId, String sentencePlanId) {
+        var oasysSentencePlans = oasysAssessmentAPIClient.getSentencePlansForOffender(oasysOffenderId);
+        return oasysSentencePlans.stream().filter(s->s.getOasysSetId().equals(Long.valueOf(sentencePlanId))).findFirst()
+            .orElseThrow(() ->new EntityNotFoundException("OASys sentence plan does not exist for offender."));
     }
 
     private StepEntity getStepEntity(SentencePlanEntity sentencePlanEntity, UUID stepUuid) {
@@ -210,8 +219,14 @@ public class SentencePlanService {
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Step %s not found", stepUuid)));
     }
 
+    private SentencePlanEntity getSentencePlanEntityWithUpdatedNeeds(UUID sentencePlanUuid) {
+        var sentencePlanEntity = getSentencePlanEntity(sentencePlanUuid);
+        assessmentService.addLatestAssessmentNeedsToPlan(sentencePlanEntity);
+        return sentencePlanEntity;
+    }
+
     private SentencePlanEntity getSentencePlanEntity(UUID sentencePlanUuid) {
         return Optional.ofNullable(sentencePlanRepository.findByUuid(sentencePlanUuid))
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Sentence Plan %s not found", sentencePlanUuid)));
     }
-}
+
