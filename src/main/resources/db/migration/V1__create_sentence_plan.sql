@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS SENTENCE_PLAN
   START_DATE                         TIMESTAMP    NOT NULL,
   END_DATE                           TIMESTAMP    NULL,
   OFFENDER_UUID                      UUID         NOT NULL,
+  ASSESSMENT_NEEDS_LAST_IMPORTED_ON  TIMESTAMP    NULL,
   CONSTRAINT sentence_plan_uuid_idempotent UNIQUE (UUID),
   CONSTRAINT fk_sentenceplan_offender FOREIGN KEY (OFFENDER_UUID) REFERENCES OFFENDER (UUID)
 );

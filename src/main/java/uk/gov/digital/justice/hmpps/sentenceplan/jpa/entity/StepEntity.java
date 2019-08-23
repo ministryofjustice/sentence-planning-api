@@ -12,9 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@Data
 @AllArgsConstructor
-@NoArgsConstructor
+@Getter
 public class StepEntity implements Serializable {
 
     private UUID id;
@@ -29,6 +28,10 @@ public class StepEntity implements Serializable {
     private List<ProgressEntity> progress;
     private LocalDateTime updated;
 
+
+    public StepEntity() {
+        progress = new ArrayList<>(0);
+    }
 
     public StepEntity(StepOwner owner, String ownerOther, String description, String strength, StepStatus status, List<UUID> needs, String intervention) {
 
@@ -90,4 +93,9 @@ public class StepEntity implements Serializable {
             throw new ValidationException("Description must be specified if intervention is not specified");
         }
     }
+
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
+
 }

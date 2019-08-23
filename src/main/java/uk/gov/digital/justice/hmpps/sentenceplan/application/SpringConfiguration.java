@@ -19,6 +19,7 @@ import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import uk.gov.digital.justice.hmpps.sentenceplan.controller.SentencePlanResource;
 
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Collections;
@@ -45,6 +46,11 @@ public class SpringConfiguration implements WebMvcConfigurer {
         m.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
         m.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         return m;
+    }
+
+    @Bean
+    public Clock initialiseClock() {
+        return Clock.systemDefaultZone();
     }
 
     @Bean

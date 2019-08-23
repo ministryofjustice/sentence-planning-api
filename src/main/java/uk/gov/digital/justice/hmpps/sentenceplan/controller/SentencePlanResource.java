@@ -13,7 +13,6 @@ import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysSentencePlan;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.SentencePlanService;
 
 import javax.validation.Valid;
-import java.util.*;
 import java.util.stream.Collectors;
 import java.util.List;
 import java.util.UUID;
@@ -31,7 +30,6 @@ public class SentencePlanResource {
     public SentencePlanResource(SentencePlanService sentencePlanService) {
         this.sentencePlanService = sentencePlanService;
     }
-
 
     @GetMapping(value = "/sentenceplan/{sentencePlanUUID}", produces = "application/json")
     @ApiOperation(value = "Gets a Sentence Plan from it's ID",
@@ -127,7 +125,7 @@ public class SentencePlanResource {
     @ApiOperation(value = "Update the Motivations against Needs on a Sentence Plan",
             notes = "Update Needs")
     ResponseEntity updateMotivations(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @RequestBody List<AssociateMotivationNeedRequest> request) {
-        Map<UUID,UUID> needs = request.stream().collect(Collectors.toMap(AssociateMotivationNeedRequest::getNeedUUID, AssociateMotivationNeedRequest::getMotivationUUID));
+        var needs = request.stream().collect(Collectors.toMap(AssociateMotivationNeedRequest::getNeedUUID, AssociateMotivationNeedRequest::getMotivationUUID));
         sentencePlanService.updateMotivations(sentencePlanUUID,needs);
         return ResponseEntity.ok().build();
     }
@@ -136,7 +134,7 @@ public class SentencePlanResource {
     @ApiOperation(value = "Set the priorities of steps on a Sentence Plan",
             notes = "Set Priority")
     ResponseEntity<List<UpdateStepPriorityRequest>> updateStepPriority(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @RequestBody List<UpdateStepPriorityRequest> request) {
-        Map<UUID,Integer> steps = request.stream().collect(Collectors.toMap(UpdateStepPriorityRequest::getStepUUID, UpdateStepPriorityRequest::getPriority));
+        var steps = request.stream().collect(Collectors.toMap(UpdateStepPriorityRequest::getStepUUID, UpdateStepPriorityRequest::getPriority));
         sentencePlanService.updateStepPriorities(sentencePlanUUID, steps);
         return ResponseEntity.ok(request);
     }
