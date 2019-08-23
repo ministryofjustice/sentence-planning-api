@@ -479,7 +479,7 @@ public class SentencePlanResourceTest {
         assertThat(plan.getUuid()).isEqualTo(UUID.fromString(SENTENCE_PLAN_ID));
         assertThat(plan.getComments()).hasSize(1);
         assertThat(plan.getComments().get(0).getComments()).isEqualTo(comment.getComments());
-        assertThat(plan.getComments().get(0).getOwner()).isEqualTo(comment.getOwner());
+        assertThat(plan.getComments().get(0).getAuthor()).isEqualTo(comment.getOwner());
 
     }
 
@@ -531,7 +531,7 @@ public class SentencePlanResourceTest {
 
         assertThat(plan).hasSize(1);
         assertThat(plan[0].getComments()).isEqualTo(comment.getComments());
-        assertThat(plan[0].getOwner()).isEqualTo(comment.getOwner());
+        assertThat(plan[0].getAuthor()).isEqualTo(comment.getOwner());
 
     }
 

@@ -58,6 +58,8 @@ public class SentencePlanResource_NeedTest {
     SentencePlanRepository sentencePlanRepository;
     
     private final String SENTENCE_PLAN_ID = "11111111-1111-1111-1111-111111111111";
+    private final String NO_NEEDS_SENTENCE_PLAN_ID = "33333333-3333-3333-3333-333333333333";
+
     private final String NOT_FOUND_SENTENCE_PLAN_ID = "99999999-9999-9999-9999-999999999999";
 
     @Before
@@ -71,7 +73,6 @@ public class SentencePlanResource_NeedTest {
         );
 
     }
-
 
     @Test
     public void shouldGetNeedsWhenSentencePlanExists() throws JsonProcessingException {
@@ -88,6 +89,23 @@ public class SentencePlanResource_NeedTest {
                 .jsonPath().getList(".", Need.class);
 
         assertThat(result).hasSize(2);
+    }
+
+    @Test
+    public void shouldGetEmptyArrayWhenNoNeedsExist() throws JsonProcessingException {
+        setupMockRestServiceServerNoNeeds();
+
+        var result = given()
+                .when()
+                .header("Accept", "application/json")
+                .get("/sentenceplan/{0}/needs", NO_NEEDS_SENTENCE_PLAN_ID)
+                .then()
+                .statusCode(200)
+                .extract()
+                .body()
+                .jsonPath().getList(".", Need.class);
+
+        assertThat(result).hasSize(0);
     }
 
     @Test
@@ -115,6 +133,15 @@ public class SentencePlanResource_NeedTest {
         assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123456/assessments/latest"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(mapper.writeValueAsString(new OasysAssessment(123456L, "ACTIVE", needs, true, true)), MediaType.APPLICATION_JSON));
+        return assessmentApi;
+    }
+
+    private MockRestServiceServer setupMockRestServiceServerNoNeeds() throws JsonProcessingException {
+        var assessmentApi = bindTo(oauthRestTemplate).ignoreExpectOrder(true).build();
+
+        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/789123/assessments/latest"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(mapper.writeValueAsString(new OasysAssessment(789123L, "ACTIVE", null, true, true)), MediaType.APPLICATION_JSON));
         return assessmentApi;
     }
 

@@ -18,8 +18,8 @@ public class Comment {
     @JsonProperty("comments")
     private String comments;
 
-    @JsonProperty("owner")
-    private StepOwner owner;
+    @JsonProperty("author")
+    private StepOwner author;
 
     @JsonProperty("created")
     private LocalDateTime created;
@@ -29,7 +29,7 @@ public class Comment {
 
 
     public static Comment from(CommentEntity commentEntity) {
-        return new Comment(commentEntity.getComment(), commentEntity.getOwner(), commentEntity.getCreated(), commentEntity.getCreatedBy());
+        return new Comment(commentEntity.getComment(), commentEntity.getAuthor(), commentEntity.getCreated(), commentEntity.getCreatedBy());
     }
 
     public static List<Comment> from(List<CommentEntity> commentEntities) {

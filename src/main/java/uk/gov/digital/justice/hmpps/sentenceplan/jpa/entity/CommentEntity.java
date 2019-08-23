@@ -12,13 +12,13 @@ import java.time.LocalDateTime;
 public class CommentEntity implements Serializable {
 
     private String comment;
-    private StepOwner owner;
+    private StepOwner author;
     private LocalDateTime created;
     private String createdBy;
 
-    public CommentEntity(String comment, StepOwner owner, String createdBy) {
+    public CommentEntity(String comment, StepOwner author, String createdBy) {
         this.comment = comment;
-        this.owner = owner;
+        this.author = author;
         this.created = LocalDateTime.now();
         this.createdBy = createdBy;
     }

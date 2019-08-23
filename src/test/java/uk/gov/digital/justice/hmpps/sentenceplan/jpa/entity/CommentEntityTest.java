@@ -22,7 +22,7 @@ public class CommentEntityTest {
         var commentEntity = new CommentEntity(comment, owner, createdBy);
 
         assertThat(commentEntity.getComment()).isEqualTo(comment);
-        assertThat(commentEntity.getOwner()).isEqualTo(owner);
+        assertThat(commentEntity.getAuthor()).isEqualTo(owner);
         assertThat(commentEntity.getCreatedBy()).isEqualTo(createdBy);
         assertThat(commentEntity.getCreated()).isEqualToIgnoringSeconds(LocalDateTime.now());
     }
