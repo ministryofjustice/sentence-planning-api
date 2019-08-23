@@ -372,7 +372,8 @@ public class SentencePlanServiceTest {
 
     }
 
-    public void UpdateServiceUserCommentsSaveToRepository() {
+    @Test
+    public void updateServiceUserCommentsSaveToRepository() {
         var sentencePlan = getSentencePlanWithOneStep();
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
 
@@ -383,6 +384,43 @@ public class SentencePlanServiceTest {
     }
 
     @Test
+    public void addCommentsShouldSaveToRepository() {
+        var sentencePlan = getSentencePlanWithOneStep();
+        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
+
+        var comment = new AddCommentRequest("Any Comment", SERVICE_USER);
+
+        service.addSentencePlanComments(sentencePlanUuid, List.of(comment));
+
+        verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
+        verify(sentencePlanRepository,times(1)).save(sentencePlan);
+    }
+
+    @Test
+    public void addNoCommentsShouldNotSaveToRepository() {
+        var sentencePlan = getSentencePlanWithOneStep();
+
+        service.addSentencePlanComments(sentencePlanUuid, List.of());
+
+        verify(sentencePlanRepository,times(0)).findByUuid(sentencePlanUuid);
+        verify(sentencePlanRepository,times(0)).save(sentencePlan);
+    }
+
+    @Test
+    public void addMultipleCommentsShouldSaveToRepositoryOnce() {
+        var sentencePlan = getSentencePlanWithOneStep();
+        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
+
+        var comment1 = new AddCommentRequest("Any Comment", SERVICE_USER);
+        var comment2 = new AddCommentRequest("Any Other Comment", SERVICE_USER);
+
+
+        service.addSentencePlanComments(sentencePlanUuid, List.of(comment1, comment2));
+
+        verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
+        verify(sentencePlanRepository,times(1)).save(sentencePlan);
+    }
+
     public void getLegacySentencePlanShouldReturnPlanForId() {
 
         var offender = new OffenderEntity(1L, UUID.fromString("11111111-1111-1111-1111-111111111111"), 12345L, null,null,EMPTY_LIST);
@@ -405,7 +443,6 @@ public class SentencePlanServiceTest {
         assertThat(result.getCreatedDate()).isEqualTo(LocalDate.of(2018,1,1));
     }
 
-
     private SentencePlanEntity getNewSentencePlan(UUID uuid) {
 
         return SentencePlanEntity.builder()
@@ -419,14 +456,14 @@ public class SentencePlanServiceTest {
     private SentencePlanEntity getSentencePlanWithOneStep() {
 
         var needs = List.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
-        var steps = new ArrayList<StepEntity>();
-        steps.add(new StepEntity(PRACTITIONER, null, "a description", "a strength", StepStatus.PAUSED, needs, null));
+        var sentencePlanProperty = new SentencePlanPropertiesEntity();
+        sentencePlanProperty.addStep(new StepEntity(PRACTITIONER, null, "a description", "a strength", StepStatus.PAUSED, needs, null));
         return SentencePlanEntity.builder()
                 .createdOn(LocalDateTime.of(2019,6,1, 11,00))
                 .status(DRAFT)
                 .uuid(sentencePlanUuid)
                 .needs(List.of(NeedEntity.builder().uuid(UUID.fromString("11111111-1111-1111-1111-111111111111")).description("description").motivations(EMPTY_LIST).build()))
-                .data(SentencePlanPropertiesEntity.builder().steps(steps).build()).build();
+                .data(sentencePlanProperty).build();
     }
 
     private SentencePlanEntity getSentencePlanWithMultipleSteps() {

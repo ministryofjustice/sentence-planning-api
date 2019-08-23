@@ -448,6 +448,93 @@ public class SentencePlanResourceTest {
         assertThat(plan.getServiceUserComments()).isEqualTo(requestBody);
     }
 
+    @Test
+    public void shouldAddComments() throws JsonProcessingException {
+        setupMockRestServiceServer();
+
+        var comment = new AddCommentRequest("Any Comment", StepOwner.SERVICE_USER);
+        var requestBody = List.of(comment);
+
+        var result = given()
+                .when()
+                .body(requestBody)
+                .header("Content-Type", "application/json")
+                .post("/sentenceplan/{0}/comments", SENTENCE_PLAN_ID)
+                .then()
+                .statusCode(200)
+                .extract().statusCode();
+
+        assertThat(result).isEqualTo(200);
+
+        var plan = given()
+                .when()
+                .header("Accept", "application/json")
+                .get("/sentenceplan/{0}", SENTENCE_PLAN_ID)
+                .then()
+                .statusCode(200)
+                .extract()
+                .body()
+                .as(SentencePlan.class);
+
+        assertThat(plan.getUuid()).isEqualTo(UUID.fromString(SENTENCE_PLAN_ID));
+        assertThat(plan.getComments()).hasSize(1);
+        assertThat(plan.getComments().get(0).getComments()).isEqualTo(comment.getComments());
+        assertThat(plan.getComments().get(0).getAuthor()).isEqualTo(comment.getOwner());
+
+    }
+
+    @Test
+    public void shouldGetNoComments() throws JsonProcessingException {
+        setupMockRestServiceServer();
+
+        var plan = given()
+                .when()
+                .header("Accept", "application/json")
+                .get("/sentenceplan/{0}/comments", SENTENCE_PLAN_ID)
+                .then()
+                .statusCode(200)
+                .extract()
+                .body()
+                .as(Comment[].class);
+
+        assertThat(plan).hasSize(0);
+
+    }
+
+    @Test
+    public void shouldGetComments() throws JsonProcessingException {
+        setupMockRestServiceServer();
+
+        var comment = new AddCommentRequest("Any Comment", StepOwner.SERVICE_USER);
+        var requestBody = List.of(comment);
+
+        var result = given()
+                .when()
+                .body(requestBody)
+                .header("Content-Type", "application/json")
+                .post("/sentenceplan/{0}/comments", SENTENCE_PLAN_ID)
+                .then()
+                .statusCode(200)
+                .extract().statusCode();
+
+        assertThat(result).isEqualTo(200);
+
+        var plan = given()
+                .when()
+                .header("Accept", "application/json")
+                .get("/sentenceplan/{0}/comments", SENTENCE_PLAN_ID)
+                .then()
+                .statusCode(200)
+                .extract()
+                .body()
+                .as(Comment[].class);
+
+        assertThat(plan).hasSize(1);
+        assertThat(plan[0].getComments()).isEqualTo(comment.getComments());
+        assertThat(plan[0].getAuthor()).isEqualTo(comment.getOwner());
+
+    }
+
     private MockRestServiceServer setupMockRestServiceServer() throws JsonProcessingException {
         var assessmentApi = bindTo(oauthRestTemplate).ignoreExpectOrder(true).build();
 

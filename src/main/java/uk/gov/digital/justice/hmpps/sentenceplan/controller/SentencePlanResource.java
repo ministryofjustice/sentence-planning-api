@@ -142,18 +142,32 @@ public class SentencePlanResource {
     @PostMapping(value = "/sentenceplan/{sentencePlanUUID}/steps/{stepId}/progress", produces = "application/json")
     @ApiOperation(value = "Progress a step",
             notes = "Progress a Step")
-    ResponseEntity<ProgressStepRequest> progressStep(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Step ID") @PathVariable UUID stepId, @RequestBody ProgressStepRequest request) {
+    ResponseEntity progressStep(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Step ID") @PathVariable UUID stepId, @RequestBody ProgressStepRequest request) {
         sentencePlanService.progressStep(sentencePlanUUID, stepId, request.getStatus(), request.getPractitionerComments());
-        return ResponseEntity.ok(request);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping(value = "/sentenceplan/{sentencePlanUUID}/serviceUserComments", produces = "application/json")
-    @ApiOperation(value = "Set the value of the service user comments",
-            notes = "Set service user comments")
+    @ApiOperation(value = "Set service user comment",
+            notes = "This is me")
     ResponseEntity setServiceUserComments(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @RequestBody String serviceUserComment) {
         sentencePlanService.setServiceUserComments(sentencePlanUUID, serviceUserComment);
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping(value = "/sentenceplan/{sentencePlanUUID}/comments", produces = "application/json")
+    @ApiOperation(value = "Add comments",
+            notes = "Service user and practitioner comments")
+    ResponseEntity addComments(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @RequestBody List<AddCommentRequest> comments) {
+        sentencePlanService.addSentencePlanComments(sentencePlanUUID, comments);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping(value = "/sentenceplan/{sentencePlanUUID}/comments", produces = "application/json")
+    @ApiOperation(value = "Get comments",
+            notes = "Service user and practitioner comments")
+    ResponseEntity<List<Comment>> getComments(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID) {
+        return ResponseEntity.ok(sentencePlanService.getSentencePlanComments(sentencePlanUUID));
+    }
 
 }
