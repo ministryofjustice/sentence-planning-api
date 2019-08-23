@@ -171,18 +171,6 @@ public class SentencePlanService {
 
     }
 
-    private StepEntity getStepEntity(SentencePlanEntity sentencePlanEntity, UUID stepUuid) {
-        return sentencePlanEntity.getData().getSteps().stream()
-                .filter(s->s.getId().equals(stepUuid)).findAny()
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Step %s not found", stepUuid)));
-    }
-
-    private SentencePlanEntity getSentencePlanEntity(UUID sentencePlanUuid) {
-        return Optional.ofNullable(sentencePlanRepository.findByUuid(sentencePlanUuid))
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Sentence Plan %s not found", sentencePlanUuid)));
-    }
-
-
     public List<SentencePlanSummary> getSentencePlansForOffender(Long oasysOffenderId) {
         var offenderUuid = offenderService.getOffenderByType(Long.toString(oasysOffenderId), OffenderReferenceType.OASYS).getUuid();
         var newSentencePlans = sentencePlanRepository.findByOffenderUuid(offenderUuid);
@@ -201,5 +189,29 @@ public class SentencePlanService {
         log.info("Returning {} sentence plans for Offender {}", sentencePlanSummaries.size(), oasysOffenderId, value(EVENT,SENTENCE_PLANS_RETRIEVED));
         return sentencePlanSummaries.stream().sorted(Comparator.comparing(SentencePlanSummary::getCreatedDate).reversed()).collect(Collectors.toList());
 
+    }
+
+    @Transactional
+    public void addComments(UUID sentencePlanUUID, List<AddCommentRequest> comments) {
+        if(comments.size() > 0) {
+            var sentencePlanEntity = sentencePlanRepository.findByUuid(sentencePlanUUID);
+
+            // TODO: Presumably createdBy comes from the Auth headers?
+            comments.forEach(comment -> sentencePlanEntity.addComment(new CommentEntity(comment.getComments(), comment.getOwner(), "ANONYMOUS")));
+
+            log.info("Added Comments {}", sentencePlanEntity.getUuid(), value(EVENT, SENTENCE_PLAN_STEP_CREATED));
+            sentencePlanRepository.save(sentencePlanEntity);
+        }
+    }
+
+    private StepEntity getStepEntity(SentencePlanEntity sentencePlanEntity, UUID stepUuid) {
+        return sentencePlanEntity.getData().getSteps().stream()
+                .filter(s->s.getId().equals(stepUuid)).findAny()
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Step %s not found", stepUuid)));
+    }
+
+    private SentencePlanEntity getSentencePlanEntity(UUID sentencePlanUuid) {
+        return Optional.ofNullable(sentencePlanRepository.findByUuid(sentencePlanUuid))
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Sentence Plan %s not found", sentencePlanUuid)));
     }
 }

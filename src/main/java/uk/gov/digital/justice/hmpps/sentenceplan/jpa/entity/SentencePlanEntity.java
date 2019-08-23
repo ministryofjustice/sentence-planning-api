@@ -84,8 +84,8 @@ public class SentencePlanEntity implements Serializable {
     }
 
     public void addNeeds(List<NeedEntity> needs) {
-        var latestNeeds = needs.stream().map(n->n.getDescription()).collect(Collectors.toSet());
-        var currentNeeds = this.needs.stream().map(n->n.getDescription()).collect(Collectors.toSet());
+        var latestNeeds = needs.stream().map(NeedEntity::getDescription).collect(Collectors.toSet());
+        var currentNeeds = this.needs.stream().map(NeedEntity::getDescription).collect(Collectors.toSet());
 
         //flag removed needs as inactive
         this.needs.stream().filter(n-> !latestNeeds.contains(n.getDescription())).forEach(
@@ -104,7 +104,11 @@ public class SentencePlanEntity implements Serializable {
     }
 
     public void addStep(StepEntity stepEntity) {
-        this.data.steps.add(stepEntity);
+        this.data.addStep(stepEntity);
+    }
+
+    public void addComment(CommentEntity commentEntity) {
+        this.data.addComment(commentEntity);
     }
 }
 

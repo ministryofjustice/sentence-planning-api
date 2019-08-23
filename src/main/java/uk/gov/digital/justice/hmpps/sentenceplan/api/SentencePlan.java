@@ -27,6 +27,8 @@ public class SentencePlan {
     private List<Step> steps;
     @JsonProperty("needs")
     private List<Need> needs;
+    @JsonProperty("comments")
+    private List<Comment> comments;
     @JsonProperty("serviceUserComments")
     private String serviceUserComments;
     @JsonProperty("childSafeguardingIndicated")
@@ -40,6 +42,7 @@ public class SentencePlan {
 
         return new SentencePlan(sentencePlan.getUuid(), sentencePlan.getCreatedOn(), sentencePlan.getStatus(),
                 Step.from(data.getSteps(), sentencePlan.getNeeds()), Need.from(sentencePlan.getNeeds()),
+                Comment.from(data.getComments()),
                 data.getServiceUserComments(),
                 data.getChildSafeguardingIndicated(), data.getComplyWithChildProtectionPlanIndicated());
     }

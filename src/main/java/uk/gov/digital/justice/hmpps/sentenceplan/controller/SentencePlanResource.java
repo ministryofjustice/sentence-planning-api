@@ -140,12 +140,19 @@ public class SentencePlanResource {
     }
 
     @PostMapping(value = "/sentenceplan/{sentencePlanUUID}/serviceUserComments", produces = "application/json")
-    @ApiOperation(value = "Set the value of the service user comments",
-            notes = "Set service user comments")
+    @ApiOperation(value = "Set service user comment",
+            notes = "This is me")
     ResponseEntity setServiceUserComments(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @RequestBody String serviceUserComment) {
         sentencePlanService.setServiceUserComments(sentencePlanUUID, serviceUserComment);
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping(value = "/sentenceplan/{sentencePlanUUID}/comments", produces = "application/json")
+    @ApiOperation(value = "Add comments",
+            notes = "Service user and practitioner comments")
+    ResponseEntity addComments(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @RequestBody List<AddCommentRequest> comments) {
+        sentencePlanService.addComments(sentencePlanUUID, comments);
+        return ResponseEntity.ok().build();
+    }
 
 }
