@@ -10,7 +10,6 @@ import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.SentencePlanEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.NoOffenderAssessmentException;
 
 import java.time.Clock;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -30,7 +29,7 @@ public class AssessmentService {
 
     public void addLatestAssessmentNeedsToPlan(SentencePlanEntity sentencePlanEntity) {
 
-        if(sentencePlanEntity.getNeedsLastupdatedOn() == null || sentencePlanEntity.getNeedsLastupdatedOn().isBefore(LocalDateTime.now(clock).minusMinutes(UPDATE_INTERVAL_MINUTES))) {
+        if(sentencePlanEntity.getAssessmentNeedsLastImportedOn() == null || sentencePlanEntity.getAssessmentNeedsLastImportedOn().isBefore(LocalDateTime.now(clock).minusMinutes(UPDATE_INTERVAL_MINUTES))) {
             log.info("Adding new assessment needs to sentence plan {}", sentencePlanEntity.getUuid());
             var oasysAssessment = oasysAssessmentAPIClient.getLatestLayer3AssessmentForOffender(
                     sentencePlanEntity.getOffender().getOasysOffenderId())
@@ -38,7 +37,7 @@ public class AssessmentService {
 
             sentencePlanEntity.setSafeguardingRisks(oasysAssessment.getChildSafeguardingIndicated(), oasysAssessment.getComplyWithChildProtectionPlanIndicated());
             sentencePlanEntity.addNeeds(getNeedsFromOasysAssessment(oasysAssessment, sentencePlanEntity));
-            sentencePlanEntity.setNeedsLastupdatedOn(LocalDateTime.now(clock));
+            sentencePlanEntity.setAssessmentNeedsLastImportedOn(LocalDateTime.now(clock));
         }
     }
 

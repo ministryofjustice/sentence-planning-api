@@ -13,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
+import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
@@ -65,12 +66,17 @@ public class SentencePlanResource_NeedTest {
         RestAssured.config = RestAssuredConfig.config().objectMapperConfig(new ObjectMapperConfig().jackson2ObjectMapperFactory(
                 (aClass, s) -> mapper
         ));
+        oauthRestTemplate.getOAuth2ClientContext().setAccessToken(
+                new DefaultOAuth2AccessToken("accesstoken")
+        );
+
     }
 
 
     @Test
     public void shouldGetNeedsWhenSentencePlanExists() throws JsonProcessingException {
         setupMockRestServiceServer();
+
         var result = given()
                 .when()
                 .header("Accept", "application/json")
@@ -108,7 +114,7 @@ public class SentencePlanResource_NeedTest {
 
         assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123456/assessments/latest"))
                 .andExpect(method(GET))
-                .andRespond(withSuccess(mapper.writeValueAsString(new OasysAssessment(12345L, "ACTIVE", needs, true, true)), MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess(mapper.writeValueAsString(new OasysAssessment(123456L, "ACTIVE", needs, true, true)), MediaType.APPLICATION_JSON));
         return assessmentApi;
     }
 

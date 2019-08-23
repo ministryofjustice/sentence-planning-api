@@ -58,7 +58,7 @@ public class AssessmentServiceTest {
 
     @Test
     public void shouldNotAddNewAssessmentNeedsToSentencePlanWithin10MinutesOfLastUpdate() {
-        sentencePlanEntity.setNeedsLastupdatedOn(LocalDateTime.now());
+        sentencePlanEntity.setAssessmentNeedsLastImportedOn(LocalDateTime.now());
         assertThat(sentencePlanEntity.getNeeds()).isEmpty();
         assessmentService.addLatestAssessmentNeedsToPlan(sentencePlanEntity);
         verify(oasysAssessmentAPIClient, never()).getLatestLayer3AssessmentForOffender(123456L);
@@ -73,7 +73,7 @@ public class AssessmentServiceTest {
 
         when(oasysAssessmentAPIClient.getLatestLayer3AssessmentForOffender(123456L))
                 .thenReturn(Optional.ofNullable(oasysAssessment));
-        sentencePlanEntity.setNeedsLastupdatedOn(LocalDateTime.now(clock).minusMinutes(11));
+        sentencePlanEntity.setAssessmentNeedsLastImportedOn(LocalDateTime.now(clock).minusMinutes(11));
 
         assertThat(sentencePlanEntity.getNeeds()).isEmpty();
         assessmentService.addLatestAssessmentNeedsToPlan(sentencePlanEntity);
