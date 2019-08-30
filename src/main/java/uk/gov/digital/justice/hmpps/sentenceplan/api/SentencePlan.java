@@ -9,9 +9,9 @@ import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.SentencePlanProperti
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -35,15 +35,18 @@ public class SentencePlan {
     private Boolean childSafeguardingIndicated;
     @JsonProperty("complyWithChildProtectionPlanIndicated")
     private Boolean complyWithChildProtectionPlanIndicated;
+    @JsonProperty("bookingNumber")
+    private Long bookingNumber;
 
     public static SentencePlan from(SentencePlanEntity sentencePlan) {
 
-        var data = Optional.ofNullable(sentencePlan.getData()).orElseGet(() -> new SentencePlanPropertiesEntity());
+        var data = Optional.ofNullable(sentencePlan.getData()).orElseGet(SentencePlanPropertiesEntity::new);
 
         return new SentencePlan(sentencePlan.getUuid(), sentencePlan.getCreatedOn(), sentencePlan.getStatus(),
                 Step.from(data.getSteps(), sentencePlan.getNeeds()), Need.from(sentencePlan.getNeeds()),
                 Comment.from(data.getComments()),
                 data.getServiceUserComments(),
-                data.getChildSafeguardingIndicated(), data.getComplyWithChildProtectionPlanIndicated());
+                data.getChildSafeguardingIndicated(), data.getComplyWithChildProtectionPlanIndicated(),
+                Objects.nonNull(sentencePlan.getOffender()) ? sentencePlan.getOffender().getBookingNumber() : null);
     }
 }
