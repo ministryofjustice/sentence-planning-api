@@ -40,7 +40,7 @@ public class OffenderServiceTest {
     @Test
     public void shouldStoreOffenderMetaDataIfNotExists() {
 
-        var offender = new OasysOffender(123456L,"Mr", "John", "Smith","","",new OasysIdentifiers("12345"));
+        var offender = new OasysOffender(123456L,"Mr", "John", "Smith","","",new OasysIdentifiers("12345", 123L));
 
         when(offenderRespository.findByOasysOffenderId(123456L)).thenReturn(Optional.empty());
 
@@ -58,7 +58,7 @@ public class OffenderServiceTest {
     @Test
     public void shouldNotGetOffenderFromOasysIfExistsInRepository() {
 
-        var offender = new OffenderEntity(1L, UUID.randomUUID(), 123456L,"", "", EMPTY_LIST);
+        var offender = new OffenderEntity(1L, UUID.randomUUID(), 123456L,"", "", 123L, EMPTY_LIST);
 
         when(offenderRespository.findByOasysOffenderId(123456L)).thenReturn(Optional.ofNullable(offender));
 
