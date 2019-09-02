@@ -34,17 +34,17 @@ public class OffenderEntity implements Serializable {
     @Column(name = "DELIUS_OFFENDER_ID")
     private String deliusOffenderId;
 
-    @Column(name = "BOOKING_NUMBER")
-    private Long bookingNumber;
+    @Column(name = "NOMIS_BOOKING_NUMBER")
+    private Long nomisBookingNumber;
 
     @OneToMany(mappedBy = "offender", cascade = CascadeType.PERSIST)
     private List<SentencePlanEntity> setencePlans;
 
-    public OffenderEntity(Long oasysOffenderId, String nomisOffednerId, Long bookingNumber) {
+    public OffenderEntity(Long oasysOffenderId, String nomisOffednerId, Long nomisBookingNumber) {
         this.uuid = UUID.randomUUID();
         this.oasysOffenderId = oasysOffenderId;
         this.nomisOffenderId = nomisOffednerId;
-        this.bookingNumber = bookingNumber;
+        this.nomisBookingNumber = nomisBookingNumber;
         this.setencePlans = new ArrayList<>();
     }
 }
