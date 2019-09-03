@@ -36,7 +36,7 @@ private OASYSAssessmentAPIClient oasysAssessmentAPIClient;
     }
 
     private OffenderEntity saveOASysOffender(OasysOffender oasysOffender) {
-        var offender = new OffenderEntity(oasysOffender.getOasysOffenderId(), oasysOffender.getIdentifiers().getNomisId());
+        var offender = new OffenderEntity(oasysOffender.getOasysOffenderId(), oasysOffender.getIdentifiers().getNomisId(), oasysOffender.getIdentifiers().getBookingNumber());
         offenderRespository.save(offender);
         return offender;
     }
