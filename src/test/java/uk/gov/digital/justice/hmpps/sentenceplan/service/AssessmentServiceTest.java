@@ -86,8 +86,6 @@ public class AssessmentServiceTest {
                 new AssessmentNeed("Alcohol",true,true,true,true));
         var oasysAssessment = new OasysAssessment(123456,"ACTIVE", needs,true, true);
 
-        when(oasysAssessmentAPIClient.getLatestLayer3AssessmentForOffender(123456L))
-                .thenReturn(Optional.ofNullable(oasysAssessment));
         sentencePlanEntity.setAssessmentNeedsLastImportedOn(LocalDateTime.now(clock).minusMinutes(9));
 
         assertThat(sentencePlanEntity.getNeeds()).isEmpty();

@@ -107,8 +107,6 @@ public class OffenderServiceTest {
     public void shouldNotUpdateBookingNumberIfUpdatedToday() {
         var sentencePlan = getSentencePlanWithOffender();
         OasysOffender offender = new OasysOffender(1L, null, null, null, null, null, new OasysIdentifiers("Nomis", 3456L));
-        when(oasysAssessmentAPIClient.getOffenderById(1L)).thenReturn(Optional.ofNullable(offender));
-        when(offenderRespository.save(any())).thenReturn(null);
 
         sentencePlan.getOffender().setNomisBookingNumberLastImportedOn(LocalDateTime.now(clock).minusDays(0));
 
