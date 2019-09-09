@@ -2,23 +2,37 @@ package uk.gov.digital.justice.hmpps.sentenceplan.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import uk.gov.digital.justice.hmpps.sentenceplan.api.SentencePlan;
+import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.SentencePlanEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.OASYSAssessmentAPIClient;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysOffender;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.OffenderEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.OffenderRespository;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
+
 
 @Service
 @Slf4j
 public class OffenderService {
-
 private OffenderRespository offenderRespository;
 private OASYSAssessmentAPIClient oasysAssessmentAPIClient;
+private Clock clock;
 
-    public OffenderService(OffenderRespository offenderRespository, OASYSAssessmentAPIClient oasysAssessmentAPIClient) {
+    public OffenderService(OffenderRespository offenderRespository, OASYSAssessmentAPIClient oasysAssessmentAPIClient, Clock clock) {
         this.offenderRespository = offenderRespository;
         this.oasysAssessmentAPIClient = oasysAssessmentAPIClient;
+        this.clock = clock;
+    }
+
+    public void updateOasysOffender(SentencePlanEntity sentencePlanEntity) {
+        if(sentencePlanEntity.getOffender().getNomisBookingNumberLastImportedOn() == null || sentencePlanEntity.getOffender().getNomisBookingNumberLastImportedOn().getDayOfYear() < LocalDateTime.now(clock).getDayOfYear()) {
+            var offenderId = sentencePlanEntity.getOffender().getOasysOffenderId().toString();
+            var offender = getOffenderByType(offenderId, OffenderReferenceType.OASYS);
+            sentencePlanEntity.getOffender().setNomisBookingNumber(offender.getNomisBookingNumber());
+        }
     }
 
     public OffenderEntity getOffenderByType(String offenderId, OffenderReferenceType offenderReferenceType) {

@@ -4,8 +4,11 @@ package uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -34,8 +37,13 @@ public class OffenderEntity implements Serializable {
     @Column(name = "DELIUS_OFFENDER_ID")
     private String deliusOffenderId;
 
+    @Setter
     @Column(name = "NOMIS_BOOKING_NUMBER")
     private Long nomisBookingNumber;
+
+    @Setter
+    @Column(name = "NOMIS_BOOKING_NUMBER_LAST_IMPORTED_ON")
+    private LocalDateTime nomisBookingNumberLastImportedOn;
 
     @OneToMany(mappedBy = "offender", cascade = CascadeType.PERSIST)
     private List<SentencePlanEntity> setencePlans;
@@ -45,6 +53,7 @@ public class OffenderEntity implements Serializable {
         this.oasysOffenderId = oasysOffenderId;
         this.nomisOffenderId = nomisOffednerId;
         this.nomisBookingNumber = nomisBookingNumber;
+        this.nomisBookingNumberLastImportedOn = LocalDateTime.now();
         this.setencePlans = new ArrayList<>();
     }
 }

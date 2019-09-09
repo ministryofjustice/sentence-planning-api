@@ -81,6 +81,21 @@ public class AssessmentServiceTest {
     }
 
     @Test
+    public void shouldNotAddNewAssessmentNeedsToSentencePlanIfUpdatedInPast10Minutes() {
+        var needs = List.of(new AssessmentNeed("Accommodation",true,true,true,true),
+                new AssessmentNeed("Alcohol",true,true,true,true));
+        var oasysAssessment = new OasysAssessment(123456,"ACTIVE", needs,true, true);
+
+        when(oasysAssessmentAPIClient.getLatestLayer3AssessmentForOffender(123456L))
+                .thenReturn(Optional.ofNullable(oasysAssessment));
+        sentencePlanEntity.setAssessmentNeedsLastImportedOn(LocalDateTime.now(clock).minusMinutes(9));
+
+        assertThat(sentencePlanEntity.getNeeds()).isEmpty();
+        assessmentService.addLatestAssessmentNeedsToPlan(sentencePlanEntity);
+        verify(oasysAssessmentAPIClient, times(0)).getLatestLayer3AssessmentForOffender(123456L);
+    }
+
+    @Test
     public void shouldThrowExceptionWhenNoAssessmentExistsForOffender() {
         when(oasysAssessmentAPIClient.getLatestLayer3AssessmentForOffender(123456L))
                 .thenReturn(Optional.empty());
