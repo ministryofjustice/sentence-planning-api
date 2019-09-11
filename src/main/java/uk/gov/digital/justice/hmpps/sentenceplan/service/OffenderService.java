@@ -2,7 +2,6 @@ package uk.gov.digital.justice.hmpps.sentenceplan.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.SentencePlan;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.SentencePlanEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.OASYSAssessmentAPIClient;
@@ -28,10 +27,10 @@ private Clock clock;
     }
 
     public void updateOasysOffender(SentencePlanEntity sentencePlanEntity) {
-        if(sentencePlanEntity.getOffender().getNomisBookingNumberLastImportedOn() == null || sentencePlanEntity.getOffender().getNomisBookingNumberLastImportedOn().getDayOfYear() < LocalDateTime.now(clock).getDayOfYear()) {
+        if(sentencePlanEntity.getOffender().getOasysOffenderLastImportedOn() == null || sentencePlanEntity.getOffender().getOasysOffenderLastImportedOn().getDayOfYear() < LocalDateTime.now(clock).getDayOfYear()) {
             var offenderId = sentencePlanEntity.getOffender().getOasysOffenderId().toString();
             var offender = getOffenderByType(offenderId, OffenderReferenceType.OASYS);
-            sentencePlanEntity.getOffender().setNomisBookingNumber(offender.getNomisBookingNumber());
+            sentencePlanEntity.getOffender().updateIdentityDetails(offender);
         }
     }
 

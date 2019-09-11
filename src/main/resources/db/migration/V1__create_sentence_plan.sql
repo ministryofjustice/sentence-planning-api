@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS OFFENDER
   NOMIS_OFFENDER_ID                      TEXT         NULL,
   DELIUS_OFFENDER_ID                     TEXT         NULL,
   NOMIS_BOOKING_NUMBER                   TEXT         NULL,
-  NOMIS_BOOKING_NUMBER_LAST_IMPORTED_ON  TIMESTAMP    NULL,
+  OASYS_OFFENDER_LAST_IMPORTED_ON        TIMESTAMP    NULL,
   CONSTRAINT offender_uuid_idempotent UNIQUE (UUID),
   CONSTRAINT offender_oasysid_idempotent UNIQUE (OASYS_OFFENDER_ID),
   CONSTRAINT offender_nomisid_idempotent UNIQUE (NOMIS_OFFENDER_ID),

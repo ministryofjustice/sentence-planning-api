@@ -5,7 +5,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.Offender;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.StepStatus;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
@@ -97,7 +96,7 @@ public class OffenderServiceTest {
         when(oasysAssessmentAPIClient.getOffenderById(1L)).thenReturn(Optional.ofNullable(offender));
         when(offenderRespository.save(any())).thenReturn(null);
 
-        sentencePlan.getOffender().setNomisBookingNumberLastImportedOn(LocalDateTime.now(clock).minusDays(2));
+        sentencePlan.getOffender().setOasysOffenderLastImportedOn(LocalDateTime.now(clock).minusDays(2));
 
         offenderService.updateOasysOffender(sentencePlan);
         verify(oasysAssessmentAPIClient, times(1)).getOffenderById(1L);
@@ -108,7 +107,7 @@ public class OffenderServiceTest {
         var sentencePlan = getSentencePlanWithOffender();
         OasysOffender offender = new OasysOffender(1L, null, null, null, null, null, new OasysIdentifiers("Nomis", 3456L));
 
-        sentencePlan.getOffender().setNomisBookingNumberLastImportedOn(LocalDateTime.now(clock).minusDays(0));
+        sentencePlan.getOffender().setOasysOffenderLastImportedOn(LocalDateTime.now(clock).minusDays(0));
 
         offenderService.updateOasysOffender(sentencePlan);
         verify(oasysAssessmentAPIClient, times(0)).getOffenderById(1L);
