@@ -1,11 +1,13 @@
 package uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -37,6 +39,10 @@ public class OffenderEntity implements Serializable {
     @Column(name = "NOMIS_BOOKING_NUMBER")
     private Long nomisBookingNumber;
 
+    @Setter
+    @Column(name = "OASYS_OFFENDER_LAST_IMPORTED_ON")
+    private LocalDateTime oasysOffenderLastImportedOn;
+
     @OneToMany(mappedBy = "offender", cascade = CascadeType.PERSIST)
     private List<SentencePlanEntity> setencePlans;
 
@@ -45,6 +51,15 @@ public class OffenderEntity implements Serializable {
         this.oasysOffenderId = oasysOffenderId;
         this.nomisOffenderId = nomisOffednerId;
         this.nomisBookingNumber = nomisBookingNumber;
+        this.oasysOffenderLastImportedOn = LocalDateTime.now();
         this.setencePlans = new ArrayList<>();
+    }
+
+    public void updateIdentityDetails(OffenderEntity entity) {
+        this.oasysOffenderId = entity.getOasysOffenderId();
+        this.nomisOffenderId = entity.getNomisOffenderId();
+        this.nomisBookingNumber = entity.getNomisBookingNumber();
+        this.oasysOffenderLastImportedOn = LocalDateTime.now();
+        this.deliusOffenderId = entity.getDeliusOffenderId();
     }
 }

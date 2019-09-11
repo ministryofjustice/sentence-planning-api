@@ -228,6 +228,7 @@ public class SentencePlanService {
     private SentencePlanEntity getSentencePlanEntityWithUpdatedNeeds(UUID sentencePlanUuid) {
         var sentencePlanEntity = getSentencePlanEntity(sentencePlanUuid);
         assessmentService.addLatestAssessmentNeedsToPlan(sentencePlanEntity);
+        offenderService.updateOasysOffender(sentencePlanEntity);
         return sentencePlanEntity;
     }
 

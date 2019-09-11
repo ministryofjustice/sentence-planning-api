@@ -3,16 +3,17 @@ DROP TABLE IF EXISTS OFFENDER;
 
 CREATE TABLE IF NOT EXISTS OFFENDER
 (
-  ID                                SERIAL        PRIMARY KEY,
-  UUID                              UUID          NOT NULL,
-  OASYS_OFFENDER_ID                 BIGINT        NULL,
-  NOMIS_OFFENDER_ID                 TEXT          NULL,
-  DELIUS_OFFENDER_ID                TEXT          NULL,
-  NOMIS_BOOKING_NUMBER              TEXT          NULL,
+  ID                                     SERIAL       PRIMARY KEY,
+  UUID                                   UUID         NOT NULL,
+  OASYS_OFFENDER_ID                      BIGINT       NULL,
+  NOMIS_OFFENDER_ID                      TEXT         NULL,
+  DELIUS_OFFENDER_ID                     TEXT         NULL,
+  NOMIS_BOOKING_NUMBER                   TEXT         NULL,
+  OASYS_OFFENDER_LAST_IMPORTED_ON        TIMESTAMP    NULL,
   CONSTRAINT offender_uuid_idempotent UNIQUE (UUID),
   CONSTRAINT offender_oasysid_idempotent UNIQUE (OASYS_OFFENDER_ID),
   CONSTRAINT offender_nomisid_idempotent UNIQUE (NOMIS_OFFENDER_ID),
-  CONSTRAINT offender_nomicbookingnumber_idempotent UNIQUE (NOMIS_BOOKING_NUMBER)
+  CONSTRAINT offender_nomisbookingnumber_idempotent UNIQUE (NOMIS_BOOKING_NUMBER)
 );
 
 DROP TABLE IF EXISTS SENTENCE_PLAN;

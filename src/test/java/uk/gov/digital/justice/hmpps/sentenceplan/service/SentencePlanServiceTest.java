@@ -14,8 +14,7 @@ import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFou
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.util.*;
 
 import static java.util.Collections.EMPTY_LIST;
@@ -52,6 +51,8 @@ public class SentencePlanServiceTest {
     private final UUID sentencePlanUuid = UUID.fromString("11111111-1111-1111-1111-111111111111");
 
     private List<MotivationRefEntity> motivations;
+
+    Clock clock =  Clock.fixed(Instant.parse("2019-06-01T10:00:00.00Z"), ZoneId.systemDefault());
 
     @Before
     public void setup() {
@@ -305,7 +306,7 @@ public class SentencePlanServiceTest {
     @Test
     public void getSentencePlansForOffenderShouldReturnOASysPlans() {
 
-        var offender = new OffenderEntity(1L, UUID.fromString("11111111-1111-1111-1111-111111111111"), 12345L, null,null, 123L, EMPTY_LIST);
+        var offender = new OffenderEntity(1L, UUID.fromString("11111111-1111-1111-1111-111111111111"), 12345L, null,null, 123L, LocalDateTime.now(), EMPTY_LIST);
         var legacyPlan =  OasysSentencePlan.builder()
                 .completedDate(LocalDate.of(2019,1,1))
                 .createdDate(LocalDate.of(2018,1,1))
@@ -328,7 +329,7 @@ public class SentencePlanServiceTest {
     @Test
     public void getSentencePlansForOffenderShouldReturnNewPlans() {
 
-        var offender = new OffenderEntity(1L, UUID.fromString("11111111-1111-1111-1111-111111111111"), 12345L, null,null,123L,EMPTY_LIST);
+        var offender = new OffenderEntity(1L, UUID.fromString("11111111-1111-1111-1111-111111111111"), 12345L, null,null,123L, LocalDateTime.now(), EMPTY_LIST);
         when(oasysAssessmentAPIClient.getSentencePlansForOffender(12345L)).thenReturn(EMPTY_LIST);
         when(offenderService.getOffenderByType("12345", OffenderReferenceType.OASYS)).thenReturn(offender);
         when(sentencePlanRepository.findByOffenderUuid(offender.getUuid())).thenReturn(List.of(getNewSentencePlan(sentencePlanUuid)));
@@ -345,7 +346,7 @@ public class SentencePlanServiceTest {
     @Test
     public void getSentencePlansForOffenderShouldOrderPlansByCreatedDate() {
 
-        var offender = new OffenderEntity(1L, UUID.fromString("11111111-1111-1111-1111-111111111111"), 12345L, null,null,123L,EMPTY_LIST);
+        var offender = new OffenderEntity(1L, UUID.fromString("11111111-1111-1111-1111-111111111111"), 12345L, null,null,123L, LocalDateTime.now(), EMPTY_LIST);
         var legacyPlan =  OasysSentencePlan.builder()
                 .completedDate(LocalDate.of(2019,1,1))
                 .createdDate(LocalDate.of(2018,1,1))
@@ -408,6 +409,7 @@ public class SentencePlanServiceTest {
 
     @Test
     public void addMultipleCommentsShouldSaveToRepositoryOnce() {
+
         var sentencePlan = getSentencePlanWithOneStep();
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
 
@@ -423,7 +425,7 @@ public class SentencePlanServiceTest {
 
     public void getLegacySentencePlanShouldReturnPlanForId() {
 
-        var offender = new OffenderEntity(1L, UUID.fromString("11111111-1111-1111-1111-111111111111"), 12345L, null,null,123L,EMPTY_LIST);
+        var offender = new OffenderEntity(1L, UUID.fromString("11111111-1111-1111-1111-111111111111"), 12345L, null,null,123L, LocalDateTime.now(), EMPTY_LIST);
         var legacyPlan1 =  OasysSentencePlan.builder()
                 .completedDate(LocalDate.of(2019,1,1))
                 .createdDate(LocalDate.of(2018,1,1))
