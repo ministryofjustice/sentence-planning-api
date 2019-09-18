@@ -13,58 +13,70 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.*;
 
+@Getter
 @AllArgsConstructor
 public class StepEntity implements Serializable {
 
-    @Getter
     private UUID id;
 
-    @Getter
     private StepOwner owner;
 
-    @Getter
     private String ownerOther;
 
-    @Getter
     private String description;
 
-    @Getter
     private String strength;
 
-    @Getter
     private StepStatus status;
 
-    @Getter
     private List<UUID> needs;
 
-    @Getter
     private String intervention;
 
-    @Getter
     private int priority;
 
-    @Getter
     private List<ProgressEntity> progress;
 
-    @Getter
-    private LocalDateTime created = LocalDateTime.now();
+    private LocalDateTime created;
 
-    private LocalDateTime updated = getCreated();
+    private LocalDateTime updated;
 
 
     public StepEntity() {
-        progress = new ArrayList<>(0);
-    }
-
-    public StepEntity(StepOwner owner, String ownerOther, String description, String strength, StepStatus status, List<UUID> needs, String intervention) {
-
-        updateStep(owner, ownerOther, description, strength, status, needs, intervention);
-        this.id = UUID.randomUUID();
         this.progress = new ArrayList<>(0);
     }
 
-    public void updateStep(StepOwner owner, String ownerOther, String description, String strength, StepStatus status, List<UUID> needs, String intervention) {
+    public StepEntity(StepOwner owner, String ownerOther, String description, String strength, StepStatus status, List<UUID> needs, String intervention) {
+        var now = LocalDateTime.now();
+        this.id = UUID.randomUUID();
+        this.progress = new ArrayList<>(0);
+        this.created = now;
+        this.updated = now;
+        update(owner, ownerOther, description, strength, status, needs, intervention);
+    }
 
+    public void updateStep(StepOwner owner, String ownerOther, String description, String strength, StepStatus status, List<UUID> needs, String intervention) {
+        update(owner, ownerOther, description, strength, status, needs, intervention);
+        this.updated = LocalDateTime.now();
+    }
+
+    @JsonIgnore
+    public LocalDateTime getLatestUpdated() {
+        Optional<LocalDateTime> lastProgressed = this.progress.stream().map(ProgressEntity::getCreated).max(Comparator.naturalOrder());
+
+        if(lastProgressed.isPresent()) {
+            return this.updated.isBefore(lastProgressed.get()) ? lastProgressed.get() : this.updated ;
+        } else {
+            return this.updated;
+        }
+    }
+
+    public void addProgress(ProgressEntity progressEntity) {
+        this.progress.add(progressEntity);
+        this.status = progressEntity.getStatus();
+    }
+
+    private void update(StepOwner owner, String ownerOther, String description, String strength, StepStatus status, List<UUID> needs, String intervention) {
         validateNeeds(needs);
         validateOwner(owner, ownerOther);
         validateDescription(description, intervention);
@@ -82,26 +94,6 @@ public class StepEntity implements Serializable {
 
         // When we update a step we just overwrite whatever needs there are, we don't try to merge/deduplicate the list
         this.needs = needs;
-
-        this.updated = LocalDateTime.now();
-
-    }
-
-    @JsonIgnore
-    public LocalDateTime getLastUpdated() {
-        Optional<LocalDateTime> lastProgressed = this.progress.stream().map(ProgressEntity::getCreated).max(Comparator.naturalOrder());
-
-        if(lastProgressed.isPresent()) {
-            return this.updated.isBefore(lastProgressed.get()) ? lastProgressed.get() : this.updated;
-        } else {
-            return this.updated;
-        }
-
-    }
-
-    public void addProgress(ProgressEntity progressEntity) {
-        this.progress.add(progressEntity);
-        this.status = progressEntity.getStatus();
     }
 
     public static StepEntity updatePriority(StepEntity stepEntity, int priority) {
