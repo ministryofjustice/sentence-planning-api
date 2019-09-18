@@ -1,6 +1,9 @@
 package uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
+import org.apache.tomcat.jni.Local;
+import org.springframework.security.core.parameters.P;
 import org.springframework.util.StringUtils;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.StepOwner;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.StepStatus;
@@ -8,12 +11,10 @@ import uk.gov.digital.justice.hmpps.sentenceplan.application.ValidationException
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
-@AllArgsConstructor
 @Getter
+@AllArgsConstructor
 public class StepEntity implements Serializable {
 
     private UUID id;
@@ -26,7 +27,8 @@ public class StepEntity implements Serializable {
     private String intervention;
     private int priority;
     private List<ProgressEntity> progress;
-    private LocalDateTime updated;
+    private LocalDateTime created = LocalDateTime.now();
+    private LocalDateTime updated = getCreated();
 
 
     public StepEntity() {
@@ -60,12 +62,25 @@ public class StepEntity implements Serializable {
         // When we update a step we just overwrite whatever needs there are, we don't try to merge/deduplicate the list
         this.needs = needs;
 
+        this.updated = LocalDateTime.now();
+
+    }
+
+    @JsonIgnore
+    public LocalDateTime getLastUpdated() {
+        Optional<LocalDateTime> lastProgressed = this.progress.stream().map(ProgressEntity::getCreated).max(Comparator.naturalOrder());
+
+        if(lastProgressed.isPresent()) {
+            return this.updated.isBefore(lastProgressed.get()) ? lastProgressed.get() : this.updated;
+        } else {
+            return this.updated;
+        }
+
     }
 
     public void addProgress(ProgressEntity progressEntity) {
         this.progress.add(progressEntity);
         this.status = progressEntity.getStatus();
-        this.updated = progressEntity.getCreated();
     }
 
     public static StepEntity updatePriority(StepEntity stepEntity, int priority) {

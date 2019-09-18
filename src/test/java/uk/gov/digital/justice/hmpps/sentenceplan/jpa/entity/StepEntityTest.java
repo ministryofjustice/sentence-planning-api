@@ -213,7 +213,7 @@ public class StepEntityTest {
         step.addProgress(newProgress);
 
         assertThat(step.getStatus()).isEqualTo(StepStatus.COMPLETED);
-        assertThat(step.getUpdated()).isEqualTo(newProgress.getCreated());
+        assertThat(step.getLastUpdated()).isEqualTo(newProgress.getCreated());
         assertThat(step.getProgress()).hasSize(1);
     }
 
