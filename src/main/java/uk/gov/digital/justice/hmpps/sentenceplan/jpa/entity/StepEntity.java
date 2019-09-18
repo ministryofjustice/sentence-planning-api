@@ -13,21 +13,42 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.*;
 
-@Getter
 @AllArgsConstructor
 public class StepEntity implements Serializable {
 
+    @Getter
     private UUID id;
+
+    @Getter
     private StepOwner owner;
+
+    @Getter
     private String ownerOther;
+
+    @Getter
     private String description;
+
+    @Getter
     private String strength;
+
+    @Getter
     private StepStatus status;
+
+    @Getter
     private List<UUID> needs;
+
+    @Getter
     private String intervention;
+
+    @Getter
     private int priority;
+
+    @Getter
     private List<ProgressEntity> progress;
+
+    @Getter
     private LocalDateTime created = LocalDateTime.now();
+
     private LocalDateTime updated = getCreated();
 
 
