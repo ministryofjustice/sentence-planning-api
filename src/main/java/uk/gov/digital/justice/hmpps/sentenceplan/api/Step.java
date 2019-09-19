@@ -53,7 +53,7 @@ public class Step {
                 step.getIntervention(),
                 step.getPriority(),
                 StepProgress.from(Optional.ofNullable(step.getProgress()).orElse(Collections.emptyList())),
-                step.getUpdated());
+                step.getLatestUpdated());
     }
 
     public static List<Step> from(List<StepEntity> steps, List<NeedEntity> needs) {
