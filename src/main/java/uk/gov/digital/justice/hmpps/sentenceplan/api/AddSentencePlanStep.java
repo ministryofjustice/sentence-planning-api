@@ -22,7 +22,7 @@ public class AddSentencePlanStep {
     @ApiModelProperty(required = true, value = "The owner of the Step")
     @NotNull
     @JsonProperty("owner")
-    private StepOwner owner;
+    private List<StepOwner> owner;
 
     @ApiModelProperty(required = true, value = "Other owner (if other type used)")
     @JsonProperty("ownerOther")

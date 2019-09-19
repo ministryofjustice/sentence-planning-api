@@ -17,13 +17,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class StepEntityTest {
 
-    private static final StepOwner owner = StepOwner.SERVICE_USER;
+    private static final List<StepOwner> owner = List.of(StepOwner.SERVICE_USER);
     private static final String description = "Description";
     private static final String strength = "Strength";
     private static final String intervention = "Intervention";
     private static final StepStatus status = StepStatus.IN_PROGRESS;
 
-    private static final StepOwner ownerUpdate = StepOwner.PRACTITIONER;
+    private static final List<StepOwner> ownerUpdate = List.of(StepOwner.PRACTITIONER);
     private static final String descriptionUpdate = "DescriptionU";
     private static final String strengthUpdate = "StrengthU";
     private static final String interventionUpdate = "InterventionU";
@@ -60,15 +60,16 @@ public class StepEntityTest {
 
     @Test
     public void shouldCreateStepWithOtherOwner() {
-        var step = new StepEntity(StepOwner.OTHER, "Nurse", description, strength, status, createNeedList() , null);
+        var step = new StepEntity(List.of(StepOwner.OTHER), "Nurse", description, strength, status, createNeedList() , null);
 
-        assertThat(step.getOwner()).isEqualTo(StepOwner.OTHER);
+        assertThat(step.getOwner()).hasSize(1);
+        assertThat(step.getOwner()).contains(StepOwner.OTHER);
         assertThat(step.getOwnerOther()).isEqualTo("Nurse");
     }
 
     @Test(expected = ValidationException.class)
     public void shouldNotCreateStepWithOtherOwnerNull() {
-       new StepEntity(StepOwner.OTHER, null, description, strength, status, createNeedList() , null);
+       new StepEntity(List.of(StepOwner.OTHER), null, description, strength, status, createNeedList() , null);
     }
 
     @Test(expected = ValidationException.class)
@@ -145,16 +146,28 @@ public class StepEntityTest {
     @Test
     public void shouldUpdateStepWithOtherOwner() {
         var step = createValidStep();
-        step.updateStep(StepOwner.OTHER, "Nurse", descriptionUpdate, strengthUpdate, statusUpdate, createNeedListUpdate(), null);
+        step.updateStep(List.of(StepOwner.OTHER), "Nurse", descriptionUpdate, strengthUpdate, statusUpdate, createNeedListUpdate(), null);
 
-        assertThat(step.getOwner()).isEqualTo(StepOwner.OTHER);
+        assertThat(step.getOwner()).hasSize(1);
+        assertThat(step.getOwner()).contains(StepOwner.OTHER);
+        assertThat(step.getOwnerOther()).isEqualTo("Nurse");
+    }
+
+    @Test
+    public void shouldUpdateStepWithOtherOwnerMultiple() {
+        var step = createValidStep();
+        step.updateStep(List.of(StepOwner.PRACTITIONER, StepOwner.OTHER), "Nurse", descriptionUpdate, strengthUpdate, statusUpdate, createNeedListUpdate(), null);
+
+        assertThat(step.getOwner()).hasSize(2);
+        assertThat(step.getOwner()).contains(StepOwner.PRACTITIONER);
+        assertThat(step.getOwner()).contains(StepOwner.OTHER);
         assertThat(step.getOwnerOther()).isEqualTo("Nurse");
     }
 
     @Test(expected = ValidationException.class)
     public void shouldNotUpdateStepWithOtherOwnerNull() {
         var step = createValidStep();
-        step.updateStep(StepOwner.OTHER, null, descriptionUpdate, strengthUpdate, statusUpdate, null, null);
+        step.updateStep(List.of(StepOwner.OTHER), null, descriptionUpdate, strengthUpdate, statusUpdate, null, null);
     }
 
     @Test(expected = ValidationException.class)
