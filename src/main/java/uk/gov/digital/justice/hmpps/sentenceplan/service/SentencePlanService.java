@@ -66,7 +66,7 @@ public class SentencePlanService {
     }
 
     @Transactional
-    public List<Step> addStep(UUID sentencePlanUUID, StepOwner owner, String ownerOther, String strength, String description, String intervention, List<UUID> needs) {
+    public List<Step> addStep(UUID sentencePlanUUID, List<StepOwner> owner, String ownerOther, String strength, String description, String intervention, List<UUID> needs) {
         var stepEntity = new StepEntity(owner, ownerOther, description, strength, StepStatus.IN_PROGRESS, needs, intervention);
         var sentencePlan = getSentencePlanEntity(sentencePlanUUID);
 
@@ -91,7 +91,7 @@ public class SentencePlanService {
     }
 
     @Transactional
-    public void updateStep(UUID sentencePlanUuid, UUID stepUuid, StepOwner owner, String ownerOther, String strength, String description, String intervention, List<UUID> needs, StepStatus status) {
+    public void updateStep(UUID sentencePlanUuid, UUID stepUuid, List<StepOwner> owner, String ownerOther, String strength, String description, String intervention, List<UUID> needs, StepStatus status) {
         var sentencePlanEntity = getSentencePlanEntity(sentencePlanUuid);
         var stepEntity = getStepEntity(sentencePlanEntity, stepUuid);
         stepEntity.updateStep(owner, ownerOther, description, strength, status, needs, intervention);

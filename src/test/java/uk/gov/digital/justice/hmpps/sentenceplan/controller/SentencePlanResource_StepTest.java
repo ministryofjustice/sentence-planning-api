@@ -66,7 +66,7 @@ public class SentencePlanResource_StepTest {
     @Test
     public void shouldCreateStepOnExistingPlan() {
 
-        var requestBody = new AddSentencePlanStep(SERVICE_USER,
+        var requestBody = new AddSentencePlanStep(List.of(SERVICE_USER),
                 null,
                 "a strength",
                 "a description",
@@ -90,7 +90,8 @@ public class SentencePlanResource_StepTest {
         assertThat(step.getStrength()).isEqualTo("a strength");
         assertThat(step.getIntervention()).isNull();
         assertThat(step.getOwnerOther()).isNull();
-        assertThat(step.getOwner()).isEqualTo(SERVICE_USER);
+        assertThat(step.getOwner()).hasSize(1);
+        assertThat(step.getOwner()).contains(SERVICE_USER);
     }
 
     @Test
@@ -112,7 +113,9 @@ public class SentencePlanResource_StepTest {
         assertThat(step.getStrength()).isEqualTo("strength");
         assertThat(step.getIntervention()).isNull();
         assertThat(step.getOwnerOther()).isNull();
-        assertThat(step.getOwner()).isEqualTo(PRACTITIONER);
+        assertThat(step.getOwner()).hasSize(1);
+        assertThat(step.getOwner()).contains(PRACTITIONER);
+
     }
 
 
@@ -133,7 +136,8 @@ public class SentencePlanResource_StepTest {
         assertThat(result.getStrength()).isEqualTo("strength");
         assertThat(result.getIntervention()).isNull();
         assertThat(result.getOwnerOther()).isNull();
-        assertThat(result.getOwner()).isEqualTo(PRACTITIONER);
+        assertThat(result.getOwner()).hasSize(1);
+        assertThat(result.getOwner()).contains(PRACTITIONER);
     }
 
     @Test
@@ -172,7 +176,7 @@ public class SentencePlanResource_StepTest {
     @Test
     public void shouldUpdateStepOnExistingPlan() {
 
-        var requestBody = new UpdateSentencePlanStepRequest(SERVICE_USER, StepStatus.COMPLETED, null, "strong", "desc", null, List.of(UUID.randomUUID()));
+        var requestBody = new UpdateSentencePlanStepRequest(List.of(SERVICE_USER), StepStatus.COMPLETED, null, "strong", "desc", null, List.of(UUID.randomUUID()));
 
         var result = given()
                 .when()
@@ -199,13 +203,14 @@ public class SentencePlanResource_StepTest {
         assertThat(updatedStep.getStrength()).isEqualTo("strong");
         assertThat(updatedStep.getIntervention()).isNull();
         assertThat(updatedStep.getOwnerOther()).isNull();
-        assertThat(updatedStep.getOwner()).isEqualTo(SERVICE_USER);
+        assertThat(updatedStep.getOwner()).hasSize(1);
+        assertThat(updatedStep.getOwner()).contains(SERVICE_USER);
     }
 
     @Test
     public void shouldNotUpdateInvalidStep() {
 
-        var requestBody = new UpdateSentencePlanStepRequest(SERVICE_USER, StepStatus.COMPLETED, null, "strong", "desc", null, List.of(UUID.randomUUID()));
+        var requestBody = new UpdateSentencePlanStepRequest(List.of(SERVICE_USER), StepStatus.COMPLETED, null, "strong", "desc", null, List.of(UUID.randomUUID()));
 
         var result = given()
                 .when()
@@ -255,7 +260,7 @@ public class SentencePlanResource_StepTest {
     @Test
     public void shouldNotProgressInvalidStep() {
 
-        var requestBody = new UpdateSentencePlanStepRequest(SERVICE_USER, StepStatus.COMPLETED, null, "strong", "desc", null, List.of(UUID.randomUUID()));
+        var requestBody = new UpdateSentencePlanStepRequest(List.of(SERVICE_USER), StepStatus.COMPLETED, null, "strong", "desc", null, List.of(UUID.randomUUID()));
 
         var result = given()
                 .when()

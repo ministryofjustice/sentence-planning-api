@@ -22,7 +22,7 @@ public class Step {
     @JsonProperty("id")
     private UUID id;
     @JsonProperty("owner")
-    private StepOwner owner;
+    private List<StepOwner> owner;
     @JsonProperty("ownerOther")
     private String ownerOther;
     @JsonProperty("description")

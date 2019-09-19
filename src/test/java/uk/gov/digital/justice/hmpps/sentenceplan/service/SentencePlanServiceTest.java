@@ -1,5 +1,6 @@
 package uk.gov.digital.justice.hmpps.sentenceplan.service;
 
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -98,7 +99,7 @@ public class SentencePlanServiceTest {
 
         var needs = List.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
 
-        var steps = service.addStep(sentencePlanUuid, PRACTITIONER, null, "a strength", "a description", null, needs);
+        var steps = service.addStep(sentencePlanUuid, List.of(PRACTITIONER), null, "a strength", "a description", null, needs);
 
         assertThat(steps.size()).isEqualTo(1);
         var step = steps.get(0);
@@ -106,7 +107,34 @@ public class SentencePlanServiceTest {
         assertThat(step.getStrength()).isEqualTo("a strength");
         assertThat(step.getIntervention()).isNull();
         assertThat(step.getOwnerOther()).isNull();
-        assertThat(step.getOwner()).isEqualTo(PRACTITIONER);
+        Assertions.assertThat(step.getOwner()).hasSize(1);
+        Assertions.assertThat(step.getOwner()).contains(PRACTITIONER);
+        assertThat(step.getNeeds()).hasSize(1);
+
+        //Priority should be lowest
+        assertThat(step.getPriority()).isEqualTo(0);
+
+        verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
+    }
+
+    @Test
+    public void shouldAddStepToSentencePlanMultipleOwner() {
+
+        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(getNewSentencePlan(sentencePlanUuid));
+
+        var needs = List.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
+
+        var steps = service.addStep(sentencePlanUuid, List.of(PRACTITIONER, SERVICE_USER), null, "a strength", "a description", null, needs);
+
+        assertThat(steps.size()).isEqualTo(1);
+        var step = steps.get(0);
+        assertThat(step.getDescription()).isEqualTo("a description");
+        assertThat(step.getStrength()).isEqualTo("a strength");
+        assertThat(step.getIntervention()).isNull();
+        assertThat(step.getOwnerOther()).isNull();
+        Assertions.assertThat(step.getOwner()).hasSize(2);
+        Assertions.assertThat(step.getOwner()).contains(PRACTITIONER);
+        Assertions.assertThat(step.getOwner()).contains(SERVICE_USER);
         assertThat(step.getNeeds()).hasSize(1);
 
         //Priority should be lowest
@@ -122,7 +150,7 @@ public class SentencePlanServiceTest {
 
         var needs = List.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
 
-        var steps = service.addStep(sentencePlanUuid, PRACTITIONER, null, "a strength", "a description", null, needs);
+        var steps = service.addStep(sentencePlanUuid, List.of(PRACTITIONER), null, "a strength", "a description", null, needs);
 
         assertThat(steps.size()).isEqualTo(1);
         var step = steps.get(0);
@@ -130,15 +158,17 @@ public class SentencePlanServiceTest {
         assertThat(step.getPriority()).isEqualTo(0);
 
 
-        var newSteps = service.addStep(sentencePlanUuid, SERVICE_USER, null, "a strength", "a description", null, needs);
+        var newSteps = service.addStep(sentencePlanUuid, List.of(SERVICE_USER), null, "a strength", "a description", null, needs);
 
         assertThat(newSteps.size()).isEqualTo(2);
         //Now the new priority should be lowest
         assertThat(newSteps.get(0).getPriority()).isEqualTo(0);
-        assertThat(newSteps.get(0).getOwner()).isEqualTo(PRACTITIONER);
+        assertThat(newSteps.get(0).getOwner()).hasSize(1);
+        assertThat(newSteps.get(0).getOwner()).contains(PRACTITIONER);
 
         assertThat(newSteps.get(1).getPriority()).isEqualTo(1);
-        assertThat(newSteps.get(1).getOwner()).isEqualTo(SERVICE_USER);
+        assertThat(newSteps.get(1).getOwner()).hasSize(1);
+        assertThat(newSteps.get(1).getOwner()).contains(SERVICE_USER);
 
 
         verify(sentencePlanRepository,times(2)).findByUuid(sentencePlanUuid);
@@ -156,7 +186,7 @@ public class SentencePlanServiceTest {
 
         assertThat(sentencePlan.getStatus()).isEqualTo(DRAFT);
         assertThat(sentencePlan.getData().getSteps()).hasSize(0);
-        var steps = service.addStep(sentencePlanUuid, PRACTITIONER, null, "a strength", "a description", null, needs);
+        var steps = service.addStep(sentencePlanUuid, List.of(PRACTITIONER), null, "a strength", "a description", null, needs);
 
         assertThat(steps).hasSize(1);
         assertThat(sentencePlan.getStatus()).isEqualTo(STARTED);
@@ -175,7 +205,7 @@ public class SentencePlanServiceTest {
         var needs = List.of(UUID.randomUUID());
 
         assertThat(sentencePlan.getData().getSteps()).hasSize(0);
-        var steps = service.addStep(sentencePlanUuid, PRACTITIONER, null, "a strength", "a description", null, needs);
+        var steps = service.addStep(sentencePlanUuid, List.of(PRACTITIONER), null, "a strength", "a description", null, needs);
 
         assertThat(steps).hasSize(1);
         assertThat(sentencePlan.getStatus()).isEqualTo(COMPLETE);
@@ -194,7 +224,8 @@ public class SentencePlanServiceTest {
         assertThat(step.getStrength()).isEqualTo("a strength");
         assertThat(step.getIntervention()).isNull();
         assertThat(step.getOwnerOther()).isNull();
-        assertThat(step.getOwner()).isEqualTo(PRACTITIONER);
+        Assertions.assertThat(step.getOwner()).hasSize(1);
+        Assertions.assertThat(step.getOwner()).contains(PRACTITIONER);
         assertThat(step.getNeeds().get(0).getId()).isEqualTo(UUID.fromString("11111111-1111-1111-1111-111111111111"));
     }
 
@@ -285,7 +316,7 @@ public class SentencePlanServiceTest {
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
 
         var stepToUpdate = sentencePlan.getData().getSteps().stream().findFirst().get();
-        service.updateStep(sentencePlanUuid, stepToUpdate.getId(), PRACTITIONER, null, "Strong", "Desc", "Inter", List.of(UUID.randomUUID()), StepStatus.COMPLETED);
+        service.updateStep(sentencePlanUuid, stepToUpdate.getId(), List.of(PRACTITIONER), null, "Strong", "Desc", "Inter", List.of(UUID.randomUUID()), StepStatus.COMPLETED);
 
         verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
         verify(sentencePlanRepository,times(1)).save(sentencePlan);
@@ -459,7 +490,7 @@ public class SentencePlanServiceTest {
 
         var needs = List.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
         var sentencePlanProperty = new SentencePlanPropertiesEntity();
-        sentencePlanProperty.addStep(new StepEntity(PRACTITIONER, null, "a description", "a strength", StepStatus.PAUSED, needs, null));
+        sentencePlanProperty.addStep(new StepEntity(List.of(PRACTITIONER), null, "a description", "a strength", StepStatus.PAUSED, needs, null));
         return SentencePlanEntity.builder()
                 .createdOn(LocalDateTime.of(2019,6,1, 11,00))
                 .status(DRAFT)
@@ -470,7 +501,7 @@ public class SentencePlanServiceTest {
 
     private SentencePlanEntity getSentencePlanWithMultipleSteps() {
         var needs = List.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
-        var newStep = new StepEntity(PRACTITIONER, null, "two description", "two strength", StepStatus.IN_PROGRESS, needs, null);
+        var newStep = new StepEntity(List.of(PRACTITIONER), null, "two description", "two strength", StepStatus.IN_PROGRESS, needs, null);
         var sentencePlan = getSentencePlanWithOneStep();
         sentencePlan.addStep(newStep);
         return sentencePlan;
