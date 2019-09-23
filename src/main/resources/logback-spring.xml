@@ -22,23 +22,23 @@
         </appender>
     </springProfile>
 
-    <logger name="uk.gov" additivity="false" level="DEBUG">
+    <logger name="uk.gov" additivity="false" level="INFO">
         <appender-ref ref="consoleAppender"/>
     </logger>
 
-    <logger name="org.springframework" additivity="false" level="INFO" >
+    <logger name="org.springframework" additivity="false" level="WARN" >
         <appender-ref ref="consoleAppender"/>
     </logger>
 
-    <logger name="springfox.documentation.spring" additivity="false" level="INFO" >
+    <logger name="springfox.documentation.spring" additivity="false" level="WARN" >
         <appender-ref ref="consoleAppender"/>
     </logger>
 
-    <logger name="org.flywaydb" additivity="false" level="INFO" >
+    <logger name="org.flywaydb" additivity="false" level="WARN" >
         <appender-ref ref="consoleAppender"/>
     </logger>
 
-    <logger name="com.zaxxer.hikari" additivity="false" level="INFO" >
+    <logger name="com.zaxxer.hikari" additivity="false" level="WARN" >
         <appender-ref ref="consoleAppender"/>
     </logger>
 
