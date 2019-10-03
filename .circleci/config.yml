@@ -103,7 +103,7 @@ jobs:
       - store_test_results:
           path: build/reports
       - store_artifacts:
-          path: build/reports/tests
+          path: build/reports
       - persist_to_workspace:
           root: .
           paths:
