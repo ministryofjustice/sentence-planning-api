@@ -37,7 +37,7 @@ private Clock clock;
     public OffenderEntity getOffenderByType(String offenderId, OffenderReferenceType offenderReferenceType) {
         switch (offenderReferenceType) {
             case OASYS:
-                return retrieveOasysOffender(Long.valueOf(offenderId));
+                return retrieveOasysOffender(Long.parseLong(offenderId));
         }
         throw new RuntimeException("Unknown offender reference type");
     }
