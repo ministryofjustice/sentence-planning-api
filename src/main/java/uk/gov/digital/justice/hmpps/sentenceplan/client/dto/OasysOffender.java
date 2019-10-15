@@ -11,8 +11,6 @@ import lombok.NoArgsConstructor;
 public class OasysOffender {
     @JsonProperty("oasysOffenderId")
     private Long oasysOffenderId;
-    @JsonProperty("title")
-    private String title;
     @JsonProperty("familyName")
     private String familyName;
     @JsonProperty("forename1")
