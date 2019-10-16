@@ -172,9 +172,9 @@ public class SentencePlanResourceTest {
         var needs = List.of(new AssessmentNeed("Alcohol", true, true, true, true),
                 new AssessmentNeed("Accommodation", true, true, true, true));
 
-        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/12345"))
+        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/12345/summary"))
                 .andExpect(method(GET))
-                .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(12345L, "mr", "Gary", "Smith", "", "", new OasysIdentifiers("12345678", 123L))), MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(12345L, "Gary", "Smith", "", "", new OasysIdentifiers("12345678", 123L))), MediaType.APPLICATION_JSON));
 
         assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/12345/assessments/latest"))
                 .andExpect(method(GET))
@@ -257,9 +257,9 @@ public class SentencePlanResourceTest {
 
         var assessmentApi = bindTo(oauthRestTemplate).ignoreExpectOrder(true).build();
 
-        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/12345"))
+        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/12345/summary"))
                 .andExpect(method(GET))
-                .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(12345L, "mr", "Gary", "Smith", "", "", new OasysIdentifiers("12345678", 123L))), MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(12345L, "Gary", "Smith", "", "", new OasysIdentifiers("12345678", 123L))), MediaType.APPLICATION_JSON));
 
         assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/12345/assessments/latest"))
                 .andExpect(method(GET))
@@ -287,7 +287,7 @@ public class SentencePlanResourceTest {
 
         var assessmentApi = bindTo(oauthRestTemplate).ignoreExpectOrder(true).build();
 
-        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/12345"))
+        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/12345/summary"))
                 .andExpect(method(GET))
                 .andRespond(withStatus(HttpStatus.NOT_FOUND));
 

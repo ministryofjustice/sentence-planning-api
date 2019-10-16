@@ -51,7 +51,7 @@ public class OffenderServiceTest {
     @Test
     public void shouldStoreOffenderMetaDataIfNotExists() {
 
-        var offender = new OasysOffender(123456L,"Mr", "John", "Smith","","",new OasysIdentifiers("12345", 123L));
+        var offender = new OasysOffender(123456L, "John", "Smith","","",new OasysIdentifiers("12345", 123L));
 
         when(offenderRespository.findByOasysOffenderId(123456L)).thenReturn(Optional.empty());
 
@@ -92,7 +92,7 @@ public class OffenderServiceTest {
     @Test
     public void shouldUpdateBookingNumberIfNotUpdatedToday() {
         var sentencePlan = getSentencePlanWithOffender();
-        OasysOffender offender = new OasysOffender(1L, null, null, null, null, null, new OasysIdentifiers("Nomis", 3456L));
+        OasysOffender offender = new OasysOffender(1L, null, null, null, null, new OasysIdentifiers("Nomis", 3456L));
         when(oasysAssessmentAPIClient.getOffenderById(1L)).thenReturn(Optional.ofNullable(offender));
         when(offenderRespository.save(any())).thenReturn(null);
 
@@ -105,7 +105,7 @@ public class OffenderServiceTest {
     @Test
     public void shouldNotUpdateBookingNumberIfUpdatedToday() {
         var sentencePlan = getSentencePlanWithOffender();
-        OasysOffender offender = new OasysOffender(1L, null, null, null, null, null, new OasysIdentifiers("Nomis", 3456L));
+        OasysOffender offender = new OasysOffender(1L, null, null, null, null, new OasysIdentifiers("Nomis", 3456L));
 
         sentencePlan.getOffender().setOasysOffenderLastImportedOn(LocalDateTime.now(clock).minusDays(0));
 
