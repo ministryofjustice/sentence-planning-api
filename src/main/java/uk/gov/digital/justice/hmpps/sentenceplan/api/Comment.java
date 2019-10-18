@@ -8,6 +8,7 @@ import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.CommentEntity;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
@@ -15,11 +16,11 @@ import java.util.stream.Collectors;
 @Getter
 public class Comment {
 
-    @JsonProperty("comments")
-    private String comments;
+    @JsonProperty("comment")
+    private String comment;
 
-    @JsonProperty("author")
-    private StepOwner author;
+    @JsonProperty("commentType")
+    private CommentType commentType;
 
     @JsonProperty("created")
     private LocalDateTime created;
@@ -29,10 +30,10 @@ public class Comment {
 
 
     public static Comment from(CommentEntity commentEntity) {
-        return new Comment(commentEntity.getComment(), commentEntity.getAuthor(), commentEntity.getCreated(), commentEntity.getCreatedBy());
+        return new Comment(commentEntity.getComment(), commentEntity.getCommentType(), commentEntity.getCreated(), commentEntity.getCreatedBy());
     }
 
-    public static List<Comment> from(List<CommentEntity> commentEntities) {
-        return commentEntities.stream().map(Comment::from).collect(Collectors.toList());
+    public static Map<CommentType, Comment> from(Map<CommentType, CommentEntity> commentEntities) {
+        return commentEntities.values().stream().collect(Collectors.toMap(CommentEntity::getCommentType, Comment::from));
     }
 }

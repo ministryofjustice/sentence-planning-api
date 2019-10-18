@@ -405,22 +405,11 @@ public class SentencePlanServiceTest {
     }
 
     @Test
-    public void updateServiceUserCommentsSaveToRepository() {
-        var sentencePlan = getSentencePlanWithOneStep();
-        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
-
-        service.setServiceUserComments(sentencePlanUuid, "anything");
-
-        verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
-        verify(sentencePlanRepository,times(1)).save(sentencePlan);
-    }
-
-    @Test
     public void addCommentsShouldSaveToRepository() {
         var sentencePlan = getSentencePlanWithOneStep();
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
 
-        var comment = new AddCommentRequest("Any Comment", SERVICE_USER);
+        var comment = new AddCommentRequest("Any Comment", CommentType.DIVERSITY);
 
         service.addSentencePlanComments(sentencePlanUuid, List.of(comment));
 
@@ -444,8 +433,8 @@ public class SentencePlanServiceTest {
         var sentencePlan = getSentencePlanWithOneStep();
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
 
-        var comment1 = new AddCommentRequest("Any Comment", SERVICE_USER);
-        var comment2 = new AddCommentRequest("Any Other Comment", SERVICE_USER);
+        var comment1 = new AddCommentRequest("Any Comment", CommentType.ABOUTME);
+        var comment2 = new AddCommentRequest("Any Other Comment", CommentType.DECISIONS);
 
 
         service.addSentencePlanComments(sentencePlanUuid, List.of(comment1, comment2));

@@ -27,6 +27,7 @@ import uk.gov.digital.justice.hmpps.sentenceplan.service.OffenderReferenceType;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import static io.restassured.RestAssured.given;
 import static java.util.Collections.EMPTY_LIST;
@@ -418,48 +419,17 @@ public class SentencePlanResourceTest {
     }
 
     @Test
-    public void shouldUpdateServiceUserComment() throws JsonProcessingException {
-        setupMockRestServiceServer();
-
-        var requestBody = "I didn't done do it";
-
-        var result = given()
-                .when()
-                .body(requestBody)
-                .header("Content-Type", "application/json")
-                .post("/sentenceplan/{0}/serviceUserComments", SENTENCE_PLAN_ID)
-                .then()
-                .statusCode(200)
-                .extract().statusCode();
-
-        assertThat(result).isEqualTo(200);
-
-        var plan = given()
-                .when()
-                .header("Accept", "application/json")
-                .get("/sentenceplan/{0}", SENTENCE_PLAN_ID)
-                .then()
-                .statusCode(200)
-                .extract()
-                .body()
-                .as(SentencePlan.class);
-
-        assertThat(plan.getUuid()).isEqualTo(UUID.fromString(SENTENCE_PLAN_ID));
-        assertThat(plan.getServiceUserComments()).isEqualTo(requestBody);
-    }
-
-    @Test
     public void shouldAddComments() throws JsonProcessingException {
         setupMockRestServiceServer();
 
-        var comment = new AddCommentRequest("Any Comment", StepOwner.SERVICE_USER);
+        var comment = new AddCommentRequest("Any Comment", CommentType.ABOUTMYPLAN);
         var requestBody = List.of(comment);
 
         var result = given()
                 .when()
                 .body(requestBody)
                 .header("Content-Type", "application/json")
-                .post("/sentenceplan/{0}/comments", SENTENCE_PLAN_ID)
+                .put("/sentenceplan/{0}/comments", SENTENCE_PLAN_ID)
                 .then()
                 .statusCode(200)
                 .extract().statusCode();
@@ -478,8 +448,8 @@ public class SentencePlanResourceTest {
 
         assertThat(plan.getUuid()).isEqualTo(UUID.fromString(SENTENCE_PLAN_ID));
         assertThat(plan.getComments()).hasSize(1);
-        assertThat(plan.getComments().get(0).getComments()).isEqualTo(comment.getComments());
-        assertThat(plan.getComments().get(0).getAuthor()).isEqualTo(comment.getOwner());
+        assertThat(plan.getComments().get(CommentType.ABOUTMYPLAN).getComment()).isEqualTo(comment.getComment());
+        assertThat(plan.getComments().get(CommentType.ABOUTMYPLAN).getCommentType()).isEqualTo(comment.getCommentType());
 
     }
 
@@ -487,17 +457,17 @@ public class SentencePlanResourceTest {
     public void shouldGetNoComments() throws JsonProcessingException {
         setupMockRestServiceServer();
 
-        var plan = given()
+        Map<String, Map<String,String>> comments = given()
                 .when()
                 .header("Accept", "application/json")
                 .get("/sentenceplan/{0}/comments", SENTENCE_PLAN_ID)
                 .then()
                 .statusCode(200)
                 .extract()
-                .body()
-                .as(Comment[].class);
+                .body().jsonPath().getMap("");
 
-        assertThat(plan).hasSize(0);
+
+        assertThat(comments.size()).isZero();
 
     }
 
@@ -505,33 +475,80 @@ public class SentencePlanResourceTest {
     public void shouldGetComments() throws JsonProcessingException {
         setupMockRestServiceServer();
 
-        var comment = new AddCommentRequest("Any Comment", StepOwner.SERVICE_USER);
+        var comment = new AddCommentRequest("Any Comment", CommentType.ABOUTMYPLAN);
         var requestBody = List.of(comment);
 
         var result = given()
                 .when()
                 .body(requestBody)
                 .header("Content-Type", "application/json")
-                .post("/sentenceplan/{0}/comments", SENTENCE_PLAN_ID)
+                .put("/sentenceplan/{0}/comments", SENTENCE_PLAN_ID)
                 .then()
                 .statusCode(200)
                 .extract().statusCode();
 
         assertThat(result).isEqualTo(200);
 
-        var plan = given()
+        Map<String, Map<String,String>> comments = given()
                 .when()
                 .header("Accept", "application/json")
                 .get("/sentenceplan/{0}/comments", SENTENCE_PLAN_ID)
                 .then()
                 .statusCode(200)
                 .extract()
-                .body()
-                .as(Comment[].class);
+                .body().jsonPath().getMap("");
 
-        assertThat(plan).hasSize(1);
-        assertThat(plan[0].getComments()).isEqualTo(comment.getComments());
-        assertThat(plan[0].getAuthor()).isEqualTo(comment.getOwner());
+        assertThat(comments).hasSize(1);
+        assertThat(comments.get(CommentType.ABOUTMYPLAN.name()).get("comment")).isEqualTo(comment.getComment());
+        assertThat(comments.get(CommentType.ABOUTMYPLAN.name()).get("commentType")).isEqualTo(comment.getCommentType().name());
+
+    }
+
+    @Test
+    public void shouldGetCommentsAddingOverwrites() throws JsonProcessingException {
+        setupMockRestServiceServer();
+
+        var comment = new AddCommentRequest("Any Comment", CommentType.ABOUTMYPLAN);
+        var requestBody = List.of(comment);
+
+        var comment1 = new AddCommentRequest("Any New Comment", CommentType.ABOUTMYPLAN);
+        var requestBody1 = List.of(comment1);
+
+        var result = given()
+                .when()
+                .body(requestBody)
+                .header("Content-Type", "application/json")
+                .put("/sentenceplan/{0}/comments", SENTENCE_PLAN_ID)
+                .then()
+                .statusCode(200)
+                .extract().statusCode();
+
+        assertThat(result).isEqualTo(200);
+
+        var result1 = given()
+                .when()
+                .body(requestBody1)
+                .header("Content-Type", "application/json")
+                .put("/sentenceplan/{0}/comments", SENTENCE_PLAN_ID)
+                .then()
+                .statusCode(200)
+                .extract().statusCode();
+
+        assertThat(result1).isEqualTo(200);
+
+        Map<String, Map<String,String>> comments = given()
+                .when()
+                .header("Accept", "application/json")
+                .get("/sentenceplan/{0}/comments", SENTENCE_PLAN_ID)
+                .then()
+                .statusCode(200)
+                .extract()
+                .body().jsonPath().getMap("");
+
+        assertThat(comments).hasSize(1);
+        // New comment should overwrite old one.
+        assertThat(comments.get(CommentType.ABOUTMYPLAN.name()).get("comment")).isEqualTo(comment1.getComment());
+        assertThat(comments.get(CommentType.ABOUTMYPLAN.name()).get("commentType")).isEqualTo(comment1.getCommentType().name());
 
     }
 
