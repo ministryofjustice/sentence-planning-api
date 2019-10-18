@@ -10,6 +10,7 @@ import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.SentencePlanProperti
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,9 +29,7 @@ public class SentencePlan {
     @JsonProperty("needs")
     private List<Need> needs;
     @JsonProperty("comments")
-    private List<Comment> comments;
-    @JsonProperty("serviceUserComments")
-    private String serviceUserComments;
+    private Map<CommentType, Comment> comments;
     @JsonProperty("childSafeguardingIndicated")
     private Boolean childSafeguardingIndicated;
     @JsonProperty("complyWithChildProtectionPlanIndicated")
@@ -48,7 +47,6 @@ public class SentencePlan {
         return new SentencePlan(sentencePlan.getUuid(), sentencePlan.getCreatedOn(), sentencePlan.getStatus(),
                 Step.from(data.getSteps(), sentencePlan.getNeeds()), Need.from(sentencePlan.getNeeds()),
                 Comment.from(data.getComments()),
-                data.getServiceUserComments(),
                 data.getChildSafeguardingIndicated(), data.getComplyWithChildProtectionPlanIndicated(),
                 Offender.from(offenderEntity));
     }

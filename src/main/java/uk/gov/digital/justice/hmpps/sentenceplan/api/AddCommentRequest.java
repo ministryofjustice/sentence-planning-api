@@ -17,12 +17,12 @@ public class AddCommentRequest {
 
     @ApiModelProperty(required = true, value = "The Comment")
     @NotNull
-    @JsonProperty("comments")
-    private String comments;
+    @JsonProperty("comment")
+    private String comment;
 
-    @ApiModelProperty(required = true, value = "The owner of the comments")
+    @ApiModelProperty(required = true, value = "The Comment Type")
     @NotNull
-    @JsonProperty("owner")
-    private StepOwner owner;
+    @JsonProperty("commentType")
+    private CommentType commentType;
 
 }

@@ -167,27 +167,19 @@ public class SentencePlanService {
     }
 
     @Transactional
-    public void setServiceUserComments(UUID sentencePlanUuid, String serviceUserComments) {
-        var sentencePlanEntity = getSentencePlanEntity(sentencePlanUuid);
-        sentencePlanEntity.getData().setServiceUserComments(serviceUserComments);
-        sentencePlanRepository.save(sentencePlanEntity);
-
-    }
-
-    @Transactional
     public void addSentencePlanComments(UUID sentencePlanUUID, List<AddCommentRequest> comments) {
-        if (comments.size() > 0) {
+        if (!comments.isEmpty()) {
             var sentencePlanEntity = sentencePlanRepository.findByUuid(sentencePlanUUID);
 
             // TODO: Presumably createdBy comes from the Auth headers?
-            comments.forEach(comment -> sentencePlanEntity.addComment(new CommentEntity(comment.getComments(), comment.getOwner(), "ANONYMOUS")));
+            comments.forEach(comment -> sentencePlanEntity.addComment(new CommentEntity(comment.getComment(), comment.getCommentType(), "ANONYMOUS")));
 
             log.info("Added Comments {}", sentencePlanEntity.getUuid(), value(EVENT, SENTENCE_PLAN_COMMENTS_CREATED));
             sentencePlanRepository.save(sentencePlanEntity);
         }
     }
 
-    public List<Comment> getSentencePlanComments(UUID sentencePlanUuid) {
+    public Map<CommentType, Comment> getSentencePlanComments(UUID sentencePlanUuid) {
         log.info("Retrieving Sentence Plan Comments {}", sentencePlanUuid, value(EVENT, SENTENCE_PLAN_COMMENTS_RETRIEVED));
         var sentencePlanEntity = getSentencePlanEntity(sentencePlanUuid);
         return Comment.from(sentencePlanEntity.getData().getComments());
