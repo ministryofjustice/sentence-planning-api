@@ -47,7 +47,7 @@ public class OASYSAssessmentAPIClient {
     public Optional<OasysAssessment> getLatestLayer3AssessmentForOffender(long oasysOffenderId) {
         try {
            return Optional.ofNullable(restTemplate.getForEntity(
-                   assessmentApiBasePath + "/offenders/oasysOffenderId/{oasysOffenderId}/assessments/latest",
+                   assessmentApiBasePath + "/offenders/oasysOffenderId/{oasysOffenderId}/assessments/latest?assessmentType=LAYER_3",
                    OasysAssessment.class, oasysOffenderId).getBody());
         }
         catch(HttpClientErrorException e) {
