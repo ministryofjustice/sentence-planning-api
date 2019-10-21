@@ -130,7 +130,7 @@ public class SentencePlanResource_NeedTest {
         var needs = List.of(new AssessmentNeed("Alcohol", true, true, true, true),
                 new AssessmentNeed("Accommodation", true, true, true, true));
 
-        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123456/assessments/latest"))
+        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123456/assessments/latest?assessmentType=LAYER_3"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(mapper.writeValueAsString(new OasysAssessment(123456L, "ACTIVE", needs, true, true)), MediaType.APPLICATION_JSON));
         return assessmentApi;
@@ -139,7 +139,7 @@ public class SentencePlanResource_NeedTest {
     private MockRestServiceServer setupMockRestServiceServerNoNeeds() throws JsonProcessingException {
         var assessmentApi = bindTo(oauthRestTemplate).ignoreExpectOrder(true).build();
 
-        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/789123/assessments/latest"))
+        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/789123/assessments/latest?assessmentType=LAYER_3"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(mapper.writeValueAsString(new OasysAssessment(789123L, "ACTIVE", null, true, true)), MediaType.APPLICATION_JSON));
         return assessmentApi;
