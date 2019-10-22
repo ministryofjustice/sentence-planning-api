@@ -8,12 +8,38 @@ services:
     ports:
       - 5432:5432
     networks:
-      - hocs-network
+      - hmpps
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: dev
     tmpfs:
       - /var/lib/postgresql
 
+  oauth:
+    image: mojdigitalstudio/nomis-oauth2-server:latest
+    networks:
+      - hmpps
+    container_name: oauth
+    ports:
+      - "9090:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/auth/health"]
+    environment:
+      - SERVER_PORT=8080
+      - SPRING_PROFILES_ACTIVE=dev
+
+  offender-assessment-api:
+    image: mojdigitalstudio/offender-assessments-api:latest
+    networks:
+      - hmpps
+    container_name: offender-assessment-api
+    ports:
+      - "8081:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+    environment:
+      - SERVER_PORT=8080
+      - SPRING_PROFILES_ACTIVE=dev
+
 networks:
-  hocs-network:
+  hmpps:
