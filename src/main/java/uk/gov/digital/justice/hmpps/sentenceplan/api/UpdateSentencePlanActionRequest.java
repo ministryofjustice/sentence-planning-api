@@ -16,7 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @ApiModel(description = "Add a new Sentence Plan Action")
-public class UpdateSentencePlanStepRequest {
+public class UpdateSentencePlanActionRequest {
 
 
     @ApiModelProperty(required = true, value = "The owner of the Action")
@@ -37,7 +37,7 @@ public class UpdateSentencePlanStepRequest {
     @JsonProperty("strength")
     private String strength;
 
-    @ApiModelProperty(required = true, value = "Description of the step, if an intervention is selected then it's description will be used")
+    @ApiModelProperty(required = true, value = "Description of the action, if an intervention is selected then it's description will be used")
     @JsonProperty("description")
     private String description;
 
@@ -45,7 +45,7 @@ public class UpdateSentencePlanStepRequest {
     @JsonProperty("intervention")
     private String intervention;
 
-    @ApiModelProperty(required = true, value = "A list of Need IDs (UUID) associated with the step")
+    @ApiModelProperty(required = true, value = "A list of Need IDs (UUID) associated with the action")
     @NotEmpty
     @JsonProperty("needs")
     private List<UUID> needs;

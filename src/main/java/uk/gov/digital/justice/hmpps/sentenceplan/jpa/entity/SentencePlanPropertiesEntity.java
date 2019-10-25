@@ -16,11 +16,11 @@ public class SentencePlanPropertiesEntity implements Serializable {
 
     private Boolean childSafeguardingIndicated;
     private Boolean complyWithChildProtectionPlanIndicated;
-    private List<ActionEntity> steps = new ArrayList<>();
+    private List<ActionEntity> actions = new ArrayList<>();
     private Map<CommentType, CommentEntity> comments = new HashMap<>();
 
-    public void addStep(ActionEntity actionEntity) {
-        steps.add(actionEntity);
+    public void addActions(ActionEntity actionEntity) {
+        actions.add(actionEntity);
     }
 
     public void addComment(CommentEntity commentEntity) {

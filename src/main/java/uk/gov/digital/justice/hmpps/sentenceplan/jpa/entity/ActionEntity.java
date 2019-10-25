@@ -54,7 +54,7 @@ public class ActionEntity implements Serializable {
         update(owner, ownerOther, description, strength, status, needs, intervention);
     }
 
-    public void updateStep(List<ActionOwner> owner, String ownerOther, String description, String strength, ActionStatus status, List<UUID> needs, String intervention) {
+    public void updateAction(List<ActionOwner> owner, String ownerOther, String description, String strength, ActionStatus status, List<UUID> needs, String intervention) {
         update(owner, ownerOther, description, strength, status, needs, intervention);
         this.updated = LocalDateTime.now();
     }
@@ -88,7 +88,7 @@ public class ActionEntity implements Serializable {
         this.strength = strength;
         this.status = status;
 
-        // When we update a step we just overwrite whatever needs and owners there are, we don't try to merge/deduplicate the list
+        // When we update a action we just overwrite whatever needs and owners there are, we don't try to merge/deduplicate the list
         this.needs = needs;
         this.owner = owner;
         this.ownerOther = ownerOther;

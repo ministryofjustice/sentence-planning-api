@@ -49,9 +49,9 @@ public class SentencePlanResource_ActionTest {
     SentencePlanRepository sentencePlanRepository;
     
     private final String SENTENCE_PLAN_ID = "11111111-1111-1111-1111-111111111111";
-    private final String STEP_ID = "11111111-1111-1111-1111-111111111111";
-    private final String NOT_FOUND_STEP_ID = "00000000-0000-0000-0000-000000000000";
-    private final String EMPTY_STEPS_SENTENCE_PLAN_ID = "22222222-2222-2222-2222-222222222222";
+    private final String ACTION_ID = "11111111-1111-1111-1111-111111111111";
+    private final String NOT_FOUND_ACTION_ID = "00000000-0000-0000-0000-000000000000";
+    private final String EMPTY_ACTIONS_SENTENCE_PLAN_ID = "22222222-2222-2222-2222-222222222222";
     private final String NOT_FOUND_SENTENCE_PLAN_ID = "99999999-9999-9999-9999-999999999999";
 
     @Before
@@ -64,9 +64,9 @@ public class SentencePlanResource_ActionTest {
 
 
     @Test
-    public void shouldCreateStepOnExistingPlan() {
+    public void shouldCreateActionOnExistingPlan() {
 
-        var requestBody = new AddSentencePlanStep(List.of(SERVICE_USER),
+        var requestBody = new AddSentencePlanAction(List.of(SERVICE_USER),
                 null,
                 "a strength",
                 "a description",
@@ -77,7 +77,7 @@ public class SentencePlanResource_ActionTest {
                 .when()
                 .body(requestBody)
                 .header("Content-Type", "application/json")
-                .post("/sentenceplan/{0}/steps", SENTENCE_PLAN_ID)
+                .post("/sentenceplan/{0}/actions", SENTENCE_PLAN_ID)
                 .then()
                 .statusCode(201)
                 .extract()
@@ -85,22 +85,22 @@ public class SentencePlanResource_ActionTest {
                 .jsonPath().getList(".", Action.class);
 
         assertThat(result).hasSize(2);
-        var step = result.get(1);
-        assertThat(step.getDescription()).isEqualTo("a description");
-        assertThat(step.getStrength()).isEqualTo("a strength");
-        assertThat(step.getIntervention()).isNull();
-        assertThat(step.getOwnerOther()).isNull();
-        assertThat(step.getOwner()).hasSize(1);
-        assertThat(step.getOwner()).contains(SERVICE_USER);
+        var action = result.get(1);
+        assertThat(action.getDescription()).isEqualTo("a description");
+        assertThat(action.getStrength()).isEqualTo("a strength");
+        assertThat(action.getIntervention()).isNull();
+        assertThat(action.getOwnerOther()).isNull();
+        assertThat(action.getOwner()).hasSize(1);
+        assertThat(action.getOwner()).contains(SERVICE_USER);
     }
 
     @Test
-    public void shouldGetStepsWhenSentencePlanExists() {
+    public void shouldGetActionsWhenSentencePlanExists() {
 
         var result = given()
                 .when()
                 .header("Accept", "application/json")
-                .get("/sentenceplan/{0}/steps", SENTENCE_PLAN_ID)
+                .get("/sentenceplan/{0}/actions", SENTENCE_PLAN_ID)
                 .then()
                 .statusCode(200)
                 .extract()
@@ -108,24 +108,24 @@ public class SentencePlanResource_ActionTest {
                 .jsonPath().getList(".", Action.class);
 
         assertThat(result).hasSize(1);
-        var step = result.get(0);
-        assertThat(step.getDescription()).isEqualTo("description");
-        assertThat(step.getStrength()).isEqualTo("strength");
-        assertThat(step.getIntervention()).isNull();
-        assertThat(step.getOwnerOther()).isNull();
-        assertThat(step.getOwner()).hasSize(1);
-        assertThat(step.getOwner()).contains(PRACTITIONER);
+        var action = result.get(0);
+        assertThat(action.getDescription()).isEqualTo("description");
+        assertThat(action.getStrength()).isEqualTo("strength");
+        assertThat(action.getIntervention()).isNull();
+        assertThat(action.getOwnerOther()).isNull();
+        assertThat(action.getOwner()).hasSize(1);
+        assertThat(action.getOwner()).contains(PRACTITIONER);
 
     }
 
 
     @Test
-    public void shouldGetSingleStepWhenSentencePlanExists() {
+    public void shouldGetSingleActionWhenSentencePlanExists() {
 
         var result = given()
                 .when()
                 .header("Accept", "application/json")
-                .get("/sentenceplan/{0}/steps/{1}", SENTENCE_PLAN_ID, STEP_ID)
+                .get("/sentenceplan/{0}/actions/{1}", SENTENCE_PLAN_ID, ACTION_ID)
                 .then()
                 .statusCode(200)
                 .extract()
@@ -144,7 +144,7 @@ public class SentencePlanResource_ActionTest {
     public void shouldReturnNotFoundForNonexistentPlan() {
         var result = given()
                 .when()
-                .get("/sentenceplan/{0}/steps", NOT_FOUND_SENTENCE_PLAN_ID)
+                .get("/sentenceplan/{0}/actions", NOT_FOUND_SENTENCE_PLAN_ID)
                 .then()
                 .statusCode(404)
                 .extract()
@@ -158,12 +158,12 @@ public class SentencePlanResource_ActionTest {
 
 
     @Test
-    public void shouldGetEmptyArrayWhenNoStepsExist() {
+    public void shouldGetEmptyArrayWhenNoActionsExist() {
 
         var result = given()
                 .when()
                 .header("Accept", "application/json")
-                .get("/sentenceplan/{0}/steps", EMPTY_STEPS_SENTENCE_PLAN_ID)
+                .get("/sentenceplan/{0}/actions", EMPTY_ACTIONS_SENTENCE_PLAN_ID)
                 .then()
                 .statusCode(200)
                 .extract()
@@ -174,49 +174,49 @@ public class SentencePlanResource_ActionTest {
     }
 
     @Test
-    public void shouldUpdateStepOnExistingPlan() {
+    public void shouldUpdateActionOnExistingPlan() {
 
-        var requestBody = new UpdateSentencePlanStepRequest(List.of(SERVICE_USER), ActionStatus.COMPLETED, null, "strong", "desc", null, List.of(UUID.randomUUID()));
+        var requestBody = new UpdateSentencePlanActionRequest(List.of(SERVICE_USER), ActionStatus.COMPLETED, null, "strong", "desc", null, List.of(UUID.randomUUID()));
 
         var result = given()
                 .when()
                 .body(requestBody)
                 .header("Content-Type", "application/json")
-                .put("/sentenceplan/{0}/steps/{1}", SENTENCE_PLAN_ID, STEP_ID)
+                .put("/sentenceplan/{0}/actions/{1}", SENTENCE_PLAN_ID, ACTION_ID)
                 .then()
                 .statusCode(200)
                 .extract().statusCode();
 
         assertThat(result).isEqualTo(200);
 
-        var updatedStep = given()
+        var updatedAction = given()
                 .when()
                 .header("Accept", "application/json")
-                .get("/sentenceplan/{0}/steps/{1}", SENTENCE_PLAN_ID, STEP_ID)
+                .get("/sentenceplan/{0}/actions/{1}", SENTENCE_PLAN_ID, ACTION_ID)
                 .then()
                 .statusCode(200)
                 .extract()
                 .body()
                 .as(Action.class);
 
-        assertThat(updatedStep.getDescription()).isEqualTo("desc");
-        assertThat(updatedStep.getStrength()).isEqualTo("strong");
-        assertThat(updatedStep.getIntervention()).isNull();
-        assertThat(updatedStep.getOwnerOther()).isNull();
-        assertThat(updatedStep.getOwner()).hasSize(1);
-        assertThat(updatedStep.getOwner()).contains(SERVICE_USER);
+        assertThat(updatedAction.getDescription()).isEqualTo("desc");
+        assertThat(updatedAction.getStrength()).isEqualTo("strong");
+        assertThat(updatedAction.getIntervention()).isNull();
+        assertThat(updatedAction.getOwnerOther()).isNull();
+        assertThat(updatedAction.getOwner()).hasSize(1);
+        assertThat(updatedAction.getOwner()).contains(SERVICE_USER);
     }
 
     @Test
-    public void shouldNotUpdateInvalidStep() {
+    public void shouldNotUpdateInvalidAction() {
 
-        var requestBody = new UpdateSentencePlanStepRequest(List.of(SERVICE_USER), ActionStatus.COMPLETED, null, "strong", "desc", null, List.of(UUID.randomUUID()));
+        var requestBody = new UpdateSentencePlanActionRequest(List.of(SERVICE_USER), ActionStatus.COMPLETED, null, "strong", "desc", null, List.of(UUID.randomUUID()));
 
         var result = given()
                 .when()
                 .body(requestBody)
                 .header("Content-Type", "application/json")
-                .put("/sentenceplan/{0}/steps/{1}", SENTENCE_PLAN_ID, NOT_FOUND_STEP_ID)
+                .put("/sentenceplan/{0}/actions/{1}", SENTENCE_PLAN_ID, NOT_FOUND_ACTION_ID)
                 .then()
                 .statusCode(404)
                 .extract().statusCode();
@@ -225,7 +225,7 @@ public class SentencePlanResource_ActionTest {
     }
 
     @Test
-    public void shouldProgressStep() {
+    public void shouldProgressAction() {
 
         var requestBody = new ProgressActionRequest(ActionStatus.PARTIALLY_COMPLETED, "He didn't done do it");
 
@@ -233,40 +233,40 @@ public class SentencePlanResource_ActionTest {
                 .when()
                 .body(requestBody)
                 .header("Content-Type", "application/json")
-                .post("/sentenceplan/{0}/steps/{1}/progress", SENTENCE_PLAN_ID, STEP_ID)
+                .post("/sentenceplan/{0}/actions/{1}/progress", SENTENCE_PLAN_ID, ACTION_ID)
                 .then()
                 .statusCode(200)
                 .extract().statusCode();
 
         assertThat(result).isEqualTo(200);
 
-        var progressedStep = given()
+        var progressedAction = given()
                 .when()
                 .header("Accept", "application/json")
-                .get("/sentenceplan/{0}/steps/{1}", SENTENCE_PLAN_ID, STEP_ID)
+                .get("/sentenceplan/{0}/actions/{1}", SENTENCE_PLAN_ID, ACTION_ID)
                 .then()
                 .statusCode(200)
                 .extract()
                 .body()
                 .as(Action.class);
 
-        assertThat(progressedStep.getProgressList()).hasSize(1);
-        assertThat(progressedStep.getProgressList().get(0).getStatus()).isEqualTo(ActionStatus.PARTIALLY_COMPLETED);
-        assertThat(progressedStep.getProgressList().get(0).getPractitionerComments()).isEqualTo("He didn't done do it");
+        assertThat(progressedAction.getProgressList()).hasSize(1);
+        assertThat(progressedAction.getProgressList().get(0).getStatus()).isEqualTo(ActionStatus.PARTIALLY_COMPLETED);
+        assertThat(progressedAction.getProgressList().get(0).getPractitionerComments()).isEqualTo("He didn't done do it");
 
-        assertThat(progressedStep.getUpdated()).isEqualTo(progressedStep.getProgressList().get(0).getCreated());
+        assertThat(progressedAction.getUpdated()).isEqualTo(progressedAction.getProgressList().get(0).getCreated());
     }
 
     @Test
-    public void shouldNotProgressInvalidStep() {
+    public void shouldNotProgressInvalidAction() {
 
-        var requestBody = new UpdateSentencePlanStepRequest(List.of(SERVICE_USER), ActionStatus.COMPLETED, null, "strong", "desc", null, List.of(UUID.randomUUID()));
+        var requestBody = new UpdateSentencePlanActionRequest(List.of(SERVICE_USER), ActionStatus.COMPLETED, null, "strong", "desc", null, List.of(UUID.randomUUID()));
 
         var result = given()
                 .when()
                 .body(requestBody)
                 .header("Content-Type", "application/json")
-                .post("/sentenceplan/{0}/steps/{1}/progress", SENTENCE_PLAN_ID, NOT_FOUND_STEP_ID)
+                .post("/sentenceplan/{0}/actions/{1}/progress", SENTENCE_PLAN_ID, NOT_FOUND_ACTION_ID)
                 .then()
                 .statusCode(404)
                 .extract().statusCode();

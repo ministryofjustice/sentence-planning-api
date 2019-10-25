@@ -30,207 +30,207 @@ public class ActionEntityTest {
     private static final ActionStatus statusUpdate = ActionStatus.PARTIALLY_COMPLETED;
 
     @Test
-    public void shouldCreateStepWithNeeds() {
+    public void shouldCreateActionWithNeeds() {
 
-        var step = createValidStep();
+        var action = createValidAction();
 
-        assertThat(step.getOwner()).isEqualTo(owner);
-        assertThat(step.getOwnerOther()).isNull();
-        assertThat(step.getDescription()).isEqualTo(description);
-        assertThat(step.getStrength()).isEqualTo(strength);
-        assertThat(step.getStatus()).isEqualTo(status);
-        assertThat(step.getIntervention()).isEqualTo(null);
-        assertThat(step.getNeeds()).hasSize(3);
+        assertThat(action.getOwner()).isEqualTo(owner);
+        assertThat(action.getOwnerOther()).isNull();
+        assertThat(action.getDescription()).isEqualTo(description);
+        assertThat(action.getStrength()).isEqualTo(strength);
+        assertThat(action.getStatus()).isEqualTo(status);
+        assertThat(action.getIntervention()).isEqualTo(null);
+        assertThat(action.getNeeds()).hasSize(3);
     }
 
     @Test(expected = ValidationException.class)
-    public void shouldNotCreateStepWithoutNeedsNull() {
+    public void shouldNotCreateActionWithoutNeedsNull() {
         new ActionEntity(owner, null, description, strength, status, null , null);
     }
 
     @Test(expected = ValidationException.class)
-    public void shouldNotCreateStepWithoutNeedsEmpty() {
+    public void shouldNotCreateActionWithoutNeedsEmpty() {
         new ActionEntity(owner, null, description, strength, status, new ArrayList<>(), null);
     }
 
     @Test(expected = ValidationException.class)
-    public void shouldNotCreateStepWithOwnerNull() {
+    public void shouldNotCreateActionWithOwnerNull() {
         new ActionEntity(null, null, description, strength, status, createNeedList() , null);
     }
 
     @Test
-    public void shouldCreateStepWithOtherOwner() {
-        var step = new ActionEntity(List.of(ActionOwner.OTHER), "Nurse", description, strength, status, createNeedList() , null);
+    public void shouldCreateActionWithOtherOwner() {
+        var action = new ActionEntity(List.of(ActionOwner.OTHER), "Nurse", description, strength, status, createNeedList() , null);
 
-        assertThat(step.getOwner()).hasSize(1);
-        assertThat(step.getOwner()).contains(ActionOwner.OTHER);
-        assertThat(step.getOwnerOther()).isEqualTo("Nurse");
+        assertThat(action.getOwner()).hasSize(1);
+        assertThat(action.getOwner()).contains(ActionOwner.OTHER);
+        assertThat(action.getOwnerOther()).isEqualTo("Nurse");
     }
 
     @Test(expected = ValidationException.class)
-    public void shouldNotCreateStepWithOtherOwnerNull() {
+    public void shouldNotCreateActionWithOtherOwnerNull() {
        new ActionEntity(List.of(ActionOwner.OTHER), null, description, strength, status, createNeedList() , null);
     }
 
     @Test(expected = ValidationException.class)
-    public void shouldNotCreateStepWithNoDescriptionAndIntervention() {
+    public void shouldNotCreateActionWithNoDescriptionAndIntervention() {
         new ActionEntity(owner, null, "", strength, status, createNeedList() , "");
     }
 
     @Test
-    public void shouldCreateStepWithDescriptionNoIntervention() {
-        var step = new ActionEntity(owner, null, description, strength, status, createNeedList() , null);
+    public void shouldCreateActionWithDescriptionNoIntervention() {
+        var action = new ActionEntity(owner, null, description, strength, status, createNeedList() , null);
 
-        assertThat(step.getDescription()).isEqualTo(description);
-        assertThat(step.getIntervention()).isEqualTo(null);
+        assertThat(action.getDescription()).isEqualTo(description);
+        assertThat(action.getIntervention()).isEqualTo(null);
     }
 
     @Test
-    public void shouldCreateStepWithDescriptionAndIntervention() {
-        var step = new ActionEntity(owner, null, description, strength, status, createNeedList() , intervention);
+    public void shouldCreateActionWithDescriptionAndIntervention() {
+        var action = new ActionEntity(owner, null, description, strength, status, createNeedList() , intervention);
 
-        assertThat(step.getDescription()).isEqualTo(intervention);
-        assertThat(step.getIntervention()).isEqualTo(intervention);
+        assertThat(action.getDescription()).isEqualTo(intervention);
+        assertThat(action.getIntervention()).isEqualTo(intervention);
     }
 
     @Test
-    public void shouldCreateStepWithNoDescriptionButAnIntervention() {
-        var step = new ActionEntity(owner, null, null, strength, status, createNeedList() , intervention);
+    public void shouldCreateActionWithNoDescriptionButAnIntervention() {
+        var action = new ActionEntity(owner, null, null, strength, status, createNeedList() , intervention);
 
-        assertThat(step.getDescription()).isEqualTo(intervention);
-        assertThat(step.getIntervention()).isEqualTo(intervention);
+        assertThat(action.getDescription()).isEqualTo(intervention);
+        assertThat(action.getIntervention()).isEqualTo(intervention);
     }
 
     @Test
-    public void shouldUpdateStepWithNeeds() {
+    public void shouldUpdateActionWithNeeds() {
 
-        var step = createValidStep();
+        var action = createValidAction();
 
-        assertThat(step.getOwner()).isEqualTo(owner);
-        assertThat(step.getOwnerOther()).isNull();
-        assertThat(step.getDescription()).isEqualTo(description);
-        assertThat(step.getStrength()).isEqualTo(strength);
-        assertThat(step.getStatus()).isEqualTo(status);
-        assertThat(step.getIntervention()).isEqualTo(null);
-        assertThat(step.getNeeds()).hasSize(3);
+        assertThat(action.getOwner()).isEqualTo(owner);
+        assertThat(action.getOwnerOther()).isNull();
+        assertThat(action.getDescription()).isEqualTo(description);
+        assertThat(action.getStrength()).isEqualTo(strength);
+        assertThat(action.getStatus()).isEqualTo(status);
+        assertThat(action.getIntervention()).isEqualTo(null);
+        assertThat(action.getNeeds()).hasSize(3);
 
-        step.updateStep(ownerUpdate, null, descriptionUpdate, strengthUpdate, statusUpdate, createNeedListUpdate(), null);
+        action.updateAction(ownerUpdate, null, descriptionUpdate, strengthUpdate, statusUpdate, createNeedListUpdate(), null);
 
-        assertThat(step.getOwner()).isEqualTo(ownerUpdate);
-        assertThat(step.getOwnerOther()).isNull();
-        assertThat(step.getDescription()).isEqualTo(descriptionUpdate);
-        assertThat(step.getStrength()).isEqualTo(strengthUpdate);
-        assertThat(step.getStatus()).isEqualTo(statusUpdate);
-        assertThat(step.getIntervention()).isEqualTo(null);
-        assertThat(step.getNeeds()).hasSize(2);
+        assertThat(action.getOwner()).isEqualTo(ownerUpdate);
+        assertThat(action.getOwnerOther()).isNull();
+        assertThat(action.getDescription()).isEqualTo(descriptionUpdate);
+        assertThat(action.getStrength()).isEqualTo(strengthUpdate);
+        assertThat(action.getStatus()).isEqualTo(statusUpdate);
+        assertThat(action.getIntervention()).isEqualTo(null);
+        assertThat(action.getNeeds()).hasSize(2);
     }
 
     @Test(expected = ValidationException.class)
-    public void shouldNotUpdateStepWithoutNeedsNull() {
-        var step = createValidStep();
-        step.updateStep(ownerUpdate, null, descriptionUpdate, strengthUpdate, statusUpdate, null, null);
+    public void shouldNotUpdateActionWithoutNeedsNull() {
+        var action = createValidAction();
+        action.updateAction(ownerUpdate, null, descriptionUpdate, strengthUpdate, statusUpdate, null, null);
     }
 
     @Test(expected = ValidationException.class)
-    public void shouldNotUpdateStepWithoutNeedsEmpty() {
-        var step = createValidStep();
-        step.updateStep(ownerUpdate, null, descriptionUpdate, strengthUpdate, statusUpdate, new ArrayList<>(), null);
+    public void shouldNotUpdateActionWithoutNeedsEmpty() {
+        var action = createValidAction();
+        action.updateAction(ownerUpdate, null, descriptionUpdate, strengthUpdate, statusUpdate, new ArrayList<>(), null);
     }
 
     @Test(expected = ValidationException.class)
-    public void shouldNotUpdateStepWithOwnerNull() {
-        var step = createValidStep();
-        step.updateStep(null, null, descriptionUpdate, strengthUpdate, statusUpdate, createNeedListUpdate(), null);
+    public void shouldNotUpdateActionWithOwnerNull() {
+        var action = createValidAction();
+        action.updateAction(null, null, descriptionUpdate, strengthUpdate, statusUpdate, createNeedListUpdate(), null);
     }
 
     @Test
-    public void shouldUpdateStepWithOtherOwner() {
-        var step = createValidStep();
-        step.updateStep(List.of(ActionOwner.OTHER), "Nurse", descriptionUpdate, strengthUpdate, statusUpdate, createNeedListUpdate(), null);
+    public void shouldUpdateActionWithOtherOwner() {
+        var action = createValidAction();
+        action.updateAction(List.of(ActionOwner.OTHER), "Nurse", descriptionUpdate, strengthUpdate, statusUpdate, createNeedListUpdate(), null);
 
-        assertThat(step.getOwner()).hasSize(1);
-        assertThat(step.getOwner()).contains(ActionOwner.OTHER);
-        assertThat(step.getOwnerOther()).isEqualTo("Nurse");
+        assertThat(action.getOwner()).hasSize(1);
+        assertThat(action.getOwner()).contains(ActionOwner.OTHER);
+        assertThat(action.getOwnerOther()).isEqualTo("Nurse");
     }
 
     @Test
-    public void shouldUpdateStepWithOtherOwnerMultiple() {
-        var step = createValidStep();
-        step.updateStep(List.of(ActionOwner.PRACTITIONER, ActionOwner.OTHER), "Nurse", descriptionUpdate, strengthUpdate, statusUpdate, createNeedListUpdate(), null);
+    public void shouldUpdateActionWithOtherOwnerMultiple() {
+        var action = createValidAction();
+        action.updateAction(List.of(ActionOwner.PRACTITIONER, ActionOwner.OTHER), "Nurse", descriptionUpdate, strengthUpdate, statusUpdate, createNeedListUpdate(), null);
 
-        assertThat(step.getOwner()).hasSize(2);
-        assertThat(step.getOwner()).contains(ActionOwner.PRACTITIONER);
-        assertThat(step.getOwner()).contains(ActionOwner.OTHER);
-        assertThat(step.getOwnerOther()).isEqualTo("Nurse");
+        assertThat(action.getOwner()).hasSize(2);
+        assertThat(action.getOwner()).contains(ActionOwner.PRACTITIONER);
+        assertThat(action.getOwner()).contains(ActionOwner.OTHER);
+        assertThat(action.getOwnerOther()).isEqualTo("Nurse");
     }
 
     @Test(expected = ValidationException.class)
-    public void shouldNotUpdateStepWithOtherOwnerNull() {
-        var step = createValidStep();
-        step.updateStep(List.of(ActionOwner.OTHER), null, descriptionUpdate, strengthUpdate, statusUpdate, null, null);
+    public void shouldNotUpdateActionWithOtherOwnerNull() {
+        var action = createValidAction();
+        action.updateAction(List.of(ActionOwner.OTHER), null, descriptionUpdate, strengthUpdate, statusUpdate, null, null);
     }
 
     @Test(expected = ValidationException.class)
-    public void shouldNotUpdateStepWithNoDescriptionAndIntervention() {
-        var step = createValidStep();
-        step.updateStep(ownerUpdate, null, "", strengthUpdate, statusUpdate, null, "");
+    public void shouldNotUpdateActionWithNoDescriptionAndIntervention() {
+        var action = createValidAction();
+        action.updateAction(ownerUpdate, null, "", strengthUpdate, statusUpdate, null, "");
     }
 
     @Test
-    public void shouldUpdateStepWithDescriptionNoIntervention() {
-        var step = createValidStep();
-        step.updateStep(ownerUpdate, null, descriptionUpdate, strengthUpdate, statusUpdate, createNeedListUpdate(), null);
+    public void shouldUpdateActionWithDescriptionNoIntervention() {
+        var action = createValidAction();
+        action.updateAction(ownerUpdate, null, descriptionUpdate, strengthUpdate, statusUpdate, createNeedListUpdate(), null);
 
-        assertThat(step.getDescription()).isEqualTo(descriptionUpdate);
-        assertThat(step.getIntervention()).isEqualTo(null);
+        assertThat(action.getDescription()).isEqualTo(descriptionUpdate);
+        assertThat(action.getIntervention()).isEqualTo(null);
     }
 
     @Test
-    public void shouldUpdateStepWithDescriptionAndIntervention() {
-        var step = createValidStep();
-        step.updateStep(ownerUpdate, null, descriptionUpdate, strengthUpdate, statusUpdate, createNeedListUpdate(), interventionUpdate);
+    public void shouldUpdateActionWithDescriptionAndIntervention() {
+        var action = createValidAction();
+        action.updateAction(ownerUpdate, null, descriptionUpdate, strengthUpdate, statusUpdate, createNeedListUpdate(), interventionUpdate);
 
-        assertThat(step.getDescription()).isEqualTo(interventionUpdate);
-        assertThat(step.getIntervention()).isEqualTo(interventionUpdate);
+        assertThat(action.getDescription()).isEqualTo(interventionUpdate);
+        assertThat(action.getIntervention()).isEqualTo(interventionUpdate);
     }
 
     @Test
-    public void shouldUpdateStepWithNoDescriptionButAnIntervention() {
-        var step = createValidStep();
-        step.updateStep(ownerUpdate, null, null, strengthUpdate, statusUpdate, createNeedListUpdate(), interventionUpdate);
+    public void shouldUpdateActionWithNoDescriptionButAnIntervention() {
+        var action = createValidAction();
+        action.updateAction(ownerUpdate, null, null, strengthUpdate, statusUpdate, createNeedListUpdate(), interventionUpdate);
 
-        assertThat(step.getDescription()).isEqualTo(interventionUpdate);
-        assertThat(step.getIntervention()).isEqualTo(interventionUpdate);
+        assertThat(action.getDescription()).isEqualTo(interventionUpdate);
+        assertThat(action.getIntervention()).isEqualTo(interventionUpdate);
     }
 
     @Test
-    public void shouldUpdateStepPriority() {
+    public void shouldUpdateActionPriority() {
 
-        var step = createValidStep();
+        var action = createValidAction();
 
-        assertThat(step.getPriority()).isEqualTo(0);
+        assertThat(action.getPriority()).isEqualTo(0);
 
-        step.setPriority(5);
+        action.setPriority(5);
 
-        assertThat(step.getPriority()).isEqualTo(5);
+        assertThat(action.getPriority()).isEqualTo(5);
     }
 
     @Test
     public void shouldAddProgress() {
 
-        var step = createValidStep();
+        var action = createValidAction();
 
-        assertThat(step.getStatus()).isEqualTo(status);
+        assertThat(action.getStatus()).isEqualTo(status);
 
         var newProgress = new ProgressEntity(ActionStatus.COMPLETED, "", LocalDateTime.now(), "");
-        step.addProgress(newProgress);
+        action.addProgress(newProgress);
 
-        assertThat(step.getStatus()).isEqualTo(ActionStatus.COMPLETED);
-        assertThat(step.getLatestUpdated()).isEqualTo(newProgress.getCreated());
-        assertThat(step.getProgress()).hasSize(1);
+        assertThat(action.getStatus()).isEqualTo(ActionStatus.COMPLETED);
+        assertThat(action.getLatestUpdated()).isEqualTo(newProgress.getCreated());
+        assertThat(action.getProgress()).hasSize(1);
     }
 
-    private static ActionEntity createValidStep() {
+    private static ActionEntity createValidAction() {
         return new ActionEntity(owner, null, description, strength, status, createNeedList() , null);
     }
 

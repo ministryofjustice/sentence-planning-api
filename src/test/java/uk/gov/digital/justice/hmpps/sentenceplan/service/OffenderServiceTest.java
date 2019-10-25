@@ -117,7 +117,7 @@ public class OffenderServiceTest {
 
         var needs = List.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
         var sentencePlanProperty = new SentencePlanPropertiesEntity();
-        sentencePlanProperty.addStep(new ActionEntity(List.of(PRACTITIONER), null, "a description", "a strength", ActionStatus.PAUSED, needs, null));
+        sentencePlanProperty.addActions(new ActionEntity(List.of(PRACTITIONER), null, "a description", "a strength", ActionStatus.PAUSED, needs, null));
         return SentencePlanEntity.builder()
                 .createdOn(LocalDateTime.of(2019,6,1, 11,00))
                 .status(DRAFT)

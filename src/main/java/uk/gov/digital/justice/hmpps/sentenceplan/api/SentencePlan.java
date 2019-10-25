@@ -45,7 +45,7 @@ public class SentencePlan {
         var offenderEntity = Optional.ofNullable(sentencePlan.getOffender()).orElseGet(OffenderEntity::new);
 
         return new SentencePlan(sentencePlan.getUuid(), sentencePlan.getCreatedOn(), sentencePlan.getStatus(),
-                Action.from(data.getSteps(), sentencePlan.getNeeds()), Need.from(sentencePlan.getNeeds()),
+                Action.from(data.getActions(), sentencePlan.getNeeds()), Need.from(sentencePlan.getNeeds()),
                 Comment.from(data.getComments()),
                 data.getChildSafeguardingIndicated(), data.getComplyWithChildProtectionPlanIndicated(),
                 Offender.from(offenderEntity));

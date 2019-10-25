@@ -2,7 +2,7 @@ version: 2.1
 commands:
   setup:
     description: "Install tools and configure kubectl"
-    steps:
+    actions:
       - aws-cli/install
       - kubernetes/install
       - helm/install-helm-client:
@@ -27,7 +27,7 @@ commands:
     parameters:
       env:
         type: string
-    steps:
+    actions:
       - setup
       - checkout:
           path: ~/git
@@ -75,7 +75,7 @@ orbs:
 jobs:
   build:
     executor: builder
-    steps:
+    actions:
       - checkout
       - restore_cache:
           keys:
@@ -113,7 +113,7 @@ jobs:
 
   build_docker:
     executor: deployer
-    steps:
+    actions:
       - checkout
       - attach_workspace:
           at: ~/app
@@ -142,17 +142,17 @@ jobs:
 
   deploy_dev:
     executor: deployer
-    steps:
+    actions:
       - deploy_to_env:
           env: "development"
   deploy_preprod:
     executor: deployer
-    steps:
+    actions:
       - deploy_to_env:
           env: "preprod"
 #  deploy_prod:
 #    executor: deployer
-#    steps:
+#    actions:
 #      - deploy_to_env:
 #          env: "prod"
 

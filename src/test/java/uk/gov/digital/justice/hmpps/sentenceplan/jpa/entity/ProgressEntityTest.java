@@ -19,7 +19,7 @@ public class ProgressEntityTest {
 
 
     @Test
-    public void shouldCreateStep() {
+    public void shouldCreateAction() {
 
         var progressEntity = new ProgressEntity(status, practitionerComments, createdBy);
 

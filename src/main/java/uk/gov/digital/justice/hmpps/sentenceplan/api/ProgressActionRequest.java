@@ -12,7 +12,7 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@ApiModel(description = "Progress a step")
+@ApiModel(description = "Progress an Action")
 public class ProgressActionRequest {
 
     @ApiModelProperty(required = true, value = "Action status", example = "true")
