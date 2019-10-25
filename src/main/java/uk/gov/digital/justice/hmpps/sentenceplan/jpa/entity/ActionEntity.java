@@ -1,6 +1,5 @@
 package uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.springframework.util.StringUtils;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner;
@@ -13,11 +12,12 @@ import java.util.*;
 
 @Getter
 @AllArgsConstructor
+@NoArgsConstructor
 public class ActionEntity implements Serializable {
 
     private UUID id;
 
-    private List<ActionOwner> owner;
+    private List<ActionOwner> owner = new ArrayList<>(0);
 
     private String ownerOther;
 
@@ -27,55 +27,40 @@ public class ActionEntity implements Serializable {
 
     private ActionStatus status;
 
-    private List<UUID> needs;
+    private List<UUID> needs = new ArrayList<>(0);
 
     private String intervention;
 
     private int priority;
 
-    private List<ProgressEntity> progress;
+    private List<ProgressEntity> progress = new ArrayList<>(0);
 
-    private LocalDateTime created;
+    private LocalDateTime created = LocalDateTime.now();
 
     private LocalDateTime updated;
 
-
-    public ActionEntity() {
-        this.progress = new ArrayList<>(0);
-    }
-
     public ActionEntity(List<ActionOwner> owner, String ownerOther, String description, String strength, ActionStatus status, List<UUID> needs, String intervention) {
-        var now = LocalDateTime.now();
         this.id = UUID.randomUUID();
-        this.owner = new ArrayList<>(0);
-        this.progress = new ArrayList<>(0);
-        this.created = now;
-        this.updated = now;
-        update(owner, ownerOther, description, strength, status, needs, intervention);
+        setValues(owner, ownerOther, description, strength, status, needs, intervention);
+        this.updated = this.created;
     }
 
     public void updateAction(List<ActionOwner> owner, String ownerOther, String description, String strength, ActionStatus status, List<UUID> needs, String intervention) {
-        update(owner, ownerOther, description, strength, status, needs, intervention);
+        setValues(owner, ownerOther, description, strength, status, needs, intervention);
         this.updated = LocalDateTime.now();
     }
 
-    @JsonIgnore
-    public LocalDateTime getLatestUpdated() {
-        Optional<LocalDateTime> lastProgressed = this.progress.stream().map(ProgressEntity::getCreated).max(Comparator.naturalOrder());
-
-        if(lastProgressed.isPresent()) {
-            return this.updated.isBefore(lastProgressed.get()) ? lastProgressed.get() : this.updated ;
-        } else {
-            return this.updated;
-        }
-    }
-
-    public void addProgress(ProgressEntity progressEntity) {
-        this.progress.add(progressEntity);
+    public void updateActionStatus(ProgressEntity progressEntity) {
         this.status = progressEntity.getStatus();
+        this.updated = progressEntity.getCreated();
+        this.progress.add(progressEntity);
     }
 
-    private void update(List<ActionOwner> owner, String ownerOther, String description, String strength, ActionStatus status, List<UUID> needs, String intervention) {
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
+
+    private void setValues(List<ActionOwner> owner, String ownerOther, String description, String strength, ActionStatus status, List<UUID> needs, String intervention) {
         validateOwner(owner, ownerOther);
         validateNeeds(needs);
         validateDescription(description, intervention);
@@ -94,18 +79,13 @@ public class ActionEntity implements Serializable {
         this.ownerOther = ownerOther;
     }
 
-    public static ActionEntity updatePriority(ActionEntity actionEntity, int priority) {
-        actionEntity.setPriority(priority);
-        return actionEntity;
-    }
-
-    private void validateNeeds(List<UUID> needs) {
+    private static void validateNeeds(List<UUID> needs) {
         if(needs == null || needs.isEmpty()) {
             throw new ValidationException("Action must address one or more needs");
         }
     }
 
-    private void validateOwner(List<ActionOwner> owner, String ownerOther) {
+    private static void validateOwner(List<ActionOwner> owner, String ownerOther) {
         if(owner == null || owner.isEmpty()) {
             throw new ValidationException("Owner must be specified");
         }
@@ -115,14 +95,10 @@ public class ActionEntity implements Serializable {
         }
     }
 
-    private void validateDescription(String description, String intervention) {
+    private static void validateDescription(String description, String intervention) {
         if(StringUtils.isEmpty(intervention) && StringUtils.isEmpty(description)){
             throw new ValidationException("Description must be specified if intervention is not specified");
         }
-    }
-
-    public void setPriority(int priority) {
-        this.priority = priority;
     }
 
 }

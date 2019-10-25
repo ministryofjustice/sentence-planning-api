@@ -18,9 +18,6 @@ public class ActionProgress {
     @JsonProperty("status")
     private ActionStatus status;
 
-    @JsonProperty("comments")
-    private String practitionerComments;
-
     @JsonProperty("created")
     private LocalDateTime created;
 
@@ -29,7 +26,7 @@ public class ActionProgress {
 
 
     public static ActionProgress from(ProgressEntity progressEntity) {
-        return new ActionProgress(progressEntity.getStatus(), progressEntity.getPractitionerComments(), progressEntity.getCreated(), progressEntity.getCreatedBy());
+        return new ActionProgress(progressEntity.getStatus(), progressEntity.getCreated(), progressEntity.getCreatedBy());
     }
 
     public static List<ActionProgress> from(List<ProgressEntity> progressEntities) {

@@ -53,7 +53,7 @@ public class Action {
                 action.getIntervention(),
                 action.getPriority(),
                 ActionProgress.from(Optional.ofNullable(action.getProgress()).orElse(Collections.emptyList())),
-                action.getLatestUpdated());
+                action.getUpdated());
     }
 
     public static List<Action> from(List<ActionEntity> actions, List<NeedEntity> needs) {

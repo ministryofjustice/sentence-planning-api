@@ -144,7 +144,7 @@ public class SentencePlanResource {
     @ApiOperation(value = "Progress a action",
             notes = "Progress an Action")
     ResponseEntity progressAction(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Action ID") @PathVariable UUID actionId, @RequestBody ProgressActionRequest request) {
-        sentencePlanService.progressAction(sentencePlanUUID, actionId, request.getStatus(), request.getPractitionerComments());
+        sentencePlanService.progressAction(sentencePlanUUID, actionId, request.getStatus());
         return ResponseEntity.ok().build();
     }
 

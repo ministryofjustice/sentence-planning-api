@@ -20,9 +20,4 @@ public class ProgressActionRequest {
     @JsonProperty("status")
     private ActionStatus status;
 
-    @ApiModelProperty(required = true, value = "The comments from the practitioner", example = "true")
-    @NotNull
-    @JsonProperty("comments")
-    private String practitionerComments;
-
 }

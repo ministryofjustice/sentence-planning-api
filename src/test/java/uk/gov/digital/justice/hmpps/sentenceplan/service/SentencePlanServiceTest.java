@@ -328,7 +328,7 @@ public class SentencePlanServiceTest {
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
 
         var actionToProgress = sentencePlan.getData().getActions().stream().findFirst().get();
-        service.progressAction(sentencePlanUuid, actionToProgress.getId(), ActionStatus.ABANDONED, "");
+        service.progressAction(sentencePlanUuid, actionToProgress.getId(), ActionStatus.ABANDONED);
 
         verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
         verify(sentencePlanRepository,times(1)).save(sentencePlan);

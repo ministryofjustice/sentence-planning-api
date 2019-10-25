@@ -14,13 +14,11 @@ import java.time.LocalDateTime;
 public class ProgressEntity implements Serializable {
 
     private ActionStatus status;
-    private String practitionerComments;
     private LocalDateTime created;
     private String createdBy;
 
-    public ProgressEntity(ActionStatus actionStatus, String practitionerComments, String createdBy) {
+    public ProgressEntity(ActionStatus actionStatus, String createdBy) {
         this.status = actionStatus;
-        this.practitionerComments = practitionerComments;
         this.created = LocalDateTime.now();
         this.createdBy = createdBy;
     }
