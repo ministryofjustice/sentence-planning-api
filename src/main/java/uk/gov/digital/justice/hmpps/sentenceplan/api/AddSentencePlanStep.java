@@ -15,14 +15,14 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@ApiModel(description = "Add a new Sentence Plan Step")
+@ApiModel(description = "Add a new Sentence Plan Action")
 public class AddSentencePlanStep {
 
 
-    @ApiModelProperty(required = true, value = "The owner of the Step")
+    @ApiModelProperty(required = true, value = "The owner of the Action")
     @NotNull
     @JsonProperty("owner")
-    private List<StepOwner> owner;
+    private List<ActionOwner> owner;
 
     @ApiModelProperty(required = true, value = "Other owner (if other type used)")
     @JsonProperty("ownerOther")

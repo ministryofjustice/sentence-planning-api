@@ -24,8 +24,8 @@ import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static uk.gov.digital.justice.hmpps.sentenceplan.api.PlanStatus.*;
-import static uk.gov.digital.justice.hmpps.sentenceplan.api.StepOwner.PRACTITIONER;
-import static uk.gov.digital.justice.hmpps.sentenceplan.api.StepOwner.SERVICE_USER;
+import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner.PRACTITIONER;
+import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner.SERVICE_USER;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SentencePlanServiceTest {
@@ -316,7 +316,7 @@ public class SentencePlanServiceTest {
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
 
         var stepToUpdate = sentencePlan.getData().getSteps().stream().findFirst().get();
-        service.updateStep(sentencePlanUuid, stepToUpdate.getId(), List.of(PRACTITIONER), null, "Strong", "Desc", "Inter", List.of(UUID.randomUUID()), StepStatus.COMPLETED);
+        service.updateStep(sentencePlanUuid, stepToUpdate.getId(), List.of(PRACTITIONER), null, "Strong", "Desc", "Inter", List.of(UUID.randomUUID()), ActionStatus.COMPLETED);
 
         verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
         verify(sentencePlanRepository,times(1)).save(sentencePlan);
@@ -328,7 +328,7 @@ public class SentencePlanServiceTest {
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
 
         var stepToProgress = sentencePlan.getData().getSteps().stream().findFirst().get();
-        service.progressStep(sentencePlanUuid, stepToProgress.getId(), StepStatus.ABANDONED, "");
+        service.progressStep(sentencePlanUuid, stepToProgress.getId(), ActionStatus.ABANDONED, "");
 
         verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
         verify(sentencePlanRepository,times(1)).save(sentencePlan);
@@ -479,7 +479,7 @@ public class SentencePlanServiceTest {
 
         var needs = List.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
         var sentencePlanProperty = new SentencePlanPropertiesEntity();
-        sentencePlanProperty.addStep(new StepEntity(List.of(PRACTITIONER), null, "a description", "a strength", StepStatus.PAUSED, needs, null));
+        sentencePlanProperty.addStep(new ActionEntity(List.of(PRACTITIONER), null, "a description", "a strength", ActionStatus.PAUSED, needs, null));
         return SentencePlanEntity.builder()
                 .createdOn(LocalDateTime.of(2019,6,1, 11,00))
                 .status(DRAFT)
@@ -490,7 +490,7 @@ public class SentencePlanServiceTest {
 
     private SentencePlanEntity getSentencePlanWithMultipleSteps() {
         var needs = List.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
-        var newStep = new StepEntity(List.of(PRACTITIONER), null, "two description", "two strength", StepStatus.IN_PROGRESS, needs, null);
+        var newStep = new ActionEntity(List.of(PRACTITIONER), null, "two description", "two strength", ActionStatus.IN_PROGRESS, needs, null);
         var sentencePlan = getSentencePlanWithOneStep();
         sentencePlan.addStep(newStep);
         return sentencePlan;

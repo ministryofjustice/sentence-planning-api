@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 import static net.logstash.logback.argument.StructuredArguments.value;
 import static uk.gov.digital.justice.hmpps.sentenceplan.application.LogEvent.*;
 import static uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.NeedEntity.updateMotivation;
-import static uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.StepEntity.updatePriority;
+import static uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.ActionEntity.updatePriority;
 
 @Service
 @Slf4j
@@ -66,8 +66,8 @@ public class SentencePlanService {
     }
 
     @Transactional
-    public List<Step> addStep(UUID sentencePlanUUID, List<StepOwner> owner, String ownerOther, String strength, String description, String intervention, List<UUID> needs) {
-        var stepEntity = new StepEntity(owner, ownerOther, description, strength, StepStatus.IN_PROGRESS, needs, intervention);
+    public List<Action> addStep(UUID sentencePlanUUID, List<ActionOwner> owner, String ownerOther, String strength, String description, String intervention, List<UUID> needs) {
+        var stepEntity = new ActionEntity(owner, ownerOther, description, strength, ActionStatus.IN_PROGRESS, needs, intervention);
         var sentencePlan = getSentencePlanEntity(sentencePlanUUID);
 
         if (sentencePlan.getStatus().equals(PlanStatus.DRAFT) && sentencePlan.getData().getSteps().isEmpty()) {
@@ -79,37 +79,37 @@ public class SentencePlanService {
         var steps = sentencePlan.getData().getSteps();
         stepEntity.setPriority(steps.size());
         // Map to a set to get a unique set of values
-        var uniqueValues = steps.stream().map(StepEntity::getPriority).collect(Collectors.toSet());
+        var uniqueValues = steps.stream().map(ActionEntity::getPriority).collect(Collectors.toSet());
         if (uniqueValues.size() < steps.size()) {
             throw new ValidationException("Steps with duplicate priority found.");
         }
 
         sentencePlan.addStep(stepEntity);
 
-        log.info("Created Sentence Plan Step {}", sentencePlan.getUuid(), value(EVENT, SENTENCE_PLAN_STEP_CREATED));
-        return Step.from(sentencePlan.getData().getSteps(), sentencePlan.getNeeds());
+        log.info("Created Sentence Plan Action {}", sentencePlan.getUuid(), value(EVENT, SENTENCE_PLAN_STEP_CREATED));
+        return Action.from(sentencePlan.getData().getSteps(), sentencePlan.getNeeds());
     }
 
     @Transactional
-    public void updateStep(UUID sentencePlanUuid, UUID stepUuid, List<StepOwner> owner, String ownerOther, String strength, String description, String intervention, List<UUID> needs, StepStatus status) {
+    public void updateStep(UUID sentencePlanUuid, UUID stepUuid, List<ActionOwner> owner, String ownerOther, String strength, String description, String intervention, List<UUID> needs, ActionStatus status) {
         var sentencePlanEntity = getSentencePlanEntity(sentencePlanUuid);
         var stepEntity = getStepEntity(sentencePlanEntity, stepUuid);
         stepEntity.updateStep(owner, ownerOther, description, strength, status, needs, intervention);
         sentencePlanRepository.save(sentencePlanEntity);
-        log.info("Updated Step {} on Sentence Plan {} Motivations", stepUuid, sentencePlanUuid, value(EVENT, SENTENCE_PLAN_STEP_UPDATED));
+        log.info("Updated Action {} on Sentence Plan {} Motivations", stepUuid, sentencePlanUuid, value(EVENT, SENTENCE_PLAN_STEP_UPDATED));
 
     }
 
-    public List<Step> getSentencePlanSteps(UUID sentencePlanUuid) {
+    public List<Action> getSentencePlanSteps(UUID sentencePlanUuid) {
         log.info("Retrieving Sentence Plan Steps {}", sentencePlanUuid, value(EVENT, SENTENCE_PLAN_STEPS_RETRIEVED));
         var sentencePlanEntity = getSentencePlanEntity(sentencePlanUuid);
-        return Step.from(sentencePlanEntity.getData().getSteps(), sentencePlanEntity.getNeeds());
+        return Action.from(sentencePlanEntity.getData().getSteps(), sentencePlanEntity.getNeeds());
     }
 
-    public Step getSentencePlanStep(UUID sentencePlanUuid, UUID stepId) {
-        log.info("Retrieving Sentence Plan {} Step {}", sentencePlanUuid, stepId, value(EVENT, SENTENCE_PLAN_STEP_RETRIEVED));
+    public Action getSentencePlanStep(UUID sentencePlanUuid, UUID stepId) {
+        log.info("Retrieving Sentence Plan {} Action {}", sentencePlanUuid, stepId, value(EVENT, SENTENCE_PLAN_STEP_RETRIEVED));
         var sentencePlanEntity = getSentencePlanEntity(sentencePlanUuid);
-        return Step.from(getStepEntity(sentencePlanEntity, stepId), sentencePlanEntity.getNeeds());
+        return Action.from(getStepEntity(sentencePlanEntity, stepId), sentencePlanEntity.getNeeds());
     }
 
     @Transactional
@@ -142,7 +142,7 @@ public class SentencePlanService {
             }
 
             var sentencePlan = getSentencePlanEntity(sentencePlanUuid);
-            var planSteps = sentencePlan.getData().getSteps().stream().collect(Collectors.toMap(StepEntity::getId, step -> step));
+            var planSteps = sentencePlan.getData().getSteps().stream().collect(Collectors.toMap(ActionEntity::getId, step -> step));
 
             // We also need to check that we're updating all the steps otherwise they will get out of step (no pun intended).
             if (planSteps.size() != priorities.size()) {
@@ -151,12 +151,12 @@ public class SentencePlanService {
 
             priorities.forEach((key, value) -> planSteps.computeIfPresent(key, (k, v) -> updatePriority(v, value)));
             sentencePlanRepository.save(sentencePlan);
-            log.info("Updated Sentence Plan {} Step priority", sentencePlanUuid, value(EVENT, SENTENCE_PLAN_STEP_PRIORITY_UPDATED));
+            log.info("Updated Sentence Plan {} Action priority", sentencePlanUuid, value(EVENT, SENTENCE_PLAN_STEP_PRIORITY_UPDATED));
         }
     }
 
     @Transactional
-    public void progressStep(UUID sentencePlanUuid, UUID stepId, StepStatus status, String practitionerComments) {
+    public void progressStep(UUID sentencePlanUuid, UUID stepId, ActionStatus status, String practitionerComments) {
         var sentencePlanEntity = getSentencePlanEntity(sentencePlanUuid);
         var stepEntity = getStepEntity(sentencePlanEntity, stepId);
         // TODO: Presumably createdBy comes from the Auth headers?
@@ -211,10 +211,10 @@ public class SentencePlanService {
                 .orElseThrow(() -> new EntityNotFoundException("OASys sentence plan does not exist for offender."));
     }
 
-    private StepEntity getStepEntity(SentencePlanEntity sentencePlanEntity, UUID stepUuid) {
+    private ActionEntity getStepEntity(SentencePlanEntity sentencePlanEntity, UUID stepUuid) {
         return sentencePlanEntity.getData().getSteps().stream()
                 .filter(s -> s.getId().equals(stepUuid)).findAny()
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Step %s not found", stepUuid)));
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Action %s not found", stepUuid)));
     }
 
     private SentencePlanEntity getSentencePlanEntityWithUpdatedNeeds(UUID sentencePlanUuid) {

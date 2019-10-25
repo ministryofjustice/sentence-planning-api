@@ -26,15 +26,15 @@ import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
-import static uk.gov.digital.justice.hmpps.sentenceplan.api.StepOwner.PRACTITIONER;
-import static uk.gov.digital.justice.hmpps.sentenceplan.api.StepOwner.SERVICE_USER;
+import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner.PRACTITIONER;
+import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner.SERVICE_USER;
 
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Sql(scripts = "classpath:sentencePlan/before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
 @Sql(scripts = "classpath:sentencePlan/after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
-public class SentencePlanResource_StepTest {
+public class SentencePlanResource_ActionTest {
 
     @LocalServerPort
     int port;
@@ -82,7 +82,7 @@ public class SentencePlanResource_StepTest {
                 .statusCode(201)
                 .extract()
                 .body()
-                .jsonPath().getList(".", Step.class);
+                .jsonPath().getList(".", Action.class);
 
         assertThat(result).hasSize(2);
         var step = result.get(1);
@@ -105,7 +105,7 @@ public class SentencePlanResource_StepTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .jsonPath().getList(".", Step.class);
+                .jsonPath().getList(".", Action.class);
 
         assertThat(result).hasSize(1);
         var step = result.get(0);
@@ -130,7 +130,7 @@ public class SentencePlanResource_StepTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .as(Step.class);
+                .as(Action.class);
 
         assertThat(result.getDescription()).isEqualTo("description");
         assertThat(result.getStrength()).isEqualTo("strength");
@@ -168,7 +168,7 @@ public class SentencePlanResource_StepTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .jsonPath().getList(".", Step.class);
+                .jsonPath().getList(".", Action.class);
 
         assertThat(result).hasSize(0);
     }
@@ -176,7 +176,7 @@ public class SentencePlanResource_StepTest {
     @Test
     public void shouldUpdateStepOnExistingPlan() {
 
-        var requestBody = new UpdateSentencePlanStepRequest(List.of(SERVICE_USER), StepStatus.COMPLETED, null, "strong", "desc", null, List.of(UUID.randomUUID()));
+        var requestBody = new UpdateSentencePlanStepRequest(List.of(SERVICE_USER), ActionStatus.COMPLETED, null, "strong", "desc", null, List.of(UUID.randomUUID()));
 
         var result = given()
                 .when()
@@ -197,7 +197,7 @@ public class SentencePlanResource_StepTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .as(Step.class);
+                .as(Action.class);
 
         assertThat(updatedStep.getDescription()).isEqualTo("desc");
         assertThat(updatedStep.getStrength()).isEqualTo("strong");
@@ -210,7 +210,7 @@ public class SentencePlanResource_StepTest {
     @Test
     public void shouldNotUpdateInvalidStep() {
 
-        var requestBody = new UpdateSentencePlanStepRequest(List.of(SERVICE_USER), StepStatus.COMPLETED, null, "strong", "desc", null, List.of(UUID.randomUUID()));
+        var requestBody = new UpdateSentencePlanStepRequest(List.of(SERVICE_USER), ActionStatus.COMPLETED, null, "strong", "desc", null, List.of(UUID.randomUUID()));
 
         var result = given()
                 .when()
@@ -227,7 +227,7 @@ public class SentencePlanResource_StepTest {
     @Test
     public void shouldProgressStep() {
 
-        var requestBody = new ProgressStepRequest(StepStatus.PARTIALLY_COMPLETED, "He didn't done do it");
+        var requestBody = new ProgressActionRequest(ActionStatus.PARTIALLY_COMPLETED, "He didn't done do it");
 
         var result = given()
                 .when()
@@ -248,10 +248,10 @@ public class SentencePlanResource_StepTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .as(Step.class);
+                .as(Action.class);
 
         assertThat(progressedStep.getProgressList()).hasSize(1);
-        assertThat(progressedStep.getProgressList().get(0).getStatus()).isEqualTo(StepStatus.PARTIALLY_COMPLETED);
+        assertThat(progressedStep.getProgressList().get(0).getStatus()).isEqualTo(ActionStatus.PARTIALLY_COMPLETED);
         assertThat(progressedStep.getProgressList().get(0).getPractitionerComments()).isEqualTo("He didn't done do it");
 
         assertThat(progressedStep.getUpdated()).isEqualTo(progressedStep.getProgressList().get(0).getCreated());
@@ -260,7 +260,7 @@ public class SentencePlanResource_StepTest {
     @Test
     public void shouldNotProgressInvalidStep() {
 
-        var requestBody = new UpdateSentencePlanStepRequest(List.of(SERVICE_USER), StepStatus.COMPLETED, null, "strong", "desc", null, List.of(UUID.randomUUID()));
+        var requestBody = new UpdateSentencePlanStepRequest(List.of(SERVICE_USER), ActionStatus.COMPLETED, null, "strong", "desc", null, List.of(UUID.randomUUID()));
 
         var result = given()
                 .when()

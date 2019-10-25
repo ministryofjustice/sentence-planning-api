@@ -16,7 +16,7 @@ import java.util.UUID;
 @ApiModel(description = "Set the priority of a step.")
 public class UpdateStepPriorityRequest {
 
-    @ApiModelProperty(required = true, value = "The Step UUID ", example = "true")
+    @ApiModelProperty(required = true, value = "The Action UUID ", example = "true")
     @NotNull
     @JsonProperty("stepUUID")
     private UUID stepUUID;

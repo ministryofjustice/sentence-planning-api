@@ -13,10 +13,10 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class StepProgress {
+public class ActionProgress {
 
     @JsonProperty("status")
-    private StepStatus status;
+    private ActionStatus status;
 
     @JsonProperty("comments")
     private String practitionerComments;
@@ -28,11 +28,11 @@ public class StepProgress {
     private String createdBy;
 
 
-    public static StepProgress from(ProgressEntity progressEntity) {
-        return new StepProgress(progressEntity.getStatus(), progressEntity.getPractitionerComments(), progressEntity.getCreated(), progressEntity.getCreatedBy());
+    public static ActionProgress from(ProgressEntity progressEntity) {
+        return new ActionProgress(progressEntity.getStatus(), progressEntity.getPractitionerComments(), progressEntity.getCreated(), progressEntity.getCreatedBy());
     }
 
-    public static List<StepProgress> from(List<ProgressEntity> progressEntities) {
-        return progressEntities.stream().map(StepProgress::from).collect(Collectors.toList());
+    public static List<ActionProgress> from(List<ProgressEntity> progressEntities) {
+        return progressEntities.stream().map(ActionProgress::from).collect(Collectors.toList());
     }
 }

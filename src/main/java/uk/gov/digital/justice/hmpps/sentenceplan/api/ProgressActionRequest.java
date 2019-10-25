@@ -13,12 +13,12 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @Getter
 @ApiModel(description = "Progress a step")
-public class ProgressStepRequest {
+public class ProgressActionRequest {
 
-    @ApiModelProperty(required = true, value = "Step status", example = "true")
+    @ApiModelProperty(required = true, value = "Action status", example = "true")
     @NotNull
     @JsonProperty("status")
-    private StepStatus status;
+    private ActionStatus status;
 
     @ApiModelProperty(required = true, value = "The comments from the practitioner", example = "true")
     @NotNull
