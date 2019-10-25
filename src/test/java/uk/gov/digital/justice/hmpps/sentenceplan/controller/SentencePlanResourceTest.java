@@ -214,7 +214,7 @@ public class SentencePlanResourceTest {
                 .as(SentencePlan.class);
 
         assertThat(result.getStatus()).isEqualTo(DRAFT);
-        assertThat(result.getSteps().size()).isEqualTo(0);
+        assertThat(result.getActions().size()).isEqualTo(0);
         assertThat(result.getNeeds().size()).isEqualTo(2);
     }
 
@@ -396,25 +396,25 @@ public class SentencePlanResourceTest {
     }
 
     @Test
-    public void shouldUpdateStepPriority() throws JsonProcessingException {
+    public void shouldUpdateActionPriority() throws JsonProcessingException {
 
         setupMockRestServiceServer();
 
-        var requestBody = List.of(new UpdateStepPriorityRequest(UUID.fromString("11111111-1111-1111-1111-111111111111"), 1));
+        var requestBody = List.of(new UpdateActionPriorityRequest(UUID.fromString("11111111-1111-1111-1111-111111111111"), 1));
 
         var result = given()
                 .when()
                 .body(requestBody)
                 .header("Content-Type", "application/json")
-                .post("/sentenceplan/{0}/steps/priority", SENTENCE_PLAN_ID)
+                .post("/sentenceplan/{0}/actions/priority", SENTENCE_PLAN_ID)
                 .then()
                 .statusCode(200)
                 .extract()
                 .body()
-                .as(UpdateStepPriorityRequest[].class);
+                .as(UpdateActionPriorityRequest[].class);
 
         var result1 = result[0];
-        assertThat(result1.getStepUUID()).isEqualTo(UUID.fromString("11111111-1111-1111-1111-111111111111"));
+        assertThat(result1.getActionUUID()).isEqualTo(UUID.fromString("11111111-1111-1111-1111-111111111111"));
         assertThat(result1.getPriority()).isEqualTo(1);
     }
 

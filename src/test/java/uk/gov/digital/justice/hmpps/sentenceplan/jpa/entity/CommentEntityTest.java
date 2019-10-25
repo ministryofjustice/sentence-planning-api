@@ -4,7 +4,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.CommentType;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.StepOwner;
 
 import java.time.LocalDateTime;
 

@@ -1,7 +1,6 @@
 package uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity;
 
 import lombok.*;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.Comment;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.CommentType;
 
 import java.io.Serializable;
@@ -17,11 +16,11 @@ public class SentencePlanPropertiesEntity implements Serializable {
 
     private Boolean childSafeguardingIndicated;
     private Boolean complyWithChildProtectionPlanIndicated;
-    private List<StepEntity> steps = new ArrayList<>();
+    private List<ActionEntity> actions = new ArrayList<>();
     private Map<CommentType, CommentEntity> comments = new HashMap<>();
 
-    public void addStep(StepEntity stepEntity) {
-        steps.add(stepEntity);
+    public void addActions(ActionEntity actionEntity) {
+        actions.add(actionEntity);
     }
 
     public void addComment(CommentEntity commentEntity) {

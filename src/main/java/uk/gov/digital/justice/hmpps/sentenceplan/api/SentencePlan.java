@@ -24,8 +24,8 @@ public class SentencePlan {
     private LocalDateTime createdOn;
     @JsonProperty("status")
     private PlanStatus status;
-    @JsonProperty("steps")
-    private List<Step> steps;
+    @JsonProperty("actions")
+    private List<Action> actions;
     @JsonProperty("needs")
     private List<Need> needs;
     @JsonProperty("comments")
@@ -45,7 +45,7 @@ public class SentencePlan {
         var offenderEntity = Optional.ofNullable(sentencePlan.getOffender()).orElseGet(OffenderEntity::new);
 
         return new SentencePlan(sentencePlan.getUuid(), sentencePlan.getCreatedOn(), sentencePlan.getStatus(),
-                Step.from(data.getSteps(), sentencePlan.getNeeds()), Need.from(sentencePlan.getNeeds()),
+                Action.from(data.getActions(), sentencePlan.getNeeds()), Need.from(sentencePlan.getNeeds()),
                 Comment.from(data.getComments()),
                 data.getChildSafeguardingIndicated(), data.getComplyWithChildProtectionPlanIndicated(),
                 Offender.from(offenderEntity));

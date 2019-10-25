@@ -13,15 +13,15 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@ApiModel(description = "Set the priority of a step.")
-public class UpdateStepPriorityRequest {
+@ApiModel(description = "Set the priority of a action.")
+public class UpdateActionPriorityRequest {
 
-    @ApiModelProperty(required = true, value = "The Step UUID ", example = "true")
+    @ApiModelProperty(required = true, value = "The Action UUID ", example = "true")
     @NotNull
-    @JsonProperty("stepUUID")
-    private UUID stepUUID;
+    @JsonProperty("actionUUID")
+    private UUID actionUUID;
 
-    @ApiModelProperty(required = true, value = "The step priority", example = "true")
+    @ApiModelProperty(required = true, value = "The action priority", example = "true")
     @NotNull
     @JsonProperty("priority")
     private Integer priority;

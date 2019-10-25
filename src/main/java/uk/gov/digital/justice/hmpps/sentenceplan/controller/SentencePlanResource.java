@@ -66,56 +66,56 @@ public class SentencePlanResource {
                 createSentencePlanRequest.getOffenderReferenceType()));
     }
 
-    @PostMapping(value = "/sentenceplan/{sentencePlanUUID}/steps", produces = "application/json")
-    @ApiOperation(value = "Add a step to a sentence plan",
+    @PostMapping(value = "/sentenceplan/{sentencePlanUUID}/actions", produces = "application/json")
+    @ApiOperation(value = "Add an Action to a sentence plan",
             notes = "Creates a draft new sentence plan")
-    ResponseEntity<List<Step>> addStep(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Step details", required = true) @RequestBody @Valid AddSentencePlanStep step) {
+    ResponseEntity<List<Action>> addAction(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Action details", required = true) @RequestBody @Valid AddSentencePlanAction action) {
         return ResponseEntity.status(HttpStatus.CREATED).body(
-                sentencePlanService.addStep(sentencePlanUUID,
-                step.getOwner(),
-                step.getOwnerOther(),
-                step.getStrength(),
-                step.getDescription(),
-                step.getIntervention(),
-                step.getNeeds()));
+                sentencePlanService.addAction(sentencePlanUUID,
+                action.getOwner(),
+                action.getOwnerOther(),
+                action.getStrength(),
+                action.getDescription(),
+                action.getIntervention(),
+                action.getNeeds()));
     }
 
-    @PutMapping(value = "/sentenceplan/{sentencePlanUUID}/steps/{stepId}", produces = "application/json")
-    @ApiOperation(value = "Update Sentence Plan step from ID",
-            notes = "Update a single sentence plan step")
-    ResponseEntity updateSentencePlanStep(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Step ID") @PathVariable UUID stepId, @ApiParam(value = "Step details", required = true) @RequestBody @Valid UpdateSentencePlanStepRequest step) {
-        sentencePlanService.updateStep(sentencePlanUUID, stepId,
-                step.getOwner(),
-                step.getOwnerOther(),
-                step.getStrength(),
-                step.getDescription(),
-                step.getIntervention(),
-                step.getNeeds(),
-                step.getStatus()
+    @PutMapping(value = "/sentenceplan/{sentencePlanUUID}/actions/{actionId}", produces = "application/json")
+    @ApiOperation(value = "Update Sentence Plan action from ID",
+            notes = "Update a single sentence plan action")
+    ResponseEntity updateSentencePlanAction(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Action ID") @PathVariable UUID actionId, @ApiParam(value = "Action details", required = true) @RequestBody @Valid UpdateSentencePlanActionRequest action) {
+        sentencePlanService.updateAction(sentencePlanUUID, actionId,
+                action.getOwner(),
+                action.getOwnerOther(),
+                action.getStrength(),
+                action.getDescription(),
+                action.getIntervention(),
+                action.getNeeds(),
+                action.getStatus()
         );
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping(value = "/sentenceplan/{sentencePlanUUID}/steps", produces = "application/json")
-    @ApiOperation(value = "Get Sentence Plan steps from ID",
-            response = Step.class,
+    @GetMapping(value = "/sentenceplan/{sentencePlanUUID}/actions", produces = "application/json")
+    @ApiOperation(value = "Get Sentence Plan actions from ID",
+            response = Action.class,
             responseContainer = "List",
-            notes = "Request sentence plan steps")
-        ResponseEntity<List<Step>> getSentencePlanSteps(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID) {
-        return ResponseEntity.ok(sentencePlanService.getSentencePlanSteps(sentencePlanUUID));
+            notes = "Request sentence plan actions")
+        ResponseEntity<List<Action>> getSentencePlanActions(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID) {
+        return ResponseEntity.ok(sentencePlanService.getSentencePlanActions(sentencePlanUUID));
     }
 
-    @GetMapping(value = "/sentenceplan/{sentencePlanUUID}/steps/{stepId}", produces = "application/json")
-    @ApiOperation(value = "Get Sentence Plan step from ID",
-            response = Step.class,
-            notes = "Request a single sentence plan step")
-    ResponseEntity<Step> getSentencePlanStep(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Step ID") @PathVariable UUID stepId) {
-        return ResponseEntity.ok(sentencePlanService.getSentencePlanStep(sentencePlanUUID, stepId));
+    @GetMapping(value = "/sentenceplan/{sentencePlanUUID}/actions/{actionId}", produces = "application/json")
+    @ApiOperation(value = "Get Sentence Plan action from ID",
+            response = Action.class,
+            notes = "Request a single sentence plan action")
+    ResponseEntity<Action> getSentencePlanAction(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Action ID") @PathVariable UUID actionId) {
+        return ResponseEntity.ok(sentencePlanService.getSentencePlanAction(sentencePlanUUID, actionId));
     }
 
     @GetMapping(value = "/sentenceplan/{sentencePlanUUID}/needs", produces = "application/json")
     @ApiOperation(value = "Get Sentence Plan needs from ID",
-            response = Step.class,
+            response = Action.class,
             responseContainer = "List",
             notes = "Request sentence plan needs")
     ResponseEntity<List<Need>> getSentencePlanNeeds(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID) {
@@ -131,20 +131,20 @@ public class SentencePlanResource {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping(value = "/sentenceplan/{sentencePlanUUID}/steps/priority", produces = "application/json")
-    @ApiOperation(value = "Set the priorities of steps on a Sentence Plan",
+    @PostMapping(value = "/sentenceplan/{sentencePlanUUID}/actions/priority", produces = "application/json")
+    @ApiOperation(value = "Set the priorities of actions on a Sentence Plan",
             notes = "Set Priority")
-    ResponseEntity<List<UpdateStepPriorityRequest>> updateStepPriority(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @RequestBody List<UpdateStepPriorityRequest> request) {
-        var steps = request.stream().collect(Collectors.toMap(UpdateStepPriorityRequest::getStepUUID, UpdateStepPriorityRequest::getPriority));
-        sentencePlanService.updateStepPriorities(sentencePlanUUID, steps);
+    ResponseEntity<List<UpdateActionPriorityRequest>> updateActionPriority(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @RequestBody List<UpdateActionPriorityRequest> request) {
+        var actions = request.stream().collect(Collectors.toMap(UpdateActionPriorityRequest::getActionUUID, UpdateActionPriorityRequest::getPriority));
+        sentencePlanService.updateActionPriorities(sentencePlanUUID, actions);
         return ResponseEntity.ok(request);
     }
 
-    @PostMapping(value = "/sentenceplan/{sentencePlanUUID}/steps/{stepId}/progress", produces = "application/json")
-    @ApiOperation(value = "Progress a step",
-            notes = "Progress a Step")
-    ResponseEntity progressStep(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Step ID") @PathVariable UUID stepId, @RequestBody ProgressStepRequest request) {
-        sentencePlanService.progressStep(sentencePlanUUID, stepId, request.getStatus(), request.getPractitionerComments());
+    @PostMapping(value = "/sentenceplan/{sentencePlanUUID}/actions/{actionId}/progress", produces = "application/json")
+    @ApiOperation(value = "Progress a action",
+            notes = "Progress an Action")
+    ResponseEntity progressAction(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Action ID") @PathVariable UUID actionId, @RequestBody ProgressActionRequest request) {
+        sentencePlanService.progressAction(sentencePlanUUID, actionId, request.getStatus(), request.getPractitionerComments());
         return ResponseEntity.ok().build();
     }
 

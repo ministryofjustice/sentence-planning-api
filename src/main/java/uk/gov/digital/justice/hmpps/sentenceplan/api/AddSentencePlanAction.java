@@ -15,14 +15,14 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@ApiModel(description = "Add a new Sentence Plan Step")
-public class AddSentencePlanStep {
+@ApiModel(description = "Add a new Sentence Plan Action")
+public class AddSentencePlanAction {
 
 
-    @ApiModelProperty(required = true, value = "The owner of the Step")
+    @ApiModelProperty(required = true, value = "The owner of the Action")
     @NotNull
     @JsonProperty("owner")
-    private List<StepOwner> owner;
+    private List<ActionOwner> owner;
 
     @ApiModelProperty(required = true, value = "Other owner (if other type used)")
     @JsonProperty("ownerOther")
@@ -32,7 +32,7 @@ public class AddSentencePlanStep {
     @JsonProperty("strength")
     private String strength;
 
-    @ApiModelProperty(required = true, value = "Description of the step, if an intervention is selected then it's description will be used")
+    @ApiModelProperty(required = true, value = "Description of the action, if an intervention is selected then it's description will be used")
     @JsonProperty("description")
     private String description;
 
@@ -40,7 +40,7 @@ public class AddSentencePlanStep {
     @JsonProperty("intervention")
     private String intervention;
 
-    @ApiModelProperty(required = true, value = "A list of Need IDs (UUID) associated with the step")
+    @ApiModelProperty(required = true, value = "A list of Need IDs (UUID) associated with the action")
     @NotEmpty
     @JsonProperty("needs")
     private List<UUID> needs;

@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.NeedEntity;
-import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.StepEntity;
+import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.ActionEntity;
 
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -17,12 +17,12 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-public class Step {
+public class Action {
 
     @JsonProperty("id")
     private UUID id;
     @JsonProperty("owner")
-    private List<StepOwner> owner;
+    private List<ActionOwner> owner;
     @JsonProperty("ownerOther")
     private String ownerOther;
     @JsonProperty("description")
@@ -30,7 +30,7 @@ public class Step {
     @JsonProperty("strength")
     private String strength;
     @JsonProperty("status")
-    private StepStatus status;
+    private ActionStatus status;
     @JsonProperty("needs")
     private List<Need> needs;
     @JsonProperty("intervention")
@@ -38,25 +38,25 @@ public class Step {
     @JsonProperty("priority")
     private Integer priority;
     @JsonProperty("progress")
-    private List<StepProgress> progressList;
+    private List<ActionProgress> progressList;
     @JsonProperty("updated")
     private LocalDateTime updated;
 
-    public static Step from(StepEntity step, List<NeedEntity> needs) {
-        return new Step(step.getId(),
-                step.getOwner(),
-                step.getOwnerOther(),
-                step.getDescription(),
-                step.getStrength(),
-                step.getStatus(),
-                Need.from(needs.stream().filter(n-> step.getNeeds().contains(n.getUuid())).collect(Collectors.toList())),
-                step.getIntervention(),
-                step.getPriority(),
-                StepProgress.from(Optional.ofNullable(step.getProgress()).orElse(Collections.emptyList())),
-                step.getLatestUpdated());
+    public static Action from(ActionEntity action, List<NeedEntity> needs) {
+        return new Action(action.getId(),
+                action.getOwner(),
+                action.getOwnerOther(),
+                action.getDescription(),
+                action.getStrength(),
+                action.getStatus(),
+                Need.from(needs.stream().filter(n-> action.getNeeds().contains(n.getUuid())).collect(Collectors.toList())),
+                action.getIntervention(),
+                action.getPriority(),
+                ActionProgress.from(Optional.ofNullable(action.getProgress()).orElse(Collections.emptyList())),
+                action.getLatestUpdated());
     }
 
-    public static List<Step> from(List<StepEntity> steps, List<NeedEntity> needs) {
-        return steps.stream().map(s-> from(s, needs)).collect(Collectors.toList());
+    public static List<Action> from(List<ActionEntity> actions, List<NeedEntity> needs) {
+        return actions.stream().map(s-> from(s, needs)).collect(Collectors.toList());
     }
 }

@@ -24,8 +24,8 @@ import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static uk.gov.digital.justice.hmpps.sentenceplan.api.PlanStatus.*;
-import static uk.gov.digital.justice.hmpps.sentenceplan.api.StepOwner.PRACTITIONER;
-import static uk.gov.digital.justice.hmpps.sentenceplan.api.StepOwner.SERVICE_USER;
+import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner.PRACTITIONER;
+import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner.SERVICE_USER;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SentencePlanServiceTest {
@@ -93,89 +93,89 @@ public class SentencePlanServiceTest {
     }
 
     @Test
-    public void shouldAddStepToSentencePlan() {
+    public void shouldAddActionToSentencePlan() {
 
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(getNewSentencePlan(sentencePlanUuid));
 
         var needs = List.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
 
-        var steps = service.addStep(sentencePlanUuid, List.of(PRACTITIONER), null, "a strength", "a description", null, needs);
+        var actions = service.addAction(sentencePlanUuid, List.of(PRACTITIONER), null, "a strength", "a description", null, needs);
 
-        assertThat(steps.size()).isEqualTo(1);
-        var step = steps.get(0);
-        assertThat(step.getDescription()).isEqualTo("a description");
-        assertThat(step.getStrength()).isEqualTo("a strength");
-        assertThat(step.getIntervention()).isNull();
-        assertThat(step.getOwnerOther()).isNull();
-        Assertions.assertThat(step.getOwner()).hasSize(1);
-        Assertions.assertThat(step.getOwner()).contains(PRACTITIONER);
-        assertThat(step.getNeeds()).hasSize(1);
+        assertThat(actions.size()).isEqualTo(1);
+        var action = actions.get(0);
+        assertThat(action.getDescription()).isEqualTo("a description");
+        assertThat(action.getStrength()).isEqualTo("a strength");
+        assertThat(action.getIntervention()).isNull();
+        assertThat(action.getOwnerOther()).isNull();
+        Assertions.assertThat(action.getOwner()).hasSize(1);
+        Assertions.assertThat(action.getOwner()).contains(PRACTITIONER);
+        assertThat(action.getNeeds()).hasSize(1);
 
         //Priority should be lowest
-        assertThat(step.getPriority()).isEqualTo(0);
+        assertThat(action.getPriority()).isEqualTo(0);
 
         verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
     }
 
     @Test
-    public void shouldAddStepToSentencePlanMultipleOwner() {
+    public void shouldAddActionToSentencePlanMultipleOwner() {
 
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(getNewSentencePlan(sentencePlanUuid));
 
         var needs = List.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
 
-        var steps = service.addStep(sentencePlanUuid, List.of(PRACTITIONER, SERVICE_USER), null, "a strength", "a description", null, needs);
+        var actions = service.addAction(sentencePlanUuid, List.of(PRACTITIONER, SERVICE_USER), null, "a strength", "a description", null, needs);
 
-        assertThat(steps.size()).isEqualTo(1);
-        var step = steps.get(0);
-        assertThat(step.getDescription()).isEqualTo("a description");
-        assertThat(step.getStrength()).isEqualTo("a strength");
-        assertThat(step.getIntervention()).isNull();
-        assertThat(step.getOwnerOther()).isNull();
-        Assertions.assertThat(step.getOwner()).hasSize(2);
-        Assertions.assertThat(step.getOwner()).contains(PRACTITIONER);
-        Assertions.assertThat(step.getOwner()).contains(SERVICE_USER);
-        assertThat(step.getNeeds()).hasSize(1);
+        assertThat(actions.size()).isEqualTo(1);
+        var action = actions.get(0);
+        assertThat(action.getDescription()).isEqualTo("a description");
+        assertThat(action.getStrength()).isEqualTo("a strength");
+        assertThat(action.getIntervention()).isNull();
+        assertThat(action.getOwnerOther()).isNull();
+        Assertions.assertThat(action.getOwner()).hasSize(2);
+        Assertions.assertThat(action.getOwner()).contains(PRACTITIONER);
+        Assertions.assertThat(action.getOwner()).contains(SERVICE_USER);
+        assertThat(action.getNeeds()).hasSize(1);
 
         //Priority should be lowest
-        assertThat(step.getPriority()).isEqualTo(0);
+        assertThat(action.getPriority()).isEqualTo(0);
 
         verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
     }
 
     @Test
-    public void shouldAddStepToSentencePlanPriority() {
+    public void shouldAddActionToSentencePlanPriority() {
 
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(getNewSentencePlan(sentencePlanUuid));
 
         var needs = List.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
 
-        var steps = service.addStep(sentencePlanUuid, List.of(PRACTITIONER), null, "a strength", "a description", null, needs);
+        var actions = service.addAction(sentencePlanUuid, List.of(PRACTITIONER), null, "a strength", "a description", null, needs);
 
-        assertThat(steps.size()).isEqualTo(1);
-        var step = steps.get(0);
+        assertThat(actions.size()).isEqualTo(1);
+        var action = actions.get(0);
         //Priority should be lowest
-        assertThat(step.getPriority()).isEqualTo(0);
+        assertThat(action.getPriority()).isEqualTo(0);
 
 
-        var newSteps = service.addStep(sentencePlanUuid, List.of(SERVICE_USER), null, "a strength", "a description", null, needs);
+        var newActions = service.addAction(sentencePlanUuid, List.of(SERVICE_USER), null, "a strength", "a description", null, needs);
 
-        assertThat(newSteps.size()).isEqualTo(2);
+        assertThat(newActions.size()).isEqualTo(2);
         //Now the new priority should be lowest
-        assertThat(newSteps.get(0).getPriority()).isEqualTo(0);
-        assertThat(newSteps.get(0).getOwner()).hasSize(1);
-        assertThat(newSteps.get(0).getOwner()).contains(PRACTITIONER);
+        assertThat(newActions.get(0).getPriority()).isEqualTo(0);
+        assertThat(newActions.get(0).getOwner()).hasSize(1);
+        assertThat(newActions.get(0).getOwner()).contains(PRACTITIONER);
 
-        assertThat(newSteps.get(1).getPriority()).isEqualTo(1);
-        assertThat(newSteps.get(1).getOwner()).hasSize(1);
-        assertThat(newSteps.get(1).getOwner()).contains(SERVICE_USER);
+        assertThat(newActions.get(1).getPriority()).isEqualTo(1);
+        assertThat(newActions.get(1).getOwner()).hasSize(1);
+        assertThat(newActions.get(1).getOwner()).contains(SERVICE_USER);
 
 
         verify(sentencePlanRepository,times(2)).findByUuid(sentencePlanUuid);
     }
 
     @Test
-    public void shouldUpdatePlanStatusToSTARTEDWhenFirstStepIsAdded() {
+    public void shouldUpdatePlanStatusToSTARTEDWhenFirstActionIsAdded() {
 
         var sentencePlan =  getNewSentencePlan(sentencePlanUuid);
 
@@ -185,17 +185,17 @@ public class SentencePlanServiceTest {
 
 
         assertThat(sentencePlan.getStatus()).isEqualTo(DRAFT);
-        assertThat(sentencePlan.getData().getSteps()).hasSize(0);
-        var steps = service.addStep(sentencePlanUuid, List.of(PRACTITIONER), null, "a strength", "a description", null, needs);
+        assertThat(sentencePlan.getData().getActions()).hasSize(0);
+        var actions = service.addAction(sentencePlanUuid, List.of(PRACTITIONER), null, "a strength", "a description", null, needs);
 
-        assertThat(steps).hasSize(1);
+        assertThat(actions).hasSize(1);
         assertThat(sentencePlan.getStatus()).isEqualTo(STARTED);
 
         verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
     }
 
     @Test
-    public void shouldNotUpdatePlanStatusFirstStepIsAddedButStatusIsNotDRAFT() {
+    public void shouldNotUpdatePlanStatusFirstActionIsAddedButStatusIsNotDRAFT() {
 
         var sentencePlan =  getNewSentencePlan(sentencePlanUuid);
         sentencePlan.setStatus(COMPLETE);
@@ -204,29 +204,29 @@ public class SentencePlanServiceTest {
 
         var needs = List.of(UUID.randomUUID());
 
-        assertThat(sentencePlan.getData().getSteps()).hasSize(0);
-        var steps = service.addStep(sentencePlanUuid, List.of(PRACTITIONER), null, "a strength", "a description", null, needs);
+        assertThat(sentencePlan.getData().getActions()).hasSize(0);
+        var actions = service.addAction(sentencePlanUuid, List.of(PRACTITIONER), null, "a strength", "a description", null, needs);
 
-        assertThat(steps).hasSize(1);
+        assertThat(actions).hasSize(1);
         assertThat(sentencePlan.getStatus()).isEqualTo(COMPLETE);
 
         verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
     }
 
     @Test
-    public void shouldGetStepsForSentencePlan() {
+    public void shouldGetActionsForSentencePlan() {
 
-        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(getSentencePlanWithOneStep());
-        var steps = service.getSentencePlanSteps(sentencePlanUuid);
-        assertThat(steps.size()).isEqualTo(1);
-        var step = steps.get(0);
-        assertThat(step.getDescription()).isEqualTo("a description");
-        assertThat(step.getStrength()).isEqualTo("a strength");
-        assertThat(step.getIntervention()).isNull();
-        assertThat(step.getOwnerOther()).isNull();
-        Assertions.assertThat(step.getOwner()).hasSize(1);
-        Assertions.assertThat(step.getOwner()).contains(PRACTITIONER);
-        assertThat(step.getNeeds().get(0).getId()).isEqualTo(UUID.fromString("11111111-1111-1111-1111-111111111111"));
+        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(getSentencePlanWithOneAction());
+        var actions = service.getSentencePlanActions(sentencePlanUuid);
+        assertThat(actions.size()).isEqualTo(1);
+        var action = actions.get(0);
+        assertThat(action.getDescription()).isEqualTo("a description");
+        assertThat(action.getStrength()).isEqualTo("a strength");
+        assertThat(action.getIntervention()).isNull();
+        assertThat(action.getOwnerOther()).isNull();
+        Assertions.assertThat(action.getOwner()).hasSize(1);
+        Assertions.assertThat(action.getOwner()).contains(PRACTITIONER);
+        assertThat(action.getNeeds().get(0).getId()).isEqualTo(UUID.fromString("11111111-1111-1111-1111-111111111111"));
     }
 
     @Test
@@ -275,60 +275,60 @@ public class SentencePlanServiceTest {
     }
 
     @Test
-    public void updateStepPriorityShouldNotSaveToRepositoryEmpty() {
+    public void updateActionPriorityShouldNotSaveToRepositoryEmpty() {
         var sentencePlan = getNewSentencePlan(sentencePlanUuid);
 
-        service.updateStepPriorities(sentencePlanUuid, new HashMap<>());
+        service.updateActionPriorities(sentencePlanUuid, new HashMap<>());
         verify(sentencePlanRepository,times(0)).findByUuid(sentencePlanUuid);
         verify(sentencePlanRepository,times(0)).save(sentencePlan);
 
     }
 
     @Test(expected = ValidationException.class)
-    public void updateStepPriorityShouldSaveToRepository() {
+    public void updateActionPriorityShouldSaveToRepository() {
         var sentencePlan = getNewSentencePlan(sentencePlanUuid);
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
 
-        service.updateStepPriorities(sentencePlanUuid, Map.of(UUID.randomUUID(), 0, UUID.randomUUID(), 1));
+        service.updateActionPriorities(sentencePlanUuid, Map.of(UUID.randomUUID(), 0, UUID.randomUUID(), 1));
         verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
         verify(sentencePlanRepository,times(1)).save(sentencePlan);
     }
 
     @Test(expected = ValidationException.class)
-    public void updateStepPriorityShouldDetectDuplicatePriority() {
-        service.updateStepPriorities(sentencePlanUuid, Map.of(UUID.randomUUID(), 0, UUID.randomUUID(), 0));
+    public void updateActionPriorityShouldDetectDuplicatePriority() {
+        service.updateActionPriorities(sentencePlanUuid, Map.of(UUID.randomUUID(), 0, UUID.randomUUID(), 0));
         verifyZeroInteractions(sentencePlanRepository);
     }
 
     @Test(expected = ValidationException.class)
-    public void updateStepPriorityNotUpdatePriorityIfNotAllSteps() {
-        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(getSentencePlanWithMultipleSteps());
+    public void updateActionPriorityNotUpdatePriorityIfNotAllActions() {
+        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(getSentencePlanWithMultipleActions());
 
         var tooFewPriorities = Map.of(UUID.randomUUID(), 0);
 
-        service.updateStepPriorities(sentencePlanUuid, tooFewPriorities);
+        service.updateActionPriorities(sentencePlanUuid, tooFewPriorities);
         verifyZeroInteractions(sentencePlanRepository);
     }
 
     @Test
-    public void updateStepShouldSaveToRepository() {
-        var sentencePlan = getSentencePlanWithOneStep();
+    public void updateActionShouldSaveToRepository() {
+        var sentencePlan = getSentencePlanWithOneAction();
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
 
-        var stepToUpdate = sentencePlan.getData().getSteps().stream().findFirst().get();
-        service.updateStep(sentencePlanUuid, stepToUpdate.getId(), List.of(PRACTITIONER), null, "Strong", "Desc", "Inter", List.of(UUID.randomUUID()), StepStatus.COMPLETED);
+        var actionToUpdate = sentencePlan.getData().getActions().stream().findFirst().get();
+        service.updateAction(sentencePlanUuid, actionToUpdate.getId(), List.of(PRACTITIONER), null, "Strong", "Desc", "Inter", List.of(UUID.randomUUID()), ActionStatus.COMPLETED);
 
         verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
         verify(sentencePlanRepository,times(1)).save(sentencePlan);
     }
 
     @Test
-    public void progressStepShouldSaveToRepository() {
-        var sentencePlan = getSentencePlanWithOneStep();
+    public void progressActionShouldSaveToRepository() {
+        var sentencePlan = getSentencePlanWithOneAction();
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
 
-        var stepToProgress = sentencePlan.getData().getSteps().stream().findFirst().get();
-        service.progressStep(sentencePlanUuid, stepToProgress.getId(), StepStatus.ABANDONED, "");
+        var actionToProgress = sentencePlan.getData().getActions().stream().findFirst().get();
+        service.progressAction(sentencePlanUuid, actionToProgress.getId(), ActionStatus.ABANDONED, "");
 
         verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
         verify(sentencePlanRepository,times(1)).save(sentencePlan);
@@ -406,7 +406,7 @@ public class SentencePlanServiceTest {
 
     @Test
     public void addCommentsShouldSaveToRepository() {
-        var sentencePlan = getSentencePlanWithOneStep();
+        var sentencePlan = getSentencePlanWithOneAction();
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
 
         var comment = new AddCommentRequest("Any Comment", CommentType.DIVERSITY);
@@ -419,7 +419,7 @@ public class SentencePlanServiceTest {
 
     @Test
     public void addNoCommentsShouldNotSaveToRepository() {
-        var sentencePlan = getSentencePlanWithOneStep();
+        var sentencePlan = getSentencePlanWithOneAction();
 
         service.addSentencePlanComments(sentencePlanUuid, List.of());
 
@@ -430,7 +430,7 @@ public class SentencePlanServiceTest {
     @Test
     public void addMultipleCommentsShouldSaveToRepositoryOnce() {
 
-        var sentencePlan = getSentencePlanWithOneStep();
+        var sentencePlan = getSentencePlanWithOneAction();
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
 
         var comment1 = new AddCommentRequest("Any Comment", CommentType.ABOUTME);
@@ -475,11 +475,11 @@ public class SentencePlanServiceTest {
                 .data(new SentencePlanPropertiesEntity()).build();
     }
 
-    private SentencePlanEntity getSentencePlanWithOneStep() {
+    private SentencePlanEntity getSentencePlanWithOneAction() {
 
         var needs = List.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
         var sentencePlanProperty = new SentencePlanPropertiesEntity();
-        sentencePlanProperty.addStep(new StepEntity(List.of(PRACTITIONER), null, "a description", "a strength", StepStatus.PAUSED, needs, null));
+        sentencePlanProperty.addActions(new ActionEntity(List.of(PRACTITIONER), null, "a description", "a strength", ActionStatus.PAUSED, needs, null));
         return SentencePlanEntity.builder()
                 .createdOn(LocalDateTime.of(2019,6,1, 11,00))
                 .status(DRAFT)
@@ -488,11 +488,11 @@ public class SentencePlanServiceTest {
                 .data(sentencePlanProperty).build();
     }
 
-    private SentencePlanEntity getSentencePlanWithMultipleSteps() {
+    private SentencePlanEntity getSentencePlanWithMultipleActions() {
         var needs = List.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
-        var newStep = new StepEntity(List.of(PRACTITIONER), null, "two description", "two strength", StepStatus.IN_PROGRESS, needs, null);
-        var sentencePlan = getSentencePlanWithOneStep();
-        sentencePlan.addStep(newStep);
+        var newAction = new ActionEntity(List.of(PRACTITIONER), null, "two description", "two strength", ActionStatus.IN_PROGRESS, needs, null);
+        var sentencePlan = getSentencePlanWithOneAction();
+        sentencePlan.addAction(newAction);
         return sentencePlan;
     }
 

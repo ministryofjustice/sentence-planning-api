@@ -2,11 +2,9 @@ package uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
-import org.apache.tomcat.jni.Local;
-import org.springframework.security.core.parameters.P;
 import org.springframework.util.StringUtils;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.StepOwner;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.StepStatus;
+import uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner;
+import uk.gov.digital.justice.hmpps.sentenceplan.api.ActionStatus;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.ValidationException;
 
 import java.io.Serializable;
@@ -15,11 +13,11 @@ import java.util.*;
 
 @Getter
 @AllArgsConstructor
-public class StepEntity implements Serializable {
+public class ActionEntity implements Serializable {
 
     private UUID id;
 
-    private List<StepOwner> owner;
+    private List<ActionOwner> owner;
 
     private String ownerOther;
 
@@ -27,7 +25,7 @@ public class StepEntity implements Serializable {
 
     private String strength;
 
-    private StepStatus status;
+    private ActionStatus status;
 
     private List<UUID> needs;
 
@@ -42,11 +40,11 @@ public class StepEntity implements Serializable {
     private LocalDateTime updated;
 
 
-    public StepEntity() {
+    public ActionEntity() {
         this.progress = new ArrayList<>(0);
     }
 
-    public StepEntity(List<StepOwner> owner, String ownerOther, String description, String strength, StepStatus status, List<UUID> needs, String intervention) {
+    public ActionEntity(List<ActionOwner> owner, String ownerOther, String description, String strength, ActionStatus status, List<UUID> needs, String intervention) {
         var now = LocalDateTime.now();
         this.id = UUID.randomUUID();
         this.owner = new ArrayList<>(0);
@@ -56,7 +54,7 @@ public class StepEntity implements Serializable {
         update(owner, ownerOther, description, strength, status, needs, intervention);
     }
 
-    public void updateStep(List<StepOwner> owner, String ownerOther, String description, String strength, StepStatus status, List<UUID> needs, String intervention) {
+    public void updateAction(List<ActionOwner> owner, String ownerOther, String description, String strength, ActionStatus status, List<UUID> needs, String intervention) {
         update(owner, ownerOther, description, strength, status, needs, intervention);
         this.updated = LocalDateTime.now();
     }
@@ -77,7 +75,7 @@ public class StepEntity implements Serializable {
         this.status = progressEntity.getStatus();
     }
 
-    private void update(List<StepOwner> owner, String ownerOther, String description, String strength, StepStatus status, List<UUID> needs, String intervention) {
+    private void update(List<ActionOwner> owner, String ownerOther, String description, String strength, ActionStatus status, List<UUID> needs, String intervention) {
         validateOwner(owner, ownerOther);
         validateNeeds(needs);
         validateDescription(description, intervention);
@@ -90,30 +88,30 @@ public class StepEntity implements Serializable {
         this.strength = strength;
         this.status = status;
 
-        // When we update a step we just overwrite whatever needs and owners there are, we don't try to merge/deduplicate the list
+        // When we update a action we just overwrite whatever needs and owners there are, we don't try to merge/deduplicate the list
         this.needs = needs;
         this.owner = owner;
         this.ownerOther = ownerOther;
     }
 
-    public static StepEntity updatePriority(StepEntity stepEntity, int priority) {
-        stepEntity.setPriority(priority);
-        return stepEntity;
+    public static ActionEntity updatePriority(ActionEntity actionEntity, int priority) {
+        actionEntity.setPriority(priority);
+        return actionEntity;
     }
 
     private void validateNeeds(List<UUID> needs) {
         if(needs == null || needs.isEmpty()) {
-            throw new ValidationException("Step must address one or more needs");
+            throw new ValidationException("Action must address one or more needs");
         }
     }
 
-    private void validateOwner(List<StepOwner> owner, String ownerOther) {
+    private void validateOwner(List<ActionOwner> owner, String ownerOther) {
         if(owner == null || owner.isEmpty()) {
             throw new ValidationException("Owner must be specified");
         }
 
-        if(owner.contains(StepOwner.OTHER) && StringUtils.isEmpty(ownerOther)) {
-            throw new ValidationException("OwnerOther must be specified if StepOwner is OTHER");
+        if(owner.contains(ActionOwner.OTHER) && StringUtils.isEmpty(ownerOther)) {
+            throw new ValidationException("OwnerOther must be specified if ActionOwner is OTHER");
         }
     }
 

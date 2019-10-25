@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.StepStatus;
+import uk.gov.digital.justice.hmpps.sentenceplan.api.ActionStatus;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.OASYSAssessmentAPIClient;
@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static uk.gov.digital.justice.hmpps.sentenceplan.api.PlanStatus.DRAFT;
-import static uk.gov.digital.justice.hmpps.sentenceplan.api.StepOwner.PRACTITIONER;
+import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner.PRACTITIONER;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OffenderServiceTest {
@@ -117,7 +117,7 @@ public class OffenderServiceTest {
 
         var needs = List.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
         var sentencePlanProperty = new SentencePlanPropertiesEntity();
-        sentencePlanProperty.addStep(new StepEntity(List.of(PRACTITIONER), null, "a description", "a strength", StepStatus.PAUSED, needs, null));
+        sentencePlanProperty.addActions(new ActionEntity(List.of(PRACTITIONER), null, "a description", "a strength", ActionStatus.PAUSED, needs, null));
         return SentencePlanEntity.builder()
                 .createdOn(LocalDateTime.of(2019,6,1, 11,00))
                 .status(DRAFT)
