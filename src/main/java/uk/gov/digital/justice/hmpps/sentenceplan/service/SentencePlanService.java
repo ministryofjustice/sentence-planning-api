@@ -161,7 +161,7 @@ public class SentencePlanService {
         var actionEntity = getActionEntity(sentencePlanEntity, actionId);
         // TODO: Presumably createdBy comes from the Auth headers?
         var progressEntity = new ProgressEntity(status, "ANONYMOUS");
-        actionEntity.updateActionStatus(progressEntity);
+        actionEntity.addProgress(progressEntity);
         sentencePlanRepository.save(sentencePlanEntity);
 
     }

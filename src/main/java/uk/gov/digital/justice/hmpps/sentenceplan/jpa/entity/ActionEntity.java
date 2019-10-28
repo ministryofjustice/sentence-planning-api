@@ -41,16 +41,16 @@ public class ActionEntity implements Serializable {
 
     public ActionEntity(List<ActionOwner> owner, String ownerOther, String description, String strength, ActionStatus status, List<UUID> needs, String intervention) {
         this.id = UUID.randomUUID();
-        setValues(owner, ownerOther, description, strength, status, needs, intervention);
+        update(owner, ownerOther, description, strength, status, needs, intervention);
         this.updated = this.created;
     }
 
     public void updateAction(List<ActionOwner> owner, String ownerOther, String description, String strength, ActionStatus status, List<UUID> needs, String intervention) {
-        setValues(owner, ownerOther, description, strength, status, needs, intervention);
+        update(owner, ownerOther, description, strength, status, needs, intervention);
         this.updated = LocalDateTime.now();
     }
 
-    public void updateActionStatus(ProgressEntity progressEntity) {
+    public void addProgress(ProgressEntity progressEntity) {
         this.status = progressEntity.getStatus();
         this.updated = progressEntity.getCreated();
         this.progress.add(progressEntity);
@@ -60,7 +60,7 @@ public class ActionEntity implements Serializable {
         this.priority = priority;
     }
 
-    private void setValues(List<ActionOwner> owner, String ownerOther, String description, String strength, ActionStatus status, List<UUID> needs, String intervention) {
+    private void update(List<ActionOwner> owner, String ownerOther, String description, String strength, ActionStatus status, List<UUID> needs, String intervention) {
         validateOwner(owner, ownerOther);
         validateNeeds(needs);
         validateDescription(description, intervention);
