@@ -69,15 +69,18 @@ public class SentencePlanResource {
     @PostMapping(value = "/sentenceplan/{sentencePlanUUID}/actions", produces = "application/json")
     @ApiOperation(value = "Add an Action to a sentence plan",
             notes = "Creates a draft new sentence plan")
-    ResponseEntity<List<Action>> addAction(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Action details", required = true) @RequestBody @Valid AddSentencePlanAction action) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-                sentencePlanService.addAction(sentencePlanUUID,
+    ResponseEntity addAction(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Action details", required = true) @RequestBody @Valid AddSentencePlanAction action) {
+         sentencePlanService.addAction(sentencePlanUUID,
                 action.getOwner(),
                 action.getOwnerOther(),
                 action.getStrength(),
+                action.getStatus(),
                 action.getDescription(),
                 action.getIntervention(),
-                action.getNeeds()));
+                action.getNeeds()
+         );
+        return ResponseEntity.ok().build();
+
     }
 
     @PutMapping(value = "/sentenceplan/{sentencePlanUUID}/actions/{actionId}", produces = "application/json")
