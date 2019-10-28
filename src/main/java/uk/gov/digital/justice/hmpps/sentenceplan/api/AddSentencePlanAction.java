@@ -28,7 +28,12 @@ public class AddSentencePlanAction {
     @JsonProperty("ownerOther")
     private String ownerOther;
 
-    @ApiModelProperty(required = true, value = "A strength, if applicable")
+    //TODO we need to be able to create an Action with a status now.
+    @ApiModelProperty(required = true, value = "The status for the Action")
+    @JsonProperty("status")
+    private ActionStatus status;
+
+    @ApiModelProperty(value = "A strength, if applicable")
     @JsonProperty("strength")
     private String strength;
 

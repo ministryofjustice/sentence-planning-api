@@ -99,7 +99,7 @@ public class SentencePlanServiceTest {
 
         var needs = List.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
 
-        var actions = service.addAction(sentencePlanUuid, List.of(PRACTITIONER), null, "a strength", "a description", null, needs);
+        var actions = service.addAction(sentencePlanUuid, List.of(PRACTITIONER), null, "a strength", ActionStatus.IN_PROGRESS, "a description", null, needs);
 
         assertThat(actions.size()).isEqualTo(1);
         var action = actions.get(0);
@@ -124,7 +124,7 @@ public class SentencePlanServiceTest {
 
         var needs = List.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
 
-        var actions = service.addAction(sentencePlanUuid, List.of(PRACTITIONER, SERVICE_USER), null, "a strength", "a description", null, needs);
+        var actions = service.addAction(sentencePlanUuid, List.of(PRACTITIONER, SERVICE_USER), null, "a strength", ActionStatus.IN_PROGRESS, "a description", null, needs);
 
         assertThat(actions.size()).isEqualTo(1);
         var action = actions.get(0);
@@ -150,7 +150,7 @@ public class SentencePlanServiceTest {
 
         var needs = List.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
 
-        var actions = service.addAction(sentencePlanUuid, List.of(PRACTITIONER), null, "a strength", "a description", null, needs);
+        var actions = service.addAction(sentencePlanUuid, List.of(PRACTITIONER), null, "a strength", ActionStatus.IN_PROGRESS,"a description", null, needs);
 
         assertThat(actions.size()).isEqualTo(1);
         var action = actions.get(0);
@@ -158,7 +158,7 @@ public class SentencePlanServiceTest {
         assertThat(action.getPriority()).isEqualTo(0);
 
 
-        var newActions = service.addAction(sentencePlanUuid, List.of(SERVICE_USER), null, "a strength", "a description", null, needs);
+        var newActions = service.addAction(sentencePlanUuid, List.of(SERVICE_USER), null, "a strength", ActionStatus.IN_PROGRESS, "a description", null, needs);
 
         assertThat(newActions.size()).isEqualTo(2);
         //Now the new priority should be lowest
@@ -186,7 +186,7 @@ public class SentencePlanServiceTest {
 
         assertThat(sentencePlan.getStatus()).isEqualTo(DRAFT);
         assertThat(sentencePlan.getData().getActions()).hasSize(0);
-        var actions = service.addAction(sentencePlanUuid, List.of(PRACTITIONER), null, "a strength", "a description", null, needs);
+        var actions = service.addAction(sentencePlanUuid, List.of(PRACTITIONER), null, "a strength", ActionStatus.IN_PROGRESS,"a description", null, needs);
 
         assertThat(actions).hasSize(1);
         assertThat(sentencePlan.getStatus()).isEqualTo(STARTED);
@@ -205,7 +205,7 @@ public class SentencePlanServiceTest {
         var needs = List.of(UUID.randomUUID());
 
         assertThat(sentencePlan.getData().getActions()).hasSize(0);
-        var actions = service.addAction(sentencePlanUuid, List.of(PRACTITIONER), null, "a strength", "a description", null, needs);
+        var actions = service.addAction(sentencePlanUuid, List.of(PRACTITIONER), null, "a strength", ActionStatus.IN_PROGRESS, "a description", null, needs);
 
         assertThat(actions).hasSize(1);
         assertThat(sentencePlan.getStatus()).isEqualTo(COMPLETE);

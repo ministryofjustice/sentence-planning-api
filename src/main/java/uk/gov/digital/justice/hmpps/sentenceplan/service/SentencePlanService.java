@@ -65,8 +65,8 @@ public class SentencePlanService {
     }
 
     @Transactional
-    public List<Action> addAction(UUID sentencePlanUUID, List<ActionOwner> owner, String ownerOther, String strength, String description, String intervention, List<UUID> needs) {
-        var actionEntity = new ActionEntity(owner, ownerOther, description, strength, ActionStatus.IN_PROGRESS, needs, intervention);
+    public List<Action> addAction(UUID sentencePlanUUID, List<ActionOwner> owner, String ownerOther, String strength, ActionStatus status, String description, String intervention, List<UUID> needs) {
+        var actionEntity = new ActionEntity(owner, ownerOther, description, strength, status, needs, intervention);
         var sentencePlan = getSentencePlanEntity(sentencePlanUUID);
 
         if (sentencePlan.getStatus().equals(PlanStatus.DRAFT) && sentencePlan.getData().getActions().isEmpty()) {

@@ -68,18 +68,26 @@ public class SentencePlanResource_ActionTest {
 
         var requestBody = new AddSentencePlanAction(List.of(SERVICE_USER),
                 null,
+                ActionStatus.IN_PROGRESS,
                 "a strength",
                 "a description",
                 null,
                 List.of(UUID.fromString("11111111-1111-1111-1111-111111111111")));
 
-        var result = given()
+                given()
                 .when()
                 .body(requestBody)
                 .header("Content-Type", "application/json")
                 .post("/sentenceplan/{0}/actions", SENTENCE_PLAN_ID)
                 .then()
-                .statusCode(201)
+                .statusCode(200);
+
+        var result = given()
+                .when()
+                .header("Accept", "application/json")
+                .get("/sentenceplan/{0}/actions", SENTENCE_PLAN_ID)
+                .then()
+                .statusCode(200)
                 .extract()
                 .body()
                 .jsonPath().getList(".", Action.class);
@@ -87,6 +95,7 @@ public class SentencePlanResource_ActionTest {
         assertThat(result).hasSize(2);
         var action = result.get(1);
         assertThat(action.getDescription()).isEqualTo("a description");
+        assertThat(action.getStatus()).isEqualTo(ActionStatus.IN_PROGRESS);
         assertThat(action.getStrength()).isEqualTo("a strength");
         assertThat(action.getIntervention()).isNull();
         assertThat(action.getOwnerOther()).isNull();
