@@ -134,19 +134,8 @@ public class SentencePlanService {
     public void updateActionPriorities(UUID sentencePlanUuid, Map<UUID, Integer> newPriorities) {
         if (newPriorities.size() > 0) {
 
-            // Map to a set to get a unique set of values
-            Set<Integer> uniqueValues = new HashSet<>(newPriorities.values());
-            if (uniqueValues.size() < newPriorities.size()) {
-                throw new ValidationException("actions with duplicate priority found.");
-            }
-
             var sentencePlan = getSentencePlanEntity(sentencePlanUuid);
             var planActions = sentencePlan.getData().getActions().stream().collect(Collectors.toMap(ActionEntity::getId, action -> action));
-
-            // We also need to check that we're updating all the actions otherwise they will get out of step.
-            if (planActions.size() != newPriorities.size()) {
-                throw new ValidationException("Need to update the priority for all actions.");
-            }
 
             planActions.forEach((key, value) -> value.setPriority(newPriorities.get(value.getId())));
 
