@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 import static net.logstash.logback.argument.StructuredArguments.value;
 import static uk.gov.digital.justice.hmpps.sentenceplan.application.LogEvent.*;
 import static uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.NeedEntity.updateMotivation;
-import static uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.ActionEntity.updatePriority;
 
 @Service
 @Slf4j
@@ -132,35 +131,25 @@ public class SentencePlanService {
     }
 
     @Transactional
-    public void updateActionPriorities(UUID sentencePlanUuid, Map<UUID, Integer> priorities) {
-        if (priorities.size() > 0) {
-
-            // Map to a set to get a unique set of values
-            Set<Integer> uniqueValues = new HashSet<>(priorities.values());
-            if (uniqueValues.size() < priorities.size()) {
-                throw new ValidationException("actions with duplicate priority found.");
-            }
+    public void updateActionPriorities(UUID sentencePlanUuid, Map<UUID, Integer> newPriorities) {
+        if (newPriorities.size() > 0) {
 
             var sentencePlan = getSentencePlanEntity(sentencePlanUuid);
             var planActions = sentencePlan.getData().getActions().stream().collect(Collectors.toMap(ActionEntity::getId, action -> action));
 
-            // We also need to check that we're updating all the actions otherwise they will get out of action (no pun intended).
-            if (planActions.size() != priorities.size()) {
-                throw new ValidationException("Need to update the priority for all actions.");
-            }
+            planActions.forEach((key, value) -> value.setPriority(newPriorities.get(value.getId())));
 
-            priorities.forEach((key, value) -> planActions.computeIfPresent(key, (k, v) -> updatePriority(v, value)));
             sentencePlanRepository.save(sentencePlan);
             log.info("Updated Sentence Plan {} Action priority", sentencePlanUuid, value(EVENT, SENTENCE_PLAN_ACTION_PRIORITY_UPDATED));
         }
     }
 
     @Transactional
-    public void progressAction(UUID sentencePlanUuid, UUID actionId, ActionStatus status, String practitionerComments) {
+    public void progressAction(UUID sentencePlanUuid, UUID actionId, ActionStatus status) {
         var sentencePlanEntity = getSentencePlanEntity(sentencePlanUuid);
         var actionEntity = getActionEntity(sentencePlanEntity, actionId);
         // TODO: Presumably createdBy comes from the Auth headers?
-        var progressEntity = new ProgressEntity(status, practitionerComments, "ANONYMOUS");
+        var progressEntity = new ProgressEntity(status, "ANONYMOUS");
         actionEntity.addProgress(progressEntity);
         sentencePlanRepository.save(sentencePlanEntity);
 

@@ -227,7 +227,7 @@ public class SentencePlanResource_ActionTest {
     @Test
     public void shouldProgressAction() {
 
-        var requestBody = new ProgressActionRequest(ActionStatus.PARTIALLY_COMPLETED, "He didn't done do it");
+        var requestBody = new ProgressActionRequest(ActionStatus.PARTIALLY_COMPLETED);
 
         var result = given()
                 .when()
@@ -252,7 +252,6 @@ public class SentencePlanResource_ActionTest {
 
         assertThat(progressedAction.getProgressList()).hasSize(1);
         assertThat(progressedAction.getProgressList().get(0).getStatus()).isEqualTo(ActionStatus.PARTIALLY_COMPLETED);
-        assertThat(progressedAction.getProgressList().get(0).getPractitionerComments()).isEqualTo("He didn't done do it");
 
         assertThat(progressedAction.getUpdated()).isEqualTo(progressedAction.getProgressList().get(0).getCreated());
     }

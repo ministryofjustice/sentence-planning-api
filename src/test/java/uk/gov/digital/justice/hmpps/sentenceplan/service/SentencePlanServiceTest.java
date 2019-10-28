@@ -284,32 +284,6 @@ public class SentencePlanServiceTest {
 
     }
 
-    @Test(expected = ValidationException.class)
-    public void updateActionPriorityShouldSaveToRepository() {
-        var sentencePlan = getNewSentencePlan(sentencePlanUuid);
-        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
-
-        service.updateActionPriorities(sentencePlanUuid, Map.of(UUID.randomUUID(), 0, UUID.randomUUID(), 1));
-        verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
-        verify(sentencePlanRepository,times(1)).save(sentencePlan);
-    }
-
-    @Test(expected = ValidationException.class)
-    public void updateActionPriorityShouldDetectDuplicatePriority() {
-        service.updateActionPriorities(sentencePlanUuid, Map.of(UUID.randomUUID(), 0, UUID.randomUUID(), 0));
-        verifyZeroInteractions(sentencePlanRepository);
-    }
-
-    @Test(expected = ValidationException.class)
-    public void updateActionPriorityNotUpdatePriorityIfNotAllActions() {
-        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(getSentencePlanWithMultipleActions());
-
-        var tooFewPriorities = Map.of(UUID.randomUUID(), 0);
-
-        service.updateActionPriorities(sentencePlanUuid, tooFewPriorities);
-        verifyZeroInteractions(sentencePlanRepository);
-    }
-
     @Test
     public void updateActionShouldSaveToRepository() {
         var sentencePlan = getSentencePlanWithOneAction();
@@ -328,7 +302,7 @@ public class SentencePlanServiceTest {
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
 
         var actionToProgress = sentencePlan.getData().getActions().stream().findFirst().get();
-        service.progressAction(sentencePlanUuid, actionToProgress.getId(), ActionStatus.ABANDONED, "");
+        service.progressAction(sentencePlanUuid, actionToProgress.getId(), ActionStatus.ABANDONED);
 
         verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
         verify(sentencePlanRepository,times(1)).save(sentencePlan);

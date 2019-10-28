@@ -222,11 +222,11 @@ public class ActionEntityTest {
 
         assertThat(action.getStatus()).isEqualTo(status);
 
-        var newProgress = new ProgressEntity(ActionStatus.COMPLETED, "", LocalDateTime.now(), "");
+        var newProgress = new ProgressEntity(ActionStatus.COMPLETED, LocalDateTime.now(), "ANON");
         action.addProgress(newProgress);
 
         assertThat(action.getStatus()).isEqualTo(ActionStatus.COMPLETED);
-        assertThat(action.getLatestUpdated()).isEqualTo(newProgress.getCreated());
+        assertThat(action.getUpdated()).isEqualTo(newProgress.getCreated());
         assertThat(action.getProgress()).hasSize(1);
     }
 
