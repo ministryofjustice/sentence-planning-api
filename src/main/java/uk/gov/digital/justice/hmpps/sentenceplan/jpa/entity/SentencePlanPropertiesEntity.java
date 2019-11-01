@@ -20,6 +20,8 @@ public class SentencePlanPropertiesEntity implements Serializable {
     private Map<CommentType, CommentEntity> comments = new HashMap<>();
 
     public void addActions(ActionEntity actionEntity) {
+        // Set the priority to lowest
+        actionEntity.setPriority(this.getActions().size());
         actions.add(actionEntity);
     }
 

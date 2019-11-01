@@ -7,6 +7,7 @@ import uk.gov.digital.justice.hmpps.sentenceplan.api.ActionStatus;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 @AllArgsConstructor
@@ -14,12 +15,13 @@ import java.time.LocalDateTime;
 public class ProgressEntity implements Serializable {
 
     private ActionStatus status;
-    private LocalDateTime created;
+    private UUID motivationUUID;
+    private LocalDateTime created = LocalDateTime.now();;
     private String createdBy;
 
-    public ProgressEntity(ActionStatus actionStatus, String createdBy) {
+    public ProgressEntity(ActionStatus actionStatus, UUID motivationUUID, String createdBy) {
         this.status = actionStatus;
-        this.created = LocalDateTime.now();
+        this.motivationUUID = motivationUUID;
         this.createdBy = createdBy;
     }
 }
