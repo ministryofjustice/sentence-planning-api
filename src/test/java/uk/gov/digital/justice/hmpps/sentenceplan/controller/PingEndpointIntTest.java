@@ -36,6 +36,7 @@ public class PingEndpointIntTest {
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.OK.value())
+                .contentType(ContentType.TEXT)
                 .extract()
                 .asString();
 

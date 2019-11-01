@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(produces = MediaType.TEXT_PLAIN_VALUE)
 public class PingEndpoint {
 
-    @GetMapping(value = "/ping", produces = "application/json")
+    @GetMapping(value = "/ping")
     public ResponseEntity<String> ping() {
         return  ResponseEntity.ok("pong");
     }
