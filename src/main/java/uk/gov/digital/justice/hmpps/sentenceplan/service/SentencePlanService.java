@@ -9,12 +9,12 @@ import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFou
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.CurrentSentencePlanForOffenderExistsException;
-import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.NoOffenderAssessmentException;
 
 import javax.transaction.Transactional;
 import java.time.YearMonth;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static net.logstash.logback.argument.StructuredArguments.value;
 import static uk.gov.digital.justice.hmpps.sentenceplan.application.LogEvent.*;
@@ -131,20 +131,16 @@ public class SentencePlanService {
     }
 
     public List<SentencePlanSummary> getSentencePlansForOffender(Long oasysOffenderId) {
-        var offenderUuid = offenderService.getOffenderByType(Long.toString(oasysOffenderId), OffenderReferenceType.OASYS).getUuid();
-        var newSentencePlans = sentencePlanRepository.findByOffenderUuid(offenderUuid);
+        var offender = offenderService.getOffenderByType(Long.toString(oasysOffenderId), OffenderReferenceType.OASYS).getUuid();
 
+        var newSentencePlans = sentencePlanRepository.findByOffenderUuid(offender);
         var oasysSentencePlans = oasysAssessmentAPIClient.getSentencePlansForOffender(oasysOffenderId);
 
-        var sentencePlanSummaries = new ArrayList<SentencePlanSummary>();
+        var sentencePlanSummaries = Stream.concat(
+                newSentencePlans.stream().map(s -> new SentencePlanSummary(s.getUuid().toString(), s.getCreatedOn(), s.getEndDate(), false)),
+                oasysSentencePlans.stream().map(s -> new SentencePlanSummary(Long.toString(s.getOasysSetId()), s.getCreatedDate(), s.getCompletedDate(), true))
+        ).collect(Collectors.toList());
 
-        newSentencePlans.stream().forEach(s ->
-                sentencePlanSummaries.add(new SentencePlanSummary(s.getUuid().toString(), s.getCreatedOn(), s.getEndDate(), false))
-        );
-
-        oasysSentencePlans.stream().forEach(s ->
-                sentencePlanSummaries.add(new SentencePlanSummary(Long.toString(s.getOasysSetId()), s.getCreatedDate(), s.getCompletedDate(), true))
-        );
         log.info("Returning {} sentence plans for Offender {}", sentencePlanSummaries.size(), oasysOffenderId, value(EVENT, SENTENCE_PLANS_RETRIEVED));
         return sentencePlanSummaries.stream().sorted(Comparator.comparing(SentencePlanSummary::getCreatedDate).reversed()).collect(Collectors.toList());
 

@@ -58,7 +58,7 @@ public class SentencePlanResource {
     }
 
     @GetMapping(value = "/offender/{offenderId}/sentenceplan/{sentencePlanId}", produces = "application/json")
-    @ApiOperation(value = "Gets an Oasys Sentence Plan from its ID",
+    @ApiOperation(value = "Gets an Oasys Sentence Plan by its ID",
             response = SentencePlan.class,
             notes = "Request legacy sentence plan")
     ResponseEntity<OasysSentencePlan> getOASysSentencePlan(@ApiParam(value = "Oasys Offender ID") @PathVariable("offenderId") Long oasysOffenderId, @ApiParam(value = "Oasys Sentence Plan ID") @PathVariable("sentencePlanId") String sentencePlanId) {

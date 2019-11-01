@@ -6,6 +6,7 @@ import uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.ActionStatus;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.ValidationException;
 
+import javax.persistence.Transient;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
@@ -39,6 +40,10 @@ public class ActionEntity implements Serializable {
     private LocalDateTime created = LocalDateTime.now();
 
     private LocalDateTime updated;
+
+    @Transient
+    @Setter
+    private String intervention;
 
     public ActionEntity(UUID interventionUUID, String description, YearMonth targetDate, UUID motivationUUID, List<ActionOwner> owner, String ownerOther, ActionStatus status) {
         this.id = UUID.randomUUID();
