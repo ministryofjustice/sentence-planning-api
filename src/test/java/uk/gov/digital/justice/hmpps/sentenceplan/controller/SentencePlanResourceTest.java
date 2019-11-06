@@ -99,7 +99,7 @@ public class SentencePlanResourceTest {
 
         var assessmentApi = bindTo(oauthRestTemplate).ignoreExpectOrder(true).build();
 
-        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123456/properSentencePlans"))
+        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123456/fullSentencePlans"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(
                         mapper.writeValueAsString(List.of(
@@ -130,7 +130,7 @@ public class SentencePlanResourceTest {
 
         var assessmentApi = bindTo(oauthRestTemplate).ignoreExpectOrder(true).build();
 
-        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123456/properSentencePlans"))
+        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123456/fullSentencePlans"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(
                         mapper.writeValueAsString(List.of(
