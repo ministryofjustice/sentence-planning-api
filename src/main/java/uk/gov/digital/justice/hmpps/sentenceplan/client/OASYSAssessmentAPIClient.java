@@ -63,7 +63,7 @@ public class OASYSAssessmentAPIClient {
     public List<OasysSentencePlan> getSentencePlansForOffender(long oasysOffenderId) {
         try {
             return restTemplate.exchange(
-                    assessmentApiBasePath + "/offenders/oasysOffenderId/{oasysOffenderId}/properSentencePlans",
+                    assessmentApiBasePath + "/offenders/oasysOffenderId/{oasysOffenderId}/fullSentencePlans",
                     HttpMethod.GET,null, new ParameterizedTypeReference<List<OasysSentencePlan>>(){}, oasysOffenderId).getBody();
         }
         catch(HttpClientErrorException e) {
