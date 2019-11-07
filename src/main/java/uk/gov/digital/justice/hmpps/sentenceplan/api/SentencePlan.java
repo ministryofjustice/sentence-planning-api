@@ -20,12 +20,8 @@ import java.util.UUID;
 public class SentencePlan {
     @JsonProperty("id")
     private UUID uuid;
-    @JsonProperty("createdOn")
-    private LocalDateTime createdOn;
-    @JsonProperty("status")
-    private PlanStatus status;
-    @JsonProperty("actions")
-    private List<Action> actions;
+    @JsonProperty("objectives")
+    private List<Objective> objectives;
     @JsonProperty("needs")
     private List<Need> needs;
     @JsonProperty("comments")
@@ -37,6 +33,9 @@ public class SentencePlan {
     @JsonProperty("offender")
     private Offender offender;
 
+    @JsonProperty("createdOn")
+    private LocalDateTime createdOn;
+
 
     public static SentencePlan from(SentencePlanEntity sentencePlan) {
 
@@ -44,10 +43,13 @@ public class SentencePlan {
 
         var offenderEntity = Optional.ofNullable(sentencePlan.getOffender()).orElseGet(OffenderEntity::new);
 
-        return new SentencePlan(sentencePlan.getUuid(), sentencePlan.getCreatedOn(), sentencePlan.getStatus(),
-                Action.from(data.getActions()), Need.from(sentencePlan.getNeeds()),
-                Comment.from(data.getComments()),
-                data.getChildSafeguardingIndicated(), data.getComplyWithChildProtectionPlanIndicated(),
-                Offender.from(offenderEntity));
+        return new SentencePlan(sentencePlan.getUuid(),
+                                Objective.from(data.getObjectives().values()),
+                                Need.from(sentencePlan.getNeeds()),
+                                Comment.from(data.getComments()),
+                                data.getChildSafeguardingIndicated(),
+                                data.getComplyWithChildProtectionPlanIndicated(),
+                                Offender.from(offenderEntity),
+                                sentencePlan.getCreatedOn());
     }
 }

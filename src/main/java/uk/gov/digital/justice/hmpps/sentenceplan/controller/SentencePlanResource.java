@@ -88,52 +88,47 @@ public class SentencePlanResource {
     ResponseEntity<List<Need>> getSentencePlanNeeds(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID) {
         return ResponseEntity.ok(sentencePlanService.getSentencePlanNeeds(sentencePlanUUID));
     }
-
+ /** TODO Objective endpoints
+  *
     //@PostMapping(value = "/sentenceplan/{sentencePlanUUID}/objective", produces = "application/json")
 
-    //@GetMapping(value = "/sentenceplan/{sentencePlanUUID}/objective", produces = "application/json")
 
+    @GetMapping(value = "/sentenceplan/{sentencePlanUUID}/objective/{objectiveUUID}", produces = "application/json")
+    @ApiOperation(value = "Get Sentence Plan objective from ID",
+            response = Action.class,
+            responseContainer = "List",
+            notes = "Request sentence plan objective")
+    ResponseEntity<List<Objective>> getSentencePlanObjectives(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID) {
+    return ResponseEntity.ok(sentencePlanService.getSentencePlanAction(sentencePlanUUID, actionId));
+    }
 
-    @PostMapping(value = "/sentenceplan/{sentencePlanUUID}/actions", produces = "application/json")
+  */
+
+    @PostMapping(value = "/sentenceplan/{sentencePlanUUID}/objective/{objectiveUUID}/actions", produces = "application/json")
     @ApiOperation(value = "Add an Action to a sentence plan",
             notes = "Creates a draft new sentence plan")
-    ResponseEntity addAction(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Action details", required = true) @RequestBody @Valid AddSentencePlanAction action) {
-         sentencePlanService.addAction(sentencePlanUUID,
-                action.getInterventionUUID(),
-                action.getDescription(),
-                action.getTargetDate(),
-                action.getMotivationUUID(),
-                action.getOwner(),
-                action.getOwnerOther(),
-                action.getStatus()
+    ResponseEntity addAction(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Objective ID") @PathVariable UUID objectiveUUID, @ApiParam(value = "Action details", required = true) @RequestBody @Valid AddSentencePlanAction action) {
+         sentencePlanService.addAction(
+                 sentencePlanUUID,
+                 objectiveUUID,
+                 action.getInterventionUUID(),
+                 action.getDescription(),
+                 action.getTargetDate(),
+                 action.getMotivationUUID(),
+                 action.getOwner(),
+                 action.getOwnerOther(),
+                 action.getStatus()
          );
         return ResponseEntity.ok().build();
 
     }
 
-    @GetMapping(value = "/sentenceplan/{sentencePlanUUID}/actions", produces = "application/json")
-    @ApiOperation(value = "Get Sentence Plan actions from ID",
-            response = Action.class,
-            responseContainer = "List",
-            notes = "Request sentence plan actions")
-        ResponseEntity<List<Action>> getSentencePlanActions(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID) {
-        return ResponseEntity.ok(sentencePlanService.getSentencePlanActions(sentencePlanUUID));
-    }
-
-    @GetMapping(value = "/sentenceplan/{sentencePlanUUID}/actions/{actionId}", produces = "application/json")
-    @ApiOperation(value = "Get Sentence Plan action from ID",
-            response = Action.class,
-            notes = "Request a single sentence plan action")
-    ResponseEntity<Action> getSentencePlanAction(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Action ID") @PathVariable UUID actionId) {
-        return ResponseEntity.ok(sentencePlanService.getSentencePlanAction(sentencePlanUUID, actionId));
-    }
-
-    @PostMapping(value = "/sentenceplan/{sentencePlanUUID}/actions/priority", produces = "application/json")
+    @PostMapping(value = "/sentenceplan/{sentencePlanUUID}/objective/{objectiveUUID}/actions/priority", produces = "application/json")
     @ApiOperation(value = "Set the priorities of actions on a Sentence Plan",
             notes = "Set Priority")
-    ResponseEntity<List<UpdateActionPriorityRequest>> updateActionPriority(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @RequestBody List<UpdateActionPriorityRequest> request) {
-        var actions = request.stream().collect(Collectors.toMap(UpdateActionPriorityRequest::getActionUUID, UpdateActionPriorityRequest::getPriority));
-        sentencePlanService.updateActionPriorities(sentencePlanUUID, actions);
+    ResponseEntity<List<UpdateActionPriorityRequest>> updateActionPriority(@ApiParam(value = "Sentence Plan ID") @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Sentence Plan ID") @PathVariable UUID objectiveUUID, @RequestBody List<UpdateActionPriorityRequest> request) {
+        var actionPriorities = request.stream().collect(Collectors.toMap(UpdateActionPriorityRequest::getActionUUID, UpdateActionPriorityRequest::getPriority));
+        sentencePlanService.updateActionPriorities(sentencePlanUUID, objectiveUUID, actionPriorities);
         return ResponseEntity.ok(request);
     }
 

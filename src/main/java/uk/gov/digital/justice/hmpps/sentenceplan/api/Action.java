@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.ActionEntity;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -44,7 +45,7 @@ public class Action {
                 action.getUpdated());
     }
 
-    public static List<Action> from(List<ActionEntity> actions) {
+    public static List<Action> from(Collection<ActionEntity> actions) {
         return actions.stream().map(Action::from).collect(Collectors.toList());
     }
 }
