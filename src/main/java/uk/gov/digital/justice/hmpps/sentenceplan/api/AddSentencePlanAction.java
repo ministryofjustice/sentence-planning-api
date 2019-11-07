@@ -7,7 +7,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.time.YearMonth;
 import java.util.List;
@@ -23,12 +22,12 @@ public class AddSentencePlanAction {
     @JsonProperty("interventionUUID")
     private UUID interventionUUID;
 
-    @ApiModelProperty(required = true, value = "Description of the action, if an intervention is selected then it's description will be used")
+    @ApiModelProperty(required = true, value = "Description for the Action")
     @JsonProperty("description")
     private String description;
 
-    @ApiModelProperty(required = true, value = "Target date of the action")
-    @JsonProperty("motivationUUID")
+    @ApiModelProperty(required = true, value = "Target date for the Action")
+    @JsonProperty("targetDate")
     private YearMonth targetDate;
 
     @ApiModelProperty(required = true, value = "The motivation for the Action")
@@ -47,10 +46,5 @@ public class AddSentencePlanAction {
     @ApiModelProperty(required = true, value = "The status for the Action")
     @JsonProperty("status")
     private ActionStatus status;
-
-    @ApiModelProperty(required = true, value = "A list of Need IDs (UUID) associated with the action")
-    @NotEmpty
-    @JsonProperty("needs")
-    private List<UUID> needs;
 
 }

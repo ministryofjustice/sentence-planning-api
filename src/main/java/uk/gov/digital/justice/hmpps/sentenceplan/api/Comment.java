@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.CommentEntity;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -33,7 +34,7 @@ public class Comment {
         return new Comment(commentEntity.getComment(), commentEntity.getCommentType(), commentEntity.getCreated(), commentEntity.getCreatedBy());
     }
 
-    public static Map<CommentType, Comment> from(Map<CommentType, CommentEntity> commentEntities) {
-        return commentEntities.values().stream().collect(Collectors.toMap(CommentEntity::getCommentType, Comment::from));
+    public static List<Comment> from(Collection<CommentEntity> commentEntities) {
+        return commentEntities.stream().map(Comment::from).collect(Collectors.toList());
     }
 }

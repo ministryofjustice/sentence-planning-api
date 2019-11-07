@@ -25,7 +25,7 @@ public class SentencePlan {
     @JsonProperty("needs")
     private List<Need> needs;
     @JsonProperty("comments")
-    private Map<CommentType, Comment> comments;
+    private List<Comment> comments;
     @JsonProperty("childSafeguardingIndicated")
     private Boolean childSafeguardingIndicated;
     @JsonProperty("complyWithChildProtectionPlanIndicated")
@@ -46,7 +46,7 @@ public class SentencePlan {
         return new SentencePlan(sentencePlan.getUuid(),
                                 Objective.from(data.getObjectives().values()),
                                 Need.from(sentencePlan.getNeeds()),
-                                Comment.from(data.getComments()),
+                                Comment.from(data.getComments().values()),
                                 data.getChildSafeguardingIndicated(),
                                 data.getComplyWithChildProtectionPlanIndicated(),
                                 Offender.from(offenderEntity),

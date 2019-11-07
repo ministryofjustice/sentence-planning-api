@@ -79,6 +79,10 @@ public class SentencePlanEntity implements Serializable {
         this.data.setComplyWithChildProtectionPlanIndicated(complyWithChildProtectionPlanIndicated);
     }
 
+    public ObjectiveEntity addObjective(ObjectiveEntity objective) {
+        return this.data.getObjectives().put(objective.getId(), objective);
+    }
+
     public ObjectiveEntity getObjective(UUID objectiveUUID) {
        return this.data.getObjectives().get(objectiveUUID);
     }

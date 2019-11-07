@@ -3,6 +3,7 @@ package uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -23,9 +24,13 @@ public class ObjectiveEntity implements Serializable {
 
     private LocalDateTime created = LocalDateTime.now();
 
-    public ObjectiveEntity(String description) {
+    public ObjectiveEntity(String description, List<UUID> needs) {
         this.id = UUID.randomUUID();
-        this.description = description;
+        update(description, needs);
+    }
+
+    public void updateObjective(String description, List<UUID> needs) {
+        update(description, needs);
     }
 
     public void addAction(ActionEntity actionEntity) {
@@ -38,4 +43,8 @@ public class ObjectiveEntity implements Serializable {
         return actions.get(actionUUID);
     }
 
+    private void update(String description, List<UUID> needs) {
+        this.description = description;
+        this.needs = needs;
+    }
 }

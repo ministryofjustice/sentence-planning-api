@@ -47,11 +47,11 @@ public class ActionEntity implements Serializable {
 
     public ActionEntity(UUID interventionUUID, String description, YearMonth targetDate, UUID motivationUUID, List<ActionOwner> owner, String ownerOther, ActionStatus status) {
         this.id = UUID.randomUUID();
-        setDescriptionIntervention(description, interventionUUID);
-        this.targetDate = targetDate;
-        this.motivationUUID = motivationUUID;
-        setOwner(owner, ownerOther);
-        this.status = status;
+        update(interventionUUID, description, targetDate, motivationUUID, owner, ownerOther, status);
+    }
+
+    public void updateAction(UUID interventionUUID, String description, YearMonth targetDate, UUID motivationUUID, List<ActionOwner> owner, String ownerOther, ActionStatus status) {
+        update(interventionUUID, description, targetDate, motivationUUID, owner, ownerOther, status);
     }
 
     public void addProgress(ProgressEntity progressEntity) {
@@ -84,6 +84,14 @@ public class ActionEntity implements Serializable {
 
         this.owner = owner;
         this.ownerOther = ownerOther;
+    }
+
+    private void update(UUID interventionUUID, String description, YearMonth targetDate, UUID motivationUUID, List<ActionOwner> owner, String ownerOther, ActionStatus status) {
+        setDescriptionIntervention(description, interventionUUID);
+        this.targetDate = targetDate;
+        this.motivationUUID = motivationUUID;
+        setOwner(owner, ownerOther);
+        this.status = status;
     }
 
 }
