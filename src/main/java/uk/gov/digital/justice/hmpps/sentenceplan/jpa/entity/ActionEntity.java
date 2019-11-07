@@ -56,6 +56,7 @@ public class ActionEntity implements Serializable {
 
     public void addProgress(ProgressEntity progressEntity) {
         this.status = progressEntity.getStatus();
+        this.targetDate = progressEntity.getTargetDate();
         this.motivationUUID = progressEntity.getMotivationUUID();
         this.updated = progressEntity.getCreated();
         this.progress.add(progressEntity);

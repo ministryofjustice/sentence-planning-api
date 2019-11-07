@@ -113,10 +113,10 @@ public class SentencePlanService {
     }
 
     @Transactional
-    public void progressAction(UUID sentencePlanUuid, UUID objectiveUUID, UUID actionId, ActionStatus status, UUID motivationUUID) {
+    public void progressAction(UUID sentencePlanUuid, UUID objectiveUUID, UUID actionId, ActionStatus status, YearMonth targetDate, UUID motivationUUID, String comment) {
         var actionEntity = getActionEntity(sentencePlanUuid, objectiveUUID, actionId);
         // TODO: Presumably createdBy comes from the Auth headers?
-        var progressEntity = new ProgressEntity(status, motivationUUID,"ANONYMOUS");
+        var progressEntity = new ProgressEntity(status, targetDate, motivationUUID, comment, "ANONYMOUS");
         actionEntity.addProgress(progressEntity);
     }
 

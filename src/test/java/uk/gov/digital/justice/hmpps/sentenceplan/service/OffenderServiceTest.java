@@ -20,12 +20,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static java.util.Collections.EMPTY_LIST;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static uk.gov.digital.justice.hmpps.sentenceplan.api.PlanStatus.DRAFT;
 import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner.PRACTITIONER;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -120,7 +118,6 @@ public class OffenderServiceTest {
         sentencePlanProperty.addActions(new ActionEntity(List.of(PRACTITIONER), null, "a description", "a strength", ActionStatus.PAUSED, needs, null));
         return SentencePlanEntity.builder()
                 .createdDate(LocalDateTime.of(2019,6,1, 11,00))
-                .status(DRAFT)
                 .uuid(sentencePlanUuid)
                 .offender(new OffenderEntity(1L, "two", 3L))
                 .needs(List.of(NeedEntity.builder().uuid(UUID.fromString("11111111-1111-1111-1111-111111111111")).description("description").motivations(EMPTY_LIST).build()))
