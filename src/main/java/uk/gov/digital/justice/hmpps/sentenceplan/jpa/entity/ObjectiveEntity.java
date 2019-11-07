@@ -22,6 +22,9 @@ public class ObjectiveEntity implements Serializable {
 
     private Map<UUID, ActionEntity> actions = new HashMap<>(0);
 
+    @Setter
+    private int priority;
+
     private LocalDateTime created = LocalDateTime.now();
 
     public ObjectiveEntity(String description, List<UUID> needs) {

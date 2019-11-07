@@ -106,6 +106,13 @@ public class SentencePlanService {
     }
 
     @Transactional
+    public void updateObjectivePriorities(UUID sentencePlanUuid,  Map<UUID, Integer> newPriorities) {
+        var planObjectives = getSentencePlanEntity(sentencePlanUuid).getObjectives();
+        planObjectives.forEach((key, value) -> value.setPriority(newPriorities.get(value.getId())));
+        log.info("Updated Objective priority for Sentence Plan {}", sentencePlanUuid, value(EVENT, SENTENCE_PLAN_ACTION_PRIORITY_UPDATED));
+    }
+
+    @Transactional
     public void updateActionPriorities(UUID sentencePlanUuid, UUID objectiveUUID, Map<UUID, Integer> newPriorities) {
         var planActions = getObjectiveEntity(sentencePlanUuid,objectiveUUID).getActions();
         planActions.forEach((key, value) -> value.setPriority(newPriorities.get(value.getId())));

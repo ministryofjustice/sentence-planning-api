@@ -33,6 +33,7 @@ public class ActionEntity implements Serializable {
 
     private ActionStatus status;
 
+    @Setter
     private int priority;
 
     private List<ProgressEntity> progress = new ArrayList<>(0);
@@ -60,10 +61,6 @@ public class ActionEntity implements Serializable {
         this.motivationUUID = progressEntity.getMotivationUUID();
         this.updated = progressEntity.getCreated();
         this.progress.add(progressEntity);
-    }
-
-    public void setPriority(int priority) {
-        this.priority = priority;
     }
 
     private void setDescriptionIntervention(String description, UUID interventionUUID) {

@@ -156,12 +156,20 @@ public class SentencePlanResource {
 
     }
 
+    @PostMapping(value = "/sentenceplans/{sentencePlanUUID}/objectives/priority", produces = "application/json")
+    @ApiOperation(value = "Set the priorities of objectives on a Sentence Plan")
+    ResponseEntity updateObjectivePriority(@ApiParam(value = "Sentence Plan ID", required = true) @PathVariable UUID sentencePlanUUID, @ApiParam(value = "A list of Objective Ids and their order", required = true) @RequestBody List<UpdateObjectivePriorityRequest> request) {
+        var objectivePriorities = request.stream().collect(Collectors.toMap(UpdateObjectivePriorityRequest::getObjectiveUUID, UpdateObjectivePriorityRequest::getPriority));
+        sentencePlanService.updateObjectivePriorities(sentencePlanUUID, objectivePriorities);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping(value = "/sentenceplans/{sentencePlanUUID}/objectives/{objectiveUUID}/actions/priority", produces = "application/json")
     @ApiOperation(value = "Set the priorities of actions on a Sentence Plan")
-    ResponseEntity<List<UpdateActionPriorityRequest>> updateActionPriority(@ApiParam(value = "Sentence Plan ID", required = true) @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Objective ID", required = true) @PathVariable UUID objectiveUUID, @ApiParam(value = "A list of Action Ids and their order", required = true) @RequestBody List<UpdateActionPriorityRequest> request) {
+    ResponseEntity updateActionPriority(@ApiParam(value = "Sentence Plan ID", required = true) @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Objective ID", required = true) @PathVariable UUID objectiveUUID, @ApiParam(value = "A list of Action Ids and their order", required = true) @RequestBody List<UpdateActionPriorityRequest> request) {
         var actionPriorities = request.stream().collect(Collectors.toMap(UpdateActionPriorityRequest::getActionUUID, UpdateActionPriorityRequest::getPriority));
         sentencePlanService.updateActionPriorities(sentencePlanUUID, objectiveUUID, actionPriorities);
-        return ResponseEntity.ok(request);
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping(value = "/sentenceplans/{sentencePlanUUID}/objectives/{objectiveUUID}/actions/{actionId}/progress", produces = "application/json")

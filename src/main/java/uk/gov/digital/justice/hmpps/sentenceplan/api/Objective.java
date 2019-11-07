@@ -18,19 +18,18 @@ public class Objective {
 
     @JsonProperty("id")
     private UUID id;
-
     @JsonProperty("description")
     private String description;
-
     @JsonProperty("needs")
     private List<UUID> needs;
-
     @JsonProperty("actions")
     private List<Action> actions;
+    @JsonProperty("priority")
+    private Integer priority;
 
     public static Objective from(ObjectiveEntity objective) {
         var actions = Action.from(objective.getActions().values());
-        return new Objective(objective.getId(), objective.getDescription(), objective.getNeeds(), actions);
+        return new Objective(objective.getId(), objective.getDescription(), objective.getNeeds(), actions, objective.getPriority());
     }
 
     public static List<Objective> from(Collection<ObjectiveEntity> objectives) {

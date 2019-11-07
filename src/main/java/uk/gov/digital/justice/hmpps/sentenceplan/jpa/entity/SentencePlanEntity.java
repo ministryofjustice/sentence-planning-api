@@ -12,9 +12,7 @@ import org.hibernate.annotations.TypeDefs;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
@@ -92,11 +90,17 @@ public class SentencePlanEntity implements Serializable {
     }
 
     public ObjectiveEntity addObjective(ObjectiveEntity objective) {
+        // Set the priority to lowest
+        objective.setPriority(this.getObjectives().size());
         return this.data.getObjectives().put(objective.getId(), objective);
     }
 
     public ObjectiveEntity getObjective(UUID objectiveUUID) {
        return this.data.getObjectives().get(objectiveUUID);
+    }
+
+    public Map<UUID, ObjectiveEntity> getObjectives() {
+        return this.data.getObjectives();
     }
 
     public void addComment(CommentEntity commentEntity) {
