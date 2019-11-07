@@ -15,11 +15,13 @@ import java.util.UUID;
 public class ProgressEntity implements Serializable {
 
     private ActionStatus status;
-    private LocalDateTime created = LocalDateTime.now();
+    private UUID motivationUUID;
+    private LocalDateTime created = LocalDateTime.now();;
     private String createdBy;
 
-    public ProgressEntity(ActionStatus actionStatus, String createdBy) {
+    public ProgressEntity(ActionStatus actionStatus, UUID motivationUUID, String createdBy) {
         this.status = actionStatus;
+        this.motivationUUID = motivationUUID;
         this.createdBy = createdBy;
     }
 }

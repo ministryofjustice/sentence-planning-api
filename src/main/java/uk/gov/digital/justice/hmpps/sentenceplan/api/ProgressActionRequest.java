@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
+import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,5 +20,10 @@ public class ProgressActionRequest {
     @NotNull
     @JsonProperty("status")
     private ActionStatus status;
+
+    @ApiModelProperty(required = true, value = "Action motivation", example = "true")
+    @NotNull
+    @JsonProperty("motivationUUID")
+    private UUID motivationUUID;
 
 }

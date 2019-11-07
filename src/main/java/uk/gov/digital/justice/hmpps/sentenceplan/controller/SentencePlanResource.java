@@ -118,7 +118,7 @@ public class SentencePlanResource {
     @PostMapping(value = "/sentenceplan/{sentencePlanUUID}/objective/{objectiveUUID}/actions/{actionId}/progress", produces = "application/json")
     @ApiOperation(value = "Progress an Action")
     ResponseEntity progressAction(@ApiParam(value = "Sentence Plan ID", required = true) @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Objective ID", required = true) @PathVariable UUID objectiveUUID, @ApiParam(value = "Action ID") @PathVariable UUID actionId, @ApiParam(value = "A status and comment against the action", required = true) @RequestBody ProgressActionRequest request) {
-        sentencePlanService.progressAction(sentencePlanUUID, objectiveUUID, actionId, request.getStatus());
+        sentencePlanService.progressAction(sentencePlanUUID, objectiveUUID, actionId, request.getStatus(), request.getMotivationUUID());
         return ResponseEntity.ok().build();
     }
 
