@@ -119,7 +119,7 @@ public class OffenderServiceTest {
         var sentencePlanProperty = new SentencePlanPropertiesEntity();
         sentencePlanProperty.addActions(new ActionEntity(List.of(PRACTITIONER), null, "a description", "a strength", ActionStatus.PAUSED, needs, null));
         return SentencePlanEntity.builder()
-                .createdOn(LocalDateTime.of(2019,6,1, 11,00))
+                .createdDate(LocalDateTime.of(2019,6,1, 11,00))
                 .status(DRAFT)
                 .uuid(sentencePlanUuid)
                 .offender(new OffenderEntity(1L, "two", 3L))

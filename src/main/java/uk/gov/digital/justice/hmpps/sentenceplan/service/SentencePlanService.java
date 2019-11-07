@@ -121,16 +121,24 @@ public class SentencePlanService {
     }
 
     @Transactional
+    public void startSentencePlan(UUID sentencePlanUUID) {
+        var sentencePlanEntity = sentencePlanRepository.findByUuid(sentencePlanUUID);
+        sentencePlanEntity.start();
+    }
+
+    @Transactional
+    public void endSentencePlan(UUID sentencePlanUUID) {
+        var sentencePlanEntity = sentencePlanRepository.findByUuid(sentencePlanUUID);
+        sentencePlanEntity.end();
+    }
+
+    @Transactional
     public void addSentencePlanComments(UUID sentencePlanUUID, List<AddCommentRequest> comments) {
-        if (!comments.isEmpty()) {
-            var sentencePlanEntity = sentencePlanRepository.findByUuid(sentencePlanUUID);
+        var sentencePlanEntity = sentencePlanRepository.findByUuid(sentencePlanUUID);
 
-            // TODO: Presumably createdBy comes from the Auth headers?
-            comments.forEach(comment -> sentencePlanEntity.addComment(new CommentEntity(comment.getComment(), comment.getCommentType(), "ANONYMOUS")));
-
-            log.info("Added Comments {}", sentencePlanEntity.getUuid(), value(EVENT, SENTENCE_PLAN_COMMENTS_CREATED));
-            sentencePlanRepository.save(sentencePlanEntity);
-        }
+        // TODO: Presumably createdBy comes from the Auth headers?
+        comments.forEach(comment -> sentencePlanEntity.addComment(new CommentEntity(comment.getComment(), comment.getCommentType(), "ANONYMOUS")));
+        log.info("Added Comments {}", sentencePlanEntity.getUuid(), value(EVENT, SENTENCE_PLAN_COMMENTS_CREATED));
     }
 
     public Collection<CommentEntity> getSentencePlanComments(UUID sentencePlanUuid) {
@@ -146,7 +154,7 @@ public class SentencePlanService {
         var oasysSentencePlans = oasysAssessmentAPIClient.getSentencePlansForOffender(oasysOffenderId);
 
         var sentencePlanSummaries = Stream.concat(
-                newSentencePlans.stream().map(s -> new SentencePlanSummary(s.getUuid().toString(), s.getCreatedOn(), s.getCompletedDate(), false)),
+                newSentencePlans.stream().map(s -> new SentencePlanSummary(s.getUuid().toString(), s.getCreatedDate(), s.getStartedDate(), false)),
                 oasysSentencePlans.stream().map(s -> new SentencePlanSummary(Long.toString(s.getOasysSetId()), s.getCreatedDate(), s.getCompletedDate(), true))
         ).collect(Collectors.toList());
 
@@ -164,7 +172,7 @@ public class SentencePlanService {
     private Optional<SentencePlanEntity> getCurrentSentencePlanForOffender(UUID offenderUUID) {
         log.info("Retrieving Sentence Plan for offender {}", offenderUUID, value(EVENT, SENTENCE_PLAN_RETRIEVED));
         var sentencePlans = sentencePlanRepository.findByOffenderUuid(offenderUUID);
-        return sentencePlans.stream().filter(s -> s.getCompletedDate() == null).findFirst();
+        return sentencePlans.stream().filter(s -> s.getStartedDate() == null).findFirst();
     }
 
     private ObjectiveEntity getObjectiveEntity(UUID sentencePlanUUID, UUID objectiveUUID) {

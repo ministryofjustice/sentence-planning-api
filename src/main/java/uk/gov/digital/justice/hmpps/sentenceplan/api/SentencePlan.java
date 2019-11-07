@@ -10,7 +10,6 @@ import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.SentencePlanProperti
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -33,7 +32,7 @@ public class SentencePlan {
     @JsonProperty("offender")
     private Offender offender;
 
-    @JsonProperty("createdOn")
+    @JsonProperty("createdDate")
     private LocalDateTime createdOn;
 
 
@@ -50,6 +49,6 @@ public class SentencePlan {
                                 data.getChildSafeguardingIndicated(),
                                 data.getComplyWithChildProtectionPlanIndicated(),
                                 Offender.from(offenderEntity),
-                                sentencePlan.getCreatedOn());
+                                sentencePlan.getCreatedDate());
     }
 }

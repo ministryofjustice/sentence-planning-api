@@ -12,7 +12,6 @@ import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysSentencePlan;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.SentencePlanService;
 
 import javax.validation.Valid;
-import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.List;
 import java.util.UUID;
@@ -49,7 +48,24 @@ public class SentencePlanResource {
         return ResponseEntity.ok(SentencePlan.from(sentencePlanService.getSentencePlanFromUuid(sentencePlanUUID)));
     }
 
+    @PostMapping(value = "/sentenceplans/{sentencePlanUUID}/end", produces = "application/json")
+    @ApiOperation(value = "End a sentence plan",
+            notes = "Called when we want to 'complete' or 'delete' a plan")
+    ResponseEntity endSentencePlan(@ApiParam(value = "Sentence Plan ID", required = true) @PathVariable UUID sentencePlanUUID) {
+        sentencePlanService.endSentencePlan(sentencePlanUUID);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping(value = "/sentenceplans/{sentencePlanUUID}/start", produces = "application/json")
+    @ApiOperation(value = "Start a sentence plan",
+            notes = "Called when we're happy we've added all the objectives we want")
+    ResponseEntity startSentencePlan(@ApiParam(value = "Sentence Plan ID", required = true) @PathVariable UUID sentencePlanUUID) {
+        sentencePlanService.startSentencePlan(sentencePlanUUID);
+        return ResponseEntity.ok().build();
+    }
+
     @PutMapping(value = "/sentenceplans/{sentencePlanUUID}/comments", produces = "application/json")
+    @PostMapping(value = "/sentenceplans/{sentencePlanUUID}/comments", produces = "application/json")
     @ApiOperation(value = "Add comments",
             notes = "Add comments of various types to the Sentence Plan")
     ResponseEntity addComments(@ApiParam(value = "Sentence Plan ID", required = true) @PathVariable UUID sentencePlanUUID, @ApiParam(value = "List of comments", required = true) @RequestBody List<AddCommentRequest> comments) {

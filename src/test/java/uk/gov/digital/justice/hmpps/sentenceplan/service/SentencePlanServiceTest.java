@@ -7,7 +7,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
-import uk.gov.digital.justice.hmpps.sentenceplan.application.ValidationException;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.OASYSAssessmentAPIClient;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysSentencePlan;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.CurrentSentencePlanForOffenderExistsException;
@@ -241,7 +240,7 @@ public class SentencePlanServiceTest {
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(getNewSentencePlan(sentencePlanUuid));
         var result =  service.getSentencePlanFromUuid(sentencePlanUuid);
         assertThat(result.getUuid()).isEqualTo(sentencePlanUuid);
-        assertThat(result.getCreatedOn()).isEqualTo(LocalDateTime.of(2019,6,1, 11,00));
+        assertThat(result.getCreatedDate()).isEqualTo(LocalDateTime.of(2019,6,1, 11,00));
         assertThat(result.getStatus()).isEqualTo(DRAFT);
         verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
     }
@@ -362,9 +361,9 @@ public class SentencePlanServiceTest {
         var sentencePlan1 = getNewSentencePlan(UUID.fromString("11111111-1111-1111-1111-111111111111"));
         var sentencePlan2 = getNewSentencePlan(UUID.fromString("22222222-2222-2222-2222-222222222222"));
         var sentencePlan3 = getNewSentencePlan(UUID.fromString("33333333-3333-3333-3333-333333333333"));
-        sentencePlan1.setCreatedOn(LocalDateTime.of(2019,1,2,1,0));
-        sentencePlan2.setCreatedOn(LocalDateTime.of(2019,1,1,1,0));
-        sentencePlan3.setCreatedOn(LocalDateTime.of(2019,1,3,1,0));
+        sentencePlan1.setCreatedDate(LocalDateTime.of(2019,1,2,1,0));
+        sentencePlan2.setCreatedDate(LocalDateTime.of(2019,1,1,1,0));
+        sentencePlan3.setCreatedDate(LocalDateTime.of(2019,1,3,1,0));
 
         when(sentencePlanRepository.findByOffenderUuid(offender.getUuid())).thenReturn(List.of(sentencePlan1,sentencePlan2,sentencePlan3));
 
@@ -442,7 +441,7 @@ public class SentencePlanServiceTest {
     private SentencePlanEntity getNewSentencePlan(UUID uuid) {
 
         return SentencePlanEntity.builder()
-                .createdOn(LocalDateTime.of(2019,6,1, 11,00))
+                .createdDate(LocalDateTime.of(2019,6,1, 11,00))
                 .status(DRAFT)
                 .uuid(uuid)
                 .needs(List.of(NeedEntity.builder().uuid(UUID.fromString("11111111-1111-1111-1111-111111111111")).description("description").motivations(EMPTY_LIST).build()))
@@ -455,7 +454,7 @@ public class SentencePlanServiceTest {
         var sentencePlanProperty = new SentencePlanPropertiesEntity();
         sentencePlanProperty.addActions(new ActionEntity(List.of(PRACTITIONER), null, "a description", "a strength", ActionStatus.PAUSED, needs, null));
         return SentencePlanEntity.builder()
-                .createdOn(LocalDateTime.of(2019,6,1, 11,00))
+                .createdDate(LocalDateTime.of(2019,6,1, 11,00))
                 .status(DRAFT)
                 .uuid(sentencePlanUuid)
                 .needs(List.of(NeedEntity.builder().uuid(UUID.fromString("11111111-1111-1111-1111-111111111111")).description("description").motivations(EMPTY_LIST).build()))

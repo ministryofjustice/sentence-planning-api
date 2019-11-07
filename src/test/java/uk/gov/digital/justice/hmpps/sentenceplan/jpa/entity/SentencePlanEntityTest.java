@@ -20,7 +20,7 @@ public void shouldCreateDraftSentencePlan() {
     var sentencePlan = new SentencePlanEntity(offender);
 
     assertThat(sentencePlan.getUuid()).isNotNull();
-    assertThat(sentencePlan.getCreatedOn()).isEqualToIgnoringSeconds(LocalDateTime.now());
+    assertThat(sentencePlan.getCreatedDate()).isEqualToIgnoringSeconds(LocalDateTime.now());
     assertThat(sentencePlan.getStartDate()).isEqualToIgnoringSeconds(LocalDateTime.now());
     assertThat(sentencePlan.getEventType()).isEqualTo(EventType.CREATED);
     assertThat(sentencePlan.getStatus()).isEqualTo(PlanStatus.DRAFT);

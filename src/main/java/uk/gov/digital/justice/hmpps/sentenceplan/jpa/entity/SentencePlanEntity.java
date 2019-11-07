@@ -4,6 +4,7 @@ import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Setter;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
@@ -34,15 +35,18 @@ public class SentencePlanEntity implements Serializable {
     @Column(name = "UUID")
     private UUID uuid = UUID.randomUUID();;
 
+    @Column(name = "CREATED_DATE")
+    private LocalDateTime createdDate = LocalDateTime.now();
+
+    @Column(name = "STARTED_DATE")
+    private LocalDateTime startedDate;
+
     @Column(name = "COMPLETED_DATE")
     private LocalDateTime completedDate;
 
     @Type(type = "jsonb")
     @Column(columnDefinition = "jsonb", name = "DATA")
     private SentencePlanPropertiesEntity data;
-
-    @Column(name = "CREATED_ON")
-    private LocalDateTime createdOn = LocalDateTime.now();
 
     @Column(name = "ASSESSMENT_NEEDS_LAST_IMPORTED_ON")
     private LocalDateTime assessmentNeedsLastImportedOn;
@@ -51,12 +55,20 @@ public class SentencePlanEntity implements Serializable {
     @JoinColumn(name = "OFFENDER_UUID", referencedColumnName = "UUID")
     private OffenderEntity offender;
 
-    @OneToMany(mappedBy = "sentencePlan", cascade = CascadeType.PERSIST)
+    @OneToMany(mappedBy = "sentencePlan", cascade = CascadeType.ALL)
     private List<NeedEntity> needs = new ArrayList<>(0);
 
     public SentencePlanEntity(OffenderEntity offender) {
         this.offender = offender;
         this.data = new SentencePlanPropertiesEntity();
+    }
+
+    public void start() {
+       this.startedDate = LocalDateTime.now();
+    }
+
+    public void end() {
+        this.completedDate = LocalDateTime.now();
     }
 
     public void updateNeeds(List<NeedEntity> needs) {
