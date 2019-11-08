@@ -16,6 +16,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static net.logstash.logback.argument.StructuredArguments.a;
 import static net.logstash.logback.argument.StructuredArguments.value;
 import static uk.gov.digital.justice.hmpps.sentenceplan.application.LogEvent.*;
 
@@ -38,7 +39,7 @@ public class SentencePlanService {
     public UUID createSentencePlan(String offenderId, OffenderReferenceType offenderReferenceType) {
         var offender = offenderService.getOffenderByType(offenderId, offenderReferenceType);
 
-        if (getCurrentSentencePlanForOffender(offender.getUuid()).isPresent()) {
+        if (getCurrentSentencePlan(offender.getUuid()).isPresent()) {
             throw new CurrentSentencePlanForOffenderExistsException("Offender already has current sentence plan");
         }
 
@@ -109,7 +110,7 @@ public class SentencePlanService {
     public void updateObjectivePriorities(UUID sentencePlanUuid,  Map<UUID, Integer> newPriorities) {
         var planObjectives = getSentencePlanEntity(sentencePlanUuid).getObjectives();
         planObjectives.forEach((key, value) -> value.setPriority(newPriorities.get(value.getId())));
-        log.info("Updated Objective priority for Sentence Plan {}", sentencePlanUuid, value(EVENT, SENTENCE_PLAN_ACTION_PRIORITY_UPDATED));
+        log.info("Updated Objective priority for Sentence Plan {}", sentencePlanUuid, value(EVENT, SENTENCE_PLAN_OBJECTIVE_PRIORITY_UPDATED));
     }
 
     @Transactional
@@ -120,23 +121,26 @@ public class SentencePlanService {
     }
 
     @Transactional
-    public void progressAction(UUID sentencePlanUuid, UUID objectiveUUID, UUID actionId, ActionStatus status, YearMonth targetDate, UUID motivationUUID, String comment) {
-        var actionEntity = getActionEntity(sentencePlanUuid, objectiveUUID, actionId);
+    public void progressAction(UUID sentencePlanUUID, UUID objectiveUUID, UUID actionId, ActionStatus status, YearMonth targetDate, UUID motivationUUID, String comment) {
+        var actionEntity = getActionEntity(sentencePlanUUID, objectiveUUID, actionId);
         // TODO: Presumably createdBy comes from the Auth headers?
         var progressEntity = new ProgressEntity(status, targetDate, motivationUUID, comment, "ANONYMOUS");
         actionEntity.addProgress(progressEntity);
+        log.info("Progressed Action for Sentence Plan {} Objective {}", sentencePlanUUID, objectiveUUID, value(EVENT, SENTENCE_PLAN_ACTION_PROGRESSED));
     }
 
     @Transactional
     public void startSentencePlan(UUID sentencePlanUUID) {
         var sentencePlanEntity = sentencePlanRepository.findByUuid(sentencePlanUUID);
         sentencePlanEntity.start();
+        log.info("Sentence Plan {} Started", sentencePlanUUID, value(EVENT, SENTENCE_PLAN_STARTED));
     }
 
     @Transactional
     public void endSentencePlan(UUID sentencePlanUUID) {
         var sentencePlanEntity = sentencePlanRepository.findByUuid(sentencePlanUUID);
         sentencePlanEntity.end();
+        log.info("Sentence Plan {} Ended", sentencePlanUUID, value(EVENT, SENTENCE_PLAN_ENDED));
     }
 
     @Transactional
@@ -145,17 +149,18 @@ public class SentencePlanService {
 
         // TODO: Presumably createdBy comes from the Auth headers?
         comments.forEach(comment -> sentencePlanEntity.addComment(new CommentEntity(comment.getComment(), comment.getCommentType(), "ANONYMOUS")));
-        log.info("Added Comments {}", sentencePlanEntity.getUuid(), value(EVENT, SENTENCE_PLAN_COMMENTS_CREATED));
+        log.info("Added Comments to Sentence Plan {}", sentencePlanEntity.getUuid(), value(EVENT, SENTENCE_PLAN_COMMENTS_CREATED));
     }
 
-    public Collection<CommentEntity> getSentencePlanComments(UUID sentencePlanUuid) {
-        log.info("Retrieving Sentence Plan Comments {}", sentencePlanUuid, value(EVENT, SENTENCE_PLAN_COMMENTS_RETRIEVED));
-        var sentencePlanEntity = getSentencePlanEntity(sentencePlanUuid);
-        return sentencePlanEntity.getData().getComments().values();
+    public Collection<CommentEntity> getSentencePlanComments(UUID sentencePlanUUID) {
+        var sentencePlanEntity = getSentencePlanEntity(sentencePlanUUID);
+        var comments = sentencePlanEntity.getData().getComments().values();
+        log.info("Retrieved Comments for Sentence Plan {}", sentencePlanUUID, value(EVENT, SENTENCE_PLAN_COMMENTS_RETRIEVED));
+        return comments;
     }
 
     public List<SentencePlanSummary> getSentencePlansForOffender(Long oasysOffenderId) {
-        var offender = offenderService.getOffenderByType(Long.toString(oasysOffenderId), OffenderReferenceType.OASYS).getUuid();
+        var offender = offenderService.getOasysOffender(Long.toString(oasysOffenderId)).getUuid();
 
         var newSentencePlans = sentencePlanRepository.findByOffenderUuid(offender);
         var oasysSentencePlans = oasysAssessmentAPIClient.getSentencePlansForOffender(oasysOffenderId);
@@ -165,7 +170,7 @@ public class SentencePlanService {
                 oasysSentencePlans.stream().map(s -> new SentencePlanSummary(Long.toString(s.getOasysSetId()), s.getCreatedDate(), s.getCompletedDate(), true))
         ).collect(Collectors.toList());
 
-        log.info("Returning {} sentence plans for Offender {}", sentencePlanSummaries.size(), oasysOffenderId, value(EVENT, SENTENCE_PLANS_RETRIEVED));
+        log.info("Returned {} sentence plans for Offender {}", sentencePlanSummaries.size(), oasysOffenderId, value(EVENT, SENTENCE_PLANS_RETRIEVED));
         return sentencePlanSummaries.stream().sorted(Comparator.comparing(SentencePlanSummary::getCreatedDate).reversed()).collect(Collectors.toList());
 
     }
@@ -176,10 +181,20 @@ public class SentencePlanService {
                 .orElseThrow(() -> new EntityNotFoundException("OASys sentence plan does not exist for offender."));
     }
 
-    private Optional<SentencePlanEntity> getCurrentSentencePlanForOffender(UUID offenderUUID) {
-        log.info("Retrieving Sentence Plan for offender {}", offenderUUID, value(EVENT, SENTENCE_PLAN_RETRIEVED));
+    public SentencePlanEntity getCurrentSentencePlanForOffender(String offenderId) {
+        var offender = offenderService.getOasysOffender(offenderId);
+        var activeSentencePlan = getCurrentSentencePlan(offender.getUuid());
+        if(activeSentencePlan.isPresent()) {
+            log.info("Retrieved Sentence Plan {} for offender {}", activeSentencePlan.get().getId(), offender.getUuid(), value(EVENT, SENTENCE_PLAN_RETRIEVED));
+            return activeSentencePlan.get();
+        } else {
+            throw new EntityNotFoundException("No current sentence plan for offender");
+        }
+    }
+
+    private Optional<SentencePlanEntity> getCurrentSentencePlan(UUID offenderUUID) {
         var sentencePlans = sentencePlanRepository.findByOffenderUuid(offenderUUID);
-        return sentencePlans.stream().filter(s -> s.getStartedDate() == null).findFirst();
+        return sentencePlans.stream().filter(s -> s.getCompletedDate() == null).findFirst();
     }
 
     private ObjectiveEntity getObjectiveEntity(UUID sentencePlanUUID, UUID objectiveUUID) {

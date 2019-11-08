@@ -187,6 +187,14 @@ public class SentencePlanResource {
         return ResponseEntity.ok(sentencePlanService.getSentencePlansForOffender(oasysOffenderId));
     }
 
+    @GetMapping(value = "/offenders/{offenderId}/sentenceplans/current", produces = "application/json")
+    @ApiOperation(value = "Gets an Oasys Sentence Plan by its ID",
+            response = SentencePlan.class,
+            notes = "Request legacy sentence plan")
+    ResponseEntity<SentencePlan> getActiveSentencePlan(@ApiParam(value = "OASys Offender ID", required = true) @PathVariable("offenderId") String oasysOffenderId) {
+        return ResponseEntity.ok(SentencePlan.from(sentencePlanService.getCurrentSentencePlanForOffender(oasysOffenderId)));
+    }
+
     @GetMapping(value = "/offenders/{offenderId}/sentenceplans/{sentencePlanId}", produces = "application/json")
     @ApiOperation(value = "Gets an Oasys Sentence Plan by its ID",
             response = SentencePlan.class,

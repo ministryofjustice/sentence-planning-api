@@ -29,10 +29,15 @@ private Clock clock;
     public void updateOasysOffender(SentencePlanEntity sentencePlanEntity) {
         if(sentencePlanEntity.getOffender().getOasysOffenderLastImportedOn() == null || sentencePlanEntity.getOffender().getOasysOffenderLastImportedOn().getDayOfYear() < LocalDateTime.now(clock).getDayOfYear()) {
             var offenderId = sentencePlanEntity.getOffender().getOasysOffenderId().toString();
-            var offender = getOffenderByType(offenderId, OffenderReferenceType.OASYS);
+            var offender = getOasysOffender(offenderId);
             sentencePlanEntity.getOffender().updateIdentityDetails(offender);
         }
     }
+
+    public OffenderEntity getOasysOffender(String offenderId) {
+        return getOffenderByType(offenderId, OffenderReferenceType.OASYS);
+    }
+
 
     public OffenderEntity getOffenderByType(String offenderId, OffenderReferenceType offenderReferenceType) {
         switch (offenderReferenceType) {
