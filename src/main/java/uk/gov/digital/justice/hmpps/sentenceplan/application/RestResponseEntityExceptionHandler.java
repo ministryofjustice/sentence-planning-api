@@ -43,7 +43,7 @@ public class RestResponseEntityExceptionHandler {
     public ResponseEntity<ErrorResponse> handle(NoOffenderAssessmentException e) {
         log.error("NoOffenderAssessmentException: {}", e.getMessage());
         return new ResponseEntity<>(ErrorResponse.builder().status(400)
-                .developerMessage(e.getMessage())
+                .developerMessage("Assessment not found for offender")
                 .userMessage("Assessment not found for offender").build(), BAD_REQUEST);
     }
 

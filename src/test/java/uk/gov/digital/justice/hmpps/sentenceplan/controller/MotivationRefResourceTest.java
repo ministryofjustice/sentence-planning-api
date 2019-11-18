@@ -85,7 +85,7 @@ public class MotivationRefResourceTest {
                 .as(MotivationRef[].class);
 
         assertThat(result).hasSize(1);
-        MotivationRef motivationRef = result[0];
+        var motivationRef = result[0];
 
         assertThat(motivationRef.getUUID()).isEqualTo(UUID.fromString("11111111-1111-1111-1111-111111111111"));
         assertThat(motivationRef.getMotivationText()).isEqualTo("MotivationRef");

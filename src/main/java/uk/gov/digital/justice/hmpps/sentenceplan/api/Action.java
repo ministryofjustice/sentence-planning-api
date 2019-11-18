@@ -28,11 +28,15 @@ public class Action {
     @JsonProperty("status")
     private ActionStatus status;
     @JsonProperty("intervention")
-    private String intervention;
+    private UUID intervention;
+    @JsonProperty("motivationUUID")
+    private UUID motivation;
     @JsonProperty("priority")
     private Integer priority;
     @JsonProperty("updated")
     private LocalDateTime updated;
+    @JsonProperty("progress")
+    private List<ActionProgress> progress;
 
     public static Action from(ActionEntity action) {
         return new Action(action.getId(),
@@ -40,9 +44,11 @@ public class Action {
                 action.getOwnerOther(),
                 action.getDescription(),
                 action.getStatus(),
-                action.getIntervention(),
+                action.getInterventionUUID(),
+                action.getMotivationUUID(),
                 action.getPriority(),
-                action.getUpdated());
+                action.getUpdated(),
+                action.getProgress().stream().map(p -> ActionProgress.from(p)).collect(Collectors.toList()));
     }
 
     public static List<Action> from(Collection<ActionEntity> actions) {

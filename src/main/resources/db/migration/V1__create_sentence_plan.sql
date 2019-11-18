@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS SENTENCE_PLAN
   ID                                 SERIAL       PRIMARY KEY,
   UUID                               UUID         NOT NULL,
   CREATED_DATE                       TIMESTAMP    NOT NULL,
-  STARTED_DATE                       TIMESTAMP    NOT NULL,
+  STARTED_DATE                       TIMESTAMP    NULL,
   COMPLETED_DATE                     TIMESTAMP    NULL,
   DATA                               JSONB        NULL,
   ASSESSMENT_NEEDS_LAST_IMPORTED_ON  TIMESTAMP    NULL,

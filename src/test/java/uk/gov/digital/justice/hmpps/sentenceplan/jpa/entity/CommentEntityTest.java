@@ -13,7 +13,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CommentEntityTest {
 
     private static String comment = "Any Comment";
-    private static CommentType type = CommentType.DECISIONS;
+    private static CommentType type = CommentType.LIASON_ARRANGEMENTS;
     private static String createdBy = "Any User";
 
     @Test

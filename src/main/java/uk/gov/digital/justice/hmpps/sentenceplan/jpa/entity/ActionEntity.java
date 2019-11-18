@@ -42,9 +42,6 @@ public class ActionEntity implements Serializable {
 
     private LocalDateTime updated;
 
-    @Transient
-    @Setter
-    private String intervention;
 
     public ActionEntity(UUID interventionUUID, String description, YearMonth targetDate, UUID motivationUUID, List<ActionOwner> owner, String ownerOther, ActionStatus status) {
         this.id = UUID.randomUUID();

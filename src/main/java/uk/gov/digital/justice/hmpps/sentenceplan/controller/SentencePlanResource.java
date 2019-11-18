@@ -33,11 +33,11 @@ public class SentencePlanResource {
     @PostMapping(value = "/sentenceplans", produces = "application/json")
     @ApiOperation(value = "Create new sentence plan",
             notes = "Creates a new sentence plan")
-    ResponseEntity<UUID> createSentencePlan(@ApiParam(value = "Offender details", required = true) @RequestBody @Valid CreateSentencePlanRequest createSentencePlanRequest) {
-        UUID sentencePlanUUID = sentencePlanService.createSentencePlan(
+    ResponseEntity<SentencePlan> createSentencePlan(@ApiParam(value = "Offender details", required = true) @RequestBody @Valid CreateSentencePlanRequest createSentencePlanRequest) {
+        var sentencePlan = sentencePlanService.createSentencePlan(
                 createSentencePlanRequest.getOffenderId(),
                 createSentencePlanRequest.getOffenderReferenceType());
-        return ResponseEntity.ok(sentencePlanUUID);
+        return ResponseEntity.status(201).body(SentencePlan.from(sentencePlan));
     }
 
     @GetMapping(value = "/sentenceplans/{sentencePlanUUID}", produces = "application/json")
@@ -65,7 +65,6 @@ public class SentencePlanResource {
     }
 
     @PutMapping(value = "/sentenceplans/{sentencePlanUUID}/comments", produces = "application/json")
-    @PostMapping(value = "/sentenceplans/{sentencePlanUUID}/comments", produces = "application/json")
     @ApiOperation(value = "Add comments",
             notes = "Add comments of various types to the Sentence Plan")
     ResponseEntity addComments(@ApiParam(value = "Sentence Plan ID", required = true) @PathVariable UUID sentencePlanUUID, @ApiParam(value = "List of comments", required = true) @RequestBody List<AddCommentRequest> comments) {
@@ -111,7 +110,7 @@ public class SentencePlanResource {
     }
 
     @GetMapping(value = "/sentenceplans/{sentencePlanUUID}/objectives/{objectiveUUID}", produces = "application/json")
-    @ApiOperation(value = "Update an Objective on a Sentence Plan")
+    @ApiOperation(value = "Get an Objective for a Sentence Plan")
     ResponseEntity<Objective> getObjective(@ApiParam(value = "Sentence Plan ID", required = true) @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Sentence Plan ID", required = true) @PathVariable UUID objectiveUUID) {
         return ResponseEntity.ok(Objective.from(sentencePlanService.getObjective(sentencePlanUUID, objectiveUUID)));
     }

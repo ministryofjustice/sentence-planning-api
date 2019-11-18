@@ -4,6 +4,7 @@ import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
 
 @Entity
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 @Data
 @TypeDefs({
@@ -30,7 +32,7 @@ public class SentencePlanEntity implements Serializable {
     private Long id;
 
     @Column(name = "UUID")
-    private UUID uuid = UUID.randomUUID();;
+    private UUID uuid = UUID.randomUUID();
 
     @Column(name = "CREATED_DATE")
     private LocalDateTime createdDate = LocalDateTime.now();
@@ -88,10 +90,10 @@ public class SentencePlanEntity implements Serializable {
         this.data.setComplyWithChildProtectionPlanIndicated(complyWithChildProtectionPlanIndicated);
     }
 
-    public ObjectiveEntity addObjective(ObjectiveEntity objective) {
+    public void addObjective(ObjectiveEntity objective) {
         // Set the priority to lowest
         objective.setPriority(this.getObjectives().size());
-        return this.data.getObjectives().put(objective.getId(), objective);
+         this.data.getObjectives().put(objective.getId(), objective);
     }
 
     public ObjectiveEntity getObjective(UUID objectiveUUID) {
@@ -107,6 +109,7 @@ public class SentencePlanEntity implements Serializable {
     }
 
     private void addNeed(NeedEntity need) {
+        need.setActive(true);
         this.needs.add(need);
     }
 }

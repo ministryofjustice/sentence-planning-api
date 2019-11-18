@@ -19,6 +19,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
 
+import java.time.YearMonth;
 import java.util.List;
 import java.util.UUID;
 
@@ -28,6 +29,8 @@ import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TES
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner.PRACTITIONER;
 import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner.SERVICE_USER;
+import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionStatus.COMPLETED;
+import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionStatus.IN_PROGRESS;
 
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")
@@ -47,12 +50,13 @@ public class SentencePlanResource_ActionTest {
 
     @Autowired
     SentencePlanRepository sentencePlanRepository;
-    
+
+    private final String OBJECTIVE_ID = "59023444-afda-4603-9284-c803d18ee4bb";
     private final String SENTENCE_PLAN_ID = "11111111-1111-1111-1111-111111111111";
-    private final String ACTION_ID = "11111111-1111-1111-1111-111111111111";
+    private final String ACTION_ID = "0554387d-a19f-4cca-9443-5eb5e339709d";
     private final String NOT_FOUND_ACTION_ID = "00000000-0000-0000-0000-000000000000";
-    private final String EMPTY_ACTIONS_SENTENCE_PLAN_ID = "22222222-2222-2222-2222-222222222222";
     private final String NOT_FOUND_SENTENCE_PLAN_ID = "99999999-9999-9999-9999-999999999999";
+    public static final UUID MOTIVATION_UUID = UUID.fromString("38731914-701d-4b4e-abd3-1e0a6375f0b2");
 
     @Before
     public void setup() {
@@ -62,41 +66,39 @@ public class SentencePlanResource_ActionTest {
         ));
     }
 
-
     @Test
     public void shouldCreateActionOnExistingPlan() {
 
-        var requestBody = new AddSentencePlanAction(List.of(SERVICE_USER),
+        var requestBody = new AddSentencePlanAction(
                 null,
-                ActionStatus.IN_PROGRESS,
-                "a strength",
-                "a description",
+                "new action description",
+                YearMonth.of(2019,11),
+                UUID.fromString("38731914-701d-4b4e-abd3-1e0a6375f0b2"),
+                List.of(SERVICE_USER),
                 null,
-                List.of(UUID.fromString("11111111-1111-1111-1111-111111111111")));
+                IN_PROGRESS);
 
                 given()
                 .when()
                 .body(requestBody)
                 .header("Content-Type", "application/json")
-                .post("/sentenceplan/{0}/actions", SENTENCE_PLAN_ID)
+                .post("/sentenceplans/{0}/objectives/{1}/actions", SENTENCE_PLAN_ID, OBJECTIVE_ID)
                 .then()
                 .statusCode(200);
 
         var result = given()
                 .when()
                 .header("Accept", "application/json")
-                .get("/sentenceplan/{0}/actions", SENTENCE_PLAN_ID)
+                .get("/sentenceplans/{0}/objectives/{1}", SENTENCE_PLAN_ID, OBJECTIVE_ID)
                 .then()
                 .statusCode(200)
                 .extract()
                 .body()
-                .jsonPath().getList(".", Action.class);
+                .as(Objective.class);
 
-        assertThat(result).hasSize(2);
-        var action = result.get(1);
-        assertThat(action.getDescription()).isEqualTo("a description");
-        assertThat(action.getStatus()).isEqualTo(ActionStatus.IN_PROGRESS);
-        assertThat(action.getStrength()).isEqualTo("a strength");
+        assertThat(result.getActions()).hasSize(3);
+        var action = result.getActions().stream().filter(a->a.getDescription().endsWith("new action description")).findAny().get();
+        assertThat(action.getStatus()).isEqualTo(IN_PROGRESS);
         assertThat(action.getIntervention()).isNull();
         assertThat(action.getOwnerOther()).isNull();
         assertThat(action.getOwner()).hasSize(1);
@@ -104,56 +106,32 @@ public class SentencePlanResource_ActionTest {
     }
 
     @Test
-    public void shouldGetActionsWhenSentencePlanExists() {
-
-        var result = given()
-                .when()
-                .header("Accept", "application/json")
-                .get("/sentenceplan/{0}/actions", SENTENCE_PLAN_ID)
-                .then()
-                .statusCode(200)
-                .extract()
-                .body()
-                .jsonPath().getList(".", Action.class);
-
-        assertThat(result).hasSize(1);
-        var action = result.get(0);
-        assertThat(action.getDescription()).isEqualTo("description");
-        assertThat(action.getStrength()).isEqualTo("strength");
-        assertThat(action.getIntervention()).isNull();
-        assertThat(action.getOwnerOther()).isNull();
-        assertThat(action.getOwner()).hasSize(1);
-        assertThat(action.getOwner()).contains(PRACTITIONER);
-
-    }
-
-
-    @Test
     public void shouldGetSingleActionWhenSentencePlanExists() {
 
         var result = given()
                 .when()
                 .header("Accept", "application/json")
-                .get("/sentenceplan/{0}/actions/{1}", SENTENCE_PLAN_ID, ACTION_ID)
+                .get("/sentenceplans/{0}/objectives/{1}/actions/{2}", SENTENCE_PLAN_ID, OBJECTIVE_ID, ACTION_ID)
                 .then()
                 .statusCode(200)
                 .extract()
                 .body()
                 .as(Action.class);
 
-        assertThat(result.getDescription()).isEqualTo("description");
-        assertThat(result.getStrength()).isEqualTo("strength");
+        assertThat(result.getDescription()).isEqualTo("Action 1");
         assertThat(result.getIntervention()).isNull();
         assertThat(result.getOwnerOther()).isNull();
         assertThat(result.getOwner()).hasSize(1);
-        assertThat(result.getOwner()).contains(PRACTITIONER);
+        assertThat(result.getStatus()).isEqualTo(IN_PROGRESS);
+        assertThat(result.getOwner()).contains(SERVICE_USER);
+        assertThat(result.getPriority()).isEqualTo(0);
     }
 
     @Test
     public void shouldReturnNotFoundForNonexistentPlan() {
         var result = given()
                 .when()
-                .get("/sentenceplan/{0}/actions", NOT_FOUND_SENTENCE_PLAN_ID)
+                .get("/sentenceplans/{0}/objectives/{1}/actions/{2}", NOT_FOUND_SENTENCE_PLAN_ID, OBJECTIVE_ID, ACTION_ID)
                 .then()
                 .statusCode(404)
                 .extract()
@@ -167,31 +145,21 @@ public class SentencePlanResource_ActionTest {
 
 
     @Test
-    public void shouldGetEmptyArrayWhenNoActionsExist() {
-
-        var result = given()
-                .when()
-                .header("Accept", "application/json")
-                .get("/sentenceplan/{0}/actions", EMPTY_ACTIONS_SENTENCE_PLAN_ID)
-                .then()
-                .statusCode(200)
-                .extract()
-                .body()
-                .jsonPath().getList(".", Action.class);
-
-        assertThat(result).hasSize(0);
-    }
-
-    @Test
     public void shouldUpdateActionOnExistingPlan() {
 
-        var requestBody = new UpdateSentencePlanActionRequest(List.of(SERVICE_USER), ActionStatus.COMPLETED, null, "strong", "desc", null, List.of(UUID.randomUUID()));
-
+        var requestBody = new AddSentencePlanAction(
+                null,
+                "updated action description",
+                YearMonth.of(2019,11),
+                UUID.fromString("38731914-701d-4b4e-abd3-1e0a6375f0b2"),
+                List.of(PRACTITIONER),
+                null,
+                COMPLETED);
         var result = given()
                 .when()
                 .body(requestBody)
                 .header("Content-Type", "application/json")
-                .put("/sentenceplan/{0}/actions/{1}", SENTENCE_PLAN_ID, ACTION_ID)
+                .put("/sentenceplans/{0}/objectives/{1}/actions/{2}", SENTENCE_PLAN_ID,OBJECTIVE_ID, ACTION_ID)
                 .then()
                 .statusCode(200)
                 .extract().statusCode();
@@ -201,31 +169,37 @@ public class SentencePlanResource_ActionTest {
         var updatedAction = given()
                 .when()
                 .header("Accept", "application/json")
-                .get("/sentenceplan/{0}/actions/{1}", SENTENCE_PLAN_ID, ACTION_ID)
+                .get("/sentenceplans/{0}/objectives/{1}/actions/{2}", SENTENCE_PLAN_ID,OBJECTIVE_ID, ACTION_ID)
                 .then()
                 .statusCode(200)
                 .extract()
                 .body()
                 .as(Action.class);
 
-        assertThat(updatedAction.getDescription()).isEqualTo("desc");
-        assertThat(updatedAction.getStrength()).isEqualTo("strong");
+        assertThat(updatedAction.getDescription()).isEqualTo("updated action description");
         assertThat(updatedAction.getIntervention()).isNull();
         assertThat(updatedAction.getOwnerOther()).isNull();
         assertThat(updatedAction.getOwner()).hasSize(1);
-        assertThat(updatedAction.getOwner()).contains(SERVICE_USER);
+        assertThat(updatedAction.getOwner()).contains(PRACTITIONER);
     }
 
     @Test
     public void shouldNotUpdateInvalidAction() {
 
-        var requestBody = new UpdateSentencePlanActionRequest(List.of(SERVICE_USER), ActionStatus.COMPLETED, null, "strong", "desc", null, List.of(UUID.randomUUID()));
+        var requestBody = new AddSentencePlanAction(
+                null,
+                "updated action description",
+                YearMonth.of(2019,11),
+                MOTIVATION_UUID,
+                List.of(PRACTITIONER),
+                null,
+                COMPLETED);
 
         var result = given()
                 .when()
                 .body(requestBody)
                 .header("Content-Type", "application/json")
-                .put("/sentenceplan/{0}/actions/{1}", SENTENCE_PLAN_ID, NOT_FOUND_ACTION_ID)
+                .put("/sentenceplans/{0}/objectives/{1}/actions/{2}", SENTENCE_PLAN_ID,OBJECTIVE_ID, NOT_FOUND_ACTION_ID)
                 .then()
                 .statusCode(404)
                 .extract().statusCode();
@@ -236,13 +210,13 @@ public class SentencePlanResource_ActionTest {
     @Test
     public void shouldProgressAction() {
 
-        var requestBody = new ProgressActionRequest(ActionStatus.PARTIALLY_COMPLETED);
+        var requestBody = new ProgressActionRequest(ActionStatus.PARTIALLY_COMPLETED, YearMonth.of(2019,12),MOTIVATION_UUID,"new test comment" );
 
         var result = given()
                 .when()
                 .body(requestBody)
                 .header("Content-Type", "application/json")
-                .post("/sentenceplan/{0}/actions/{1}/progress", SENTENCE_PLAN_ID, ACTION_ID)
+                .post("/sentenceplans/{0}/objectives/{1}/actions/{2}/progress", SENTENCE_PLAN_ID, OBJECTIVE_ID, ACTION_ID)
                 .then()
                 .statusCode(200)
                 .extract().statusCode();
@@ -252,29 +226,30 @@ public class SentencePlanResource_ActionTest {
         var progressedAction = given()
                 .when()
                 .header("Accept", "application/json")
-                .get("/sentenceplan/{0}/actions/{1}", SENTENCE_PLAN_ID, ACTION_ID)
+                .get("/sentenceplans/{0}/objectives/{1}/actions/{2}", SENTENCE_PLAN_ID, OBJECTIVE_ID, ACTION_ID)
                 .then()
                 .statusCode(200)
                 .extract()
                 .body()
                 .as(Action.class);
 
-        assertThat(progressedAction.getProgressList()).hasSize(1);
-        assertThat(progressedAction.getProgressList().get(0).getStatus()).isEqualTo(ActionStatus.PARTIALLY_COMPLETED);
-
-        assertThat(progressedAction.getUpdated()).isEqualTo(progressedAction.getProgressList().get(0).getCreated());
+        assertThat(progressedAction.getProgress()).hasSize(4);
+        var actionProgress = progressedAction.getProgress().stream().filter(p -> p.getComment().equals("new test comment" )).findAny();
+        assertThat(actionProgress.get().getStatus()).isEqualTo(ActionStatus.PARTIALLY_COMPLETED);
+        assertThat(actionProgress.get().getTargetDate()).isEqualTo(YearMonth.of(2019,12));
+        assertThat(actionProgress.get().getMotivationUUID()).isEqualTo(MOTIVATION_UUID);
     }
 
     @Test
     public void shouldNotProgressInvalidAction() {
 
-        var requestBody = new UpdateSentencePlanActionRequest(List.of(SERVICE_USER), ActionStatus.COMPLETED, null, "strong", "desc", null, List.of(UUID.randomUUID()));
+        var requestBody = new ProgressActionRequest(ActionStatus.PARTIALLY_COMPLETED, YearMonth.of(2019,12),MOTIVATION_UUID,"new test comment" );
 
         var result = given()
                 .when()
                 .body(requestBody)
                 .header("Content-Type", "application/json")
-                .post("/sentenceplan/{0}/actions/{1}/progress", SENTENCE_PLAN_ID, NOT_FOUND_ACTION_ID)
+                .post("/sentenceplans/{0}/objectives/{1}/actions/{2}/progress", SENTENCE_PLAN_ID, OBJECTIVE_ID, NOT_FOUND_ACTION_ID)
                 .then()
                 .statusCode(404)
                 .extract().statusCode();

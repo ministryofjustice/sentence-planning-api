@@ -16,7 +16,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static net.logstash.logback.argument.StructuredArguments.a;
 import static net.logstash.logback.argument.StructuredArguments.value;
 import static uk.gov.digital.justice.hmpps.sentenceplan.application.LogEvent.*;
 
@@ -36,18 +35,18 @@ public class SentencePlanService {
     }
 
     @Transactional
-    public UUID createSentencePlan(String offenderId, OffenderReferenceType offenderReferenceType) {
+    public SentencePlanEntity createSentencePlan(String offenderId, OffenderReferenceType offenderReferenceType) {
         var offender = offenderService.getOffenderByType(offenderId, offenderReferenceType);
 
         if (getCurrentSentencePlan(offender.getUuid()).isPresent()) {
-            throw new CurrentSentencePlanForOffenderExistsException("Offender already has current sentence plan");
+            throw new CurrentSentencePlanForOffenderExistsException("Offender already has a current sentence plan");
         }
 
         var sentencePlan = new SentencePlanEntity(offender);
         assessmentService.addLatestAssessmentNeedsToPlan(sentencePlan);
         sentencePlanRepository.save(sentencePlan);
         log.info("Created Sentence Plan {}", sentencePlan.getUuid(), value(EVENT, SENTENCE_PLAN_CREATED));
-        return sentencePlan.getUuid();
+        return sentencePlan;
     }
 
     public SentencePlanEntity getSentencePlanFromUuid(UUID sentencePlanUuid) {
@@ -77,6 +76,11 @@ public class SentencePlanService {
         return objectiveEntity;
     }
 
+    public List<ObjectiveEntity> getObjectives(UUID sentencePlanUuid) {
+        return new ArrayList<>(getSentencePlanEntity(sentencePlanUuid).getObjectives().values());
+
+    }
+
     @Transactional
     public void addAction(UUID sentencePlanUUID, UUID objectiveUUID, UUID interventionUUID, String description, YearMonth targetDate, UUID motivationUUID, List<ActionOwner> owner, String ownerOther, ActionStatus status) {
         var objectiveEntity = getObjectiveEntity(sentencePlanUUID, objectiveUUID);
@@ -98,6 +102,10 @@ public class SentencePlanService {
         return actionEntity;
     }
 
+    public List<ActionEntity> getActions(UUID sentencePlanUuid, UUID objectiveUuid) {
+        return new ArrayList<>(getObjectiveEntity(sentencePlanUuid, objectiveUuid).getActions().values());
+    }
+
     @Transactional
     public List<NeedEntity> getSentencePlanNeeds(UUID sentencePlanUUID) {
         var sentencePlanEntity = getSentencePlanEntityWithUpdatedNeeds(sentencePlanUUID);
@@ -109,14 +117,14 @@ public class SentencePlanService {
     @Transactional
     public void updateObjectivePriorities(UUID sentencePlanUuid,  Map<UUID, Integer> newPriorities) {
         var planObjectives = getSentencePlanEntity(sentencePlanUuid).getObjectives();
-        planObjectives.forEach((key, value) -> value.setPriority(newPriorities.get(value.getId())));
+        planObjectives.forEach((key, value) -> value.setPriority(Optional.ofNullable(newPriorities.get(value.getId())).orElse(value.getPriority())));
         log.info("Updated Objective priority for Sentence Plan {}", sentencePlanUuid, value(EVENT, SENTENCE_PLAN_OBJECTIVE_PRIORITY_UPDATED));
     }
 
     @Transactional
     public void updateActionPriorities(UUID sentencePlanUuid, UUID objectiveUUID, Map<UUID, Integer> newPriorities) {
         var planActions = getObjectiveEntity(sentencePlanUuid,objectiveUUID).getActions();
-        planActions.forEach((key, value) -> value.setPriority(newPriorities.get(value.getId())));
+        planActions.forEach((key, value) -> value.setPriority(Optional.ofNullable(newPriorities.get(value.getId())).orElse(value.getPriority())));
         log.info("Updated Action priority for Sentence Plan {} Objective {}", sentencePlanUuid, objectiveUUID, value(EVENT, SENTENCE_PLAN_ACTION_PRIORITY_UPDATED));
     }
 
@@ -228,5 +236,6 @@ public class SentencePlanService {
         return Optional.ofNullable(sentencePlanRepository.findByUuid(sentencePlanUuid))
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Sentence Plan %s not found", sentencePlanUuid)));
     }
+
 
 }

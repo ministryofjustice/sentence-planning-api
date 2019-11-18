@@ -31,16 +31,18 @@ public class SentencePlan {
     private Boolean complyWithChildProtectionPlanIndicated;
     @JsonProperty("offender")
     private Offender offender;
-
     @JsonProperty("createdDate")
     private LocalDateTime createdOn;
-
+    @JsonProperty("draft")
+    private boolean draft;
 
     public static SentencePlan from(SentencePlanEntity sentencePlan) {
 
         var data = Optional.ofNullable(sentencePlan.getData()).orElseGet(SentencePlanPropertiesEntity::new);
 
         var offenderEntity = Optional.ofNullable(sentencePlan.getOffender()).orElseGet(OffenderEntity::new);
+
+        var draft = sentencePlan.getStartedDate() == null;
 
         return new SentencePlan(sentencePlan.getUuid(),
                                 Objective.from(data.getObjectives().values()),
@@ -49,6 +51,7 @@ public class SentencePlan {
                                 data.getChildSafeguardingIndicated(),
                                 data.getComplyWithChildProtectionPlanIndicated(),
                                 Offender.from(offenderEntity),
-                                sentencePlan.getCreatedDate());
+                                sentencePlan.getCreatedDate(),
+                                draft);
     }
 }
