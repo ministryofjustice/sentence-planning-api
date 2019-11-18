@@ -1,26 +1,23 @@
 package uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity;
 
-
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.EventType;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.PlanStatus;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 @Data
 @TypeDefs({
@@ -35,27 +32,20 @@ public class SentencePlanEntity implements Serializable {
     private Long id;
 
     @Column(name = "UUID")
-    private UUID uuid;
+    private UUID uuid = UUID.randomUUID();
 
-    @Column(name = "STATUS")
-    @Enumerated(EnumType.STRING)
-    private PlanStatus status;
+    @Column(name = "CREATED_DATE")
+    private LocalDateTime createdDate = LocalDateTime.now();
+
+    @Column(name = "STARTED_DATE")
+    private LocalDateTime startedDate;
+
+    @Column(name = "COMPLETED_DATE")
+    private LocalDateTime completedDate;
 
     @Type(type = "jsonb")
     @Column(columnDefinition = "jsonb", name = "DATA")
     private SentencePlanPropertiesEntity data;
-
-    @Column(name = "EVENT_TYPE")
-    private EventType eventType;
-
-    @Column(name = "CREATED_ON")
-    private LocalDateTime createdOn;
-
-    @Column(name = "START_DATE")
-    private LocalDateTime startDate;
-
-    @Column(name = "END_DATE")
-    private LocalDateTime endDate;
 
     @Column(name = "ASSESSMENT_NEEDS_LAST_IMPORTED_ON")
     private LocalDateTime assessmentNeedsLastImportedOn;
@@ -64,29 +54,23 @@ public class SentencePlanEntity implements Serializable {
     @JoinColumn(name = "OFFENDER_UUID", referencedColumnName = "UUID")
     private OffenderEntity offender;
 
-    @OneToMany(mappedBy = "sentencePlan", cascade = CascadeType.PERSIST)
-    private List<NeedEntity> needs;
+    @OneToMany(mappedBy = "sentencePlan", cascade = CascadeType.ALL)
+    private List<NeedEntity> needs = new ArrayList<>(0);
 
     public SentencePlanEntity(OffenderEntity offender) {
         this.offender = offender;
-        this.needs = new ArrayList<>();
-        this.uuid = UUID.randomUUID();
-        this.createdOn = LocalDateTime.now();
-        this.startDate = LocalDateTime.now();
-        this.status = PlanStatus.DRAFT;
-        this.eventType = EventType.CREATED;
         this.data = new SentencePlanPropertiesEntity();
     }
 
-    public SentencePlanEntity() {
-        this.needs = new ArrayList<>();
+    public void start() {
+       this.startedDate = LocalDateTime.now();
     }
 
-    private void addNeed(NeedEntity need) {
-        this.needs.add(need);
+    public void end() {
+        this.completedDate = LocalDateTime.now();
     }
 
-    public void addNeeds(List<NeedEntity> needs) {
+    public void updateNeeds(List<NeedEntity> needs) {
         var latestNeeds = needs.stream().map(NeedEntity::getDescription).collect(Collectors.toSet());
         var currentNeeds = this.needs.stream().map(NeedEntity::getDescription).collect(Collectors.toSet());
 
@@ -106,12 +90,27 @@ public class SentencePlanEntity implements Serializable {
         this.data.setComplyWithChildProtectionPlanIndicated(complyWithChildProtectionPlanIndicated);
     }
 
-    public void addAction(ActionEntity actionEntity) {
-        this.data.addActions(actionEntity);
+    public void addObjective(ObjectiveEntity objective) {
+        // Set the priority to lowest
+        objective.setPriority(this.getObjectives().size());
+         this.data.getObjectives().put(objective.getId(), objective);
+    }
+
+    public ObjectiveEntity getObjective(UUID objectiveUUID) {
+       return this.data.getObjectives().get(objectiveUUID);
+    }
+
+    public Map<UUID, ObjectiveEntity> getObjectives() {
+        return this.data.getObjectives();
     }
 
     public void addComment(CommentEntity commentEntity) {
         this.data.addComment(commentEntity);
+    }
+
+    private void addNeed(NeedEntity need) {
+        need.setActive(true);
+        this.needs.add(need);
     }
 }
 

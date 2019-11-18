@@ -15,18 +15,19 @@ import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.OffenderResposit
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
 import static java.util.Collections.EMPTY_LIST;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static uk.gov.digital.justice.hmpps.sentenceplan.api.PlanStatus.DRAFT;
 import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner.PRACTITIONER;
+import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner.SERVICE_USER;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OffenderServiceTest {
@@ -54,13 +55,10 @@ public class OffenderServiceTest {
         var offender = new OasysOffender(123456L, "John", "Smith","","",new OasysIdentifiers("12345", 123L));
 
         when(offenderRespository.findByOasysOffenderId(123456L)).thenReturn(Optional.empty());
-
-
         when(oasysAssessmentAPIClient.getOffenderById(123456L))
                 .thenReturn(Optional.ofNullable(offender));
 
         offenderService.getOffenderByType("123456", OffenderReferenceType.OASYS);
-
 
         verify( offenderRespository, times(1)).save(any());
 
@@ -92,7 +90,7 @@ public class OffenderServiceTest {
     @Test
     public void shouldUpdateBookingNumberIfNotUpdatedToday() {
         var sentencePlan = getSentencePlanWithOffender();
-        OasysOffender offender = new OasysOffender(1L, null, null, null, null, new OasysIdentifiers("Nomis", 3456L));
+        var offender = new OasysOffender(1L, null, null, null, null, new OasysIdentifiers("Nomis", 3456L));
         when(oasysAssessmentAPIClient.getOffenderById(1L)).thenReturn(Optional.ofNullable(offender));
         when(offenderRespository.save(any())).thenReturn(null);
 
@@ -105,7 +103,6 @@ public class OffenderServiceTest {
     @Test
     public void shouldNotUpdateBookingNumberIfUpdatedToday() {
         var sentencePlan = getSentencePlanWithOffender();
-        OasysOffender offender = new OasysOffender(1L, null, null, null, null, new OasysIdentifiers("Nomis", 3456L));
 
         sentencePlan.getOffender().setOasysOffenderLastImportedOn(LocalDateTime.now(clock).minusDays(0));
 
@@ -117,13 +114,18 @@ public class OffenderServiceTest {
 
         var needs = List.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
         var sentencePlanProperty = new SentencePlanPropertiesEntity();
-        sentencePlanProperty.addActions(new ActionEntity(List.of(PRACTITIONER), null, "a description", "a strength", ActionStatus.PAUSED, needs, null));
+        var objective = new ObjectiveEntity("Objective 1", needs);
+        var action = new ActionEntity(null,"Action 1", YearMonth.of(2019,8), UUID.fromString("11111111-1111-1111-1111-111111111111"), List.of(SERVICE_USER), null, ActionStatus.NOT_STARTED);
+        objective.addAction(action);
+        sentencePlanProperty.setObjectives(Map.of(objective.getId(), objective));
         return SentencePlanEntity.builder()
-                .createdOn(LocalDateTime.of(2019,6,1, 11,00))
-                .status(DRAFT)
+                .createdDate(LocalDateTime.of(2019,6,1, 11,00))
+                .startedDate(LocalDateTime.of(2019,7,1, 11,00))
                 .uuid(sentencePlanUuid)
                 .offender(new OffenderEntity(1L, "two", 3L))
-                .needs(List.of(NeedEntity.builder().uuid(UUID.fromString("11111111-1111-1111-1111-111111111111")).description("description").motivations(EMPTY_LIST).build()))
+                .needs(List.of(NeedEntity.builder().uuid(UUID.fromString("11111111-1111-1111-1111-111111111111")).description("description").build()))
                 .data(sentencePlanProperty).build();
     }
+
+
 }

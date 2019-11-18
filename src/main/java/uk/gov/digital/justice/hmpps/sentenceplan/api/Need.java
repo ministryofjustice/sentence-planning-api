@@ -28,8 +28,6 @@ public class Need {
     private Boolean flaggedAsNeed;
     @JsonProperty("active")
     private Boolean active;
-    @JsonProperty("motivation")
-    private MotivationRef motivation;
 
     public static Need from(NeedEntity need) {
         return new Need(need.getUuid(),
@@ -38,8 +36,7 @@ public class Need {
                 need.getHarmRisk(),
                 need.getReoffendingRisk(),
                 need.getLowScoreRisk(),
-                need.getActive(),
-                need.getCurrentMotivation().isPresent() ? MotivationRef.from(need.getCurrentMotivation().get().getMotivationRef()) : null);
+                need.getActive());
     }
 
     public static List<Need> from(List<NeedEntity> needs) {

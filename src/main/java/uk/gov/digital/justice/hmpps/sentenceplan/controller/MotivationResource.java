@@ -7,6 +7,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.MotivationRef;
+import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.MotivationRefEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.MotivationRefService;
 
 import java.util.List;
@@ -30,7 +31,7 @@ public class MotivationResource {
             response = MotivationRef.class, responseContainer="List",
             notes = "Get all active Motivations")
     ResponseEntity<List<MotivationRef>> getActiveMotivations() {
-        return ResponseEntity.ok(motivationRefService.getActiveMotivations());
+        return ResponseEntity.ok(MotivationRef.from(motivationRefService.getActiveMotivations()));
     }
 
 }

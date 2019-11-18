@@ -1,10 +1,9 @@
 package uk.gov.digital.justice.hmpps.sentenceplan.api;
 
 public enum CommentType {
-    DIVERSITY,
-    ABOUTME,
-    LIASON,
-    DECISIONS,
-    EXPECTATIONS,
-    ABOUTMYPLAN
+    YOUR_RESPONSIVITY,
+    THEIR_RESPONSIVITY,
+    YOUR_SUMMARY,
+    THEIR_SUMMARY,
+    LIASON_ARRANGEMENTS
 }

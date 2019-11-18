@@ -13,18 +13,3 @@ CREATE TABLE IF NOT EXISTS MOTIVATION_REF_DATA
   CONSTRAINT motivation_ref_mtext_idempotent UNIQUE (MOTIVATION_TEXT),
   CONSTRAINT motivation_ref_ftext_idempotent UNIQUE (FRIENDLY_TEXT)
 );
-
-DROP TABLE IF EXISTS MOTIVATION;
-
-CREATE TABLE IF NOT EXISTS MOTIVATION
-(
-  ID                                SERIAL        PRIMARY KEY,
-  NEED_UUID                         UUID          NOT NULL,
-  MOTIVATION_REF_UUID               UUID          NOT NULL,
-  START_DATE                        DATE          NOT NULL,
-  END_DATE                          DATE,
-  CONSTRAINT fk_need_id FOREIGN KEY (NEED_UUID) REFERENCES NEED (UUID),
-  CONSTRAINT fk_mot_ref_id FOREIGN KEY (MOTIVATION_REF_UUID) REFERENCES MOTIVATION_REF_DATA (UUID)
-
-);
-

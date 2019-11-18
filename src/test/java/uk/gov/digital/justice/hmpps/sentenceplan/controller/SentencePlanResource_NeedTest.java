@@ -22,8 +22,6 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.AssessmentNeed;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysAssessment;
-import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysIdentifiers;
-import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysOffender;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
 
 import java.util.List;
@@ -56,10 +54,9 @@ public class SentencePlanResource_NeedTest {
 
     @Autowired
     SentencePlanRepository sentencePlanRepository;
-    
-    private final String SENTENCE_PLAN_ID = "11111111-1111-1111-1111-111111111111";
-    private final String NO_NEEDS_SENTENCE_PLAN_ID = "33333333-3333-3333-3333-333333333333";
 
+    private final String SENTENCE_PLAN_ID = "11111111-1111-1111-1111-111111111111";
+    private final String NO_NEEDS_SENTENCE_PLAN_ID = "22222222-2222-2222-2222-222222222222";
     private final String NOT_FOUND_SENTENCE_PLAN_ID = "99999999-9999-9999-9999-999999999999";
 
     @Before
@@ -81,14 +78,14 @@ public class SentencePlanResource_NeedTest {
         var result = given()
                 .when()
                 .header("Accept", "application/json")
-                .get("/sentenceplan/{0}/needs", SENTENCE_PLAN_ID)
+                .get("/sentenceplans/{0}/needs", SENTENCE_PLAN_ID)
                 .then()
                 .statusCode(200)
                 .extract()
                 .body()
                 .jsonPath().getList(".", Need.class);
 
-        assertThat(result).hasSize(2);
+        assertThat(result).hasSize(10);
     }
 
     @Test
@@ -98,7 +95,7 @@ public class SentencePlanResource_NeedTest {
         var result = given()
                 .when()
                 .header("Accept", "application/json")
-                .get("/sentenceplan/{0}/needs", NO_NEEDS_SENTENCE_PLAN_ID)
+                .get("/sentenceplans/{0}/needs", NO_NEEDS_SENTENCE_PLAN_ID)
                 .then()
                 .statusCode(200)
                 .extract()
@@ -112,7 +109,7 @@ public class SentencePlanResource_NeedTest {
     public void shouldReturnNotFoundForNonexistentPlan() {
         var result = given()
                 .when()
-                .get("/sentenceplan/{0}/needs", NOT_FOUND_SENTENCE_PLAN_ID)
+                .get("/sentenceplans/{0}/needs", NOT_FOUND_SENTENCE_PLAN_ID)
                 .then()
                 .statusCode(404)
                 .extract()

@@ -7,8 +7,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,6 +18,21 @@ import java.util.UUID;
 @ApiModel(description = "Add a new Sentence Plan Action")
 public class AddSentencePlanAction {
 
+    @ApiModelProperty(required = true, value = "The intervention ID, if applicable")
+    @JsonProperty("interventionUUID")
+    private UUID interventionUUID;
+
+    @ApiModelProperty(required = true, value = "Description for the Action")
+    @JsonProperty("description")
+    private String description;
+
+    @ApiModelProperty(required = true, value = "Target date for the Action")
+    @JsonProperty("targetDate")
+    private YearMonth targetDate;
+
+    @ApiModelProperty(required = true, value = "The motivation for the Action")
+    @JsonProperty("motivationUUID")
+    private UUID motivationUUID;
 
     @ApiModelProperty(required = true, value = "The owner of the Action")
     @NotNull
@@ -28,26 +43,8 @@ public class AddSentencePlanAction {
     @JsonProperty("ownerOther")
     private String ownerOther;
 
-    //TODO we need to be able to create an Action with a status now.
     @ApiModelProperty(required = true, value = "The status for the Action")
     @JsonProperty("status")
     private ActionStatus status;
-
-    @ApiModelProperty(value = "A strength, if applicable")
-    @JsonProperty("strength")
-    private String strength;
-
-    @ApiModelProperty(required = true, value = "Description of the action, if an intervention is selected then it's description will be used")
-    @JsonProperty("description")
-    private String description;
-
-    @ApiModelProperty(required = true, value = "The intervention ID, if applicable")
-    @JsonProperty("intervention")
-    private String intervention;
-
-    @ApiModelProperty(required = true, value = "A list of Need IDs (UUID) associated with the action")
-    @NotEmpty
-    @JsonProperty("needs")
-    private List<UUID> needs;
 
 }

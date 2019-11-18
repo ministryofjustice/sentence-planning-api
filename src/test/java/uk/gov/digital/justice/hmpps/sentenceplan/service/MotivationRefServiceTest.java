@@ -5,7 +5,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.MotivationRef;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.MotivationRefEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.MotivationRefDataRespository;
 
@@ -29,15 +28,13 @@ public class MotivationRefServiceTest {
         motivationRefService = new MotivationRefService(motivationRefDataRespository);
     }
 
-    /**
-     * Should return an empty list (not null) if there are no database results
-     */
+
     @Test
     public void shouldReturnEmptyListIfNotDataExists() {
 
         when(motivationRefDataRespository.findAllByDeletedIsNull()).thenReturn(new ArrayList<>(0));
 
-        List<MotivationRef> motivationRefs = motivationRefService.getActiveMotivations();
+        var motivationRefs = motivationRefService.getActiveMotivations();
 
 
         verify(motivationRefDataRespository, times(1)).findAllByDeletedIsNull();
@@ -46,25 +43,21 @@ public class MotivationRefServiceTest {
         assertThat(motivationRefs).hasSize(0);
     }
 
-    /**
-     * Should return if there are database results
-     */
     @Test
     public void shouldReturnIfNotExists() {
 
         when(motivationRefDataRespository.findAllByDeletedIsNull()).thenReturn(List.of(new MotivationRefEntity("MotivationRef", "Friendly")));
 
-        List<MotivationRef> motivationRefs = motivationRefService.getActiveMotivations();
+        var motivationRefs = motivationRefService.getActiveMotivations();
 
         verify(motivationRefDataRespository, times(1)).findAllByDeletedIsNull();
         verifyNoMoreInteractions(motivationRefDataRespository);
 
         assertThat(motivationRefs).hasSize(1);
 
-        MotivationRef motivationRef = motivationRefs.get(0);
+        var motivationRef = motivationRefs.get(0);
         assertThat(motivationRef.getMotivationText()).isEqualTo("MotivationRef");
         assertThat(motivationRef.getFriendlyText()).isEqualTo("Friendly");
-
     }
 
 }
