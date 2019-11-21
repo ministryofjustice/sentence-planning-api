@@ -394,7 +394,6 @@ public class SentencePlanServiceTest {
         var result = service.getSentencePlansForOffender(12345L).get(0);
 
         assertThat(result.getPlanId()).isEqualTo("11111111-1111-1111-1111-111111111111");
-        assertThat(result.getCreatedDate()).isEqualTo(LocalDate.of(2019,6,1));
         assertThat(result.getCompletedDate()).isNull();
         verify(sentencePlanRepository, times(1)).findByOffenderUuid(UUID.fromString("11111111-1111-1111-1111-111111111111"));
 
@@ -462,13 +461,11 @@ public class SentencePlanServiceTest {
     }
 
     private SentencePlanEntity getNewSentencePlan(UUID uuid) {
-
-        return SentencePlanEntity.builder()
-                .createdDate(LocalDateTime.of(2019,6,1, 11,00))
-                .startedDate(null)
-                .uuid(uuid)
-                .needs(List.of(NeedEntity.builder().uuid(UUID.fromString("11111111-1111-1111-1111-111111111111")).description("description").build()))
-                .data(new SentencePlanPropertiesEntity()).build();
+        var needs = List.of(NeedEntity.builder().uuid(UUID.fromString("11111111-1111-1111-1111-111111111111")).description("description").build());
+        var plan = new  SentencePlanEntity();
+        plan.setUuid(uuid);
+        plan.setNeeds(needs);
+        return plan;
     }
 
     private SentencePlanEntity getSentencePlanWithOneObjectiveOneAction() {
@@ -479,14 +476,16 @@ public class SentencePlanServiceTest {
         var action = new ActionEntity(UUID.fromString("11111111-1111-1111-1111-111111111111"),null,"Action 1", YearMonth.of(2019,8),
                 UUID.fromString("11111111-1111-1111-1111-111111111111"), List.of(SERVICE_USER), null, NOT_STARTED, 1, emptyList(),
                 LocalDateTime.of(2019,6,6, 2,00),null);
+        var offender = new OffenderEntity(1L, "two", 3L);
         objective.addAction(action);
         sentencePlanProperty.setObjectives(Map.of(objective.getId(), objective));
-        return SentencePlanEntity.builder()
-                .createdDate(LocalDateTime.of(2019,6,1, 11,00))
-                .startedDate(LocalDateTime.of(2019,7,1, 11,00))
-                .uuid(sentencePlanUuid)
-                .needs(List.of(NeedEntity.builder().uuid(UUID.fromString("11111111-1111-1111-1111-111111111111")).description("description").build()))
-                .data(sentencePlanProperty).build();
+
+        return new SentencePlanEntity(1L,sentencePlanUuid,
+                LocalDateTime.of(2019,6,1, 11,00),
+                LocalDateTime.of(2019,7,1, 11,00),
+                null,sentencePlanProperty, null, offender, null);
+
+
     }
 
     private ObjectiveEntity getObjectiveWithTwoActions(List<UUID> needs, String objectiveDescription, String action1Description, String action2Description) {
