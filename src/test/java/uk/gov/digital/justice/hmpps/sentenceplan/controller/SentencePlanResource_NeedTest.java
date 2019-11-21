@@ -129,7 +129,7 @@ public class SentencePlanResource_NeedTest {
 
         assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123456/assessments/latest?assessmentType=LAYER_3"))
                 .andExpect(method(GET))
-                .andRespond(withSuccess(mapper.writeValueAsString(new OasysAssessment(123456L, "ACTIVE", needs, true, true)), MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess(mapper.writeValueAsString(new OasysAssessment(123456L, "ACTIVE", needs, true)), MediaType.APPLICATION_JSON));
         return assessmentApi;
     }
 
@@ -138,7 +138,7 @@ public class SentencePlanResource_NeedTest {
 
         assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/789123/assessments/latest?assessmentType=LAYER_3"))
                 .andExpect(method(GET))
-                .andRespond(withSuccess(mapper.writeValueAsString(new OasysAssessment(789123L, "ACTIVE", null, true, true)), MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess(mapper.writeValueAsString(new OasysAssessment(789123L, "ACTIVE", null, true)), MediaType.APPLICATION_JSON));
         return assessmentApi;
     }
 

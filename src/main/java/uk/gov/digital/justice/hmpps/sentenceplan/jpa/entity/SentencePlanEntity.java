@@ -31,9 +31,11 @@ public class SentencePlanEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Builder.Default
     @Column(name = "UUID")
     private UUID uuid = UUID.randomUUID();
 
+    @Builder.Default
     @Column(name = "CREATED_DATE")
     private LocalDateTime createdDate = LocalDateTime.now();
 
@@ -54,6 +56,7 @@ public class SentencePlanEntity implements Serializable {
     @JoinColumn(name = "OFFENDER_UUID", referencedColumnName = "UUID")
     private OffenderEntity offender;
 
+    @Builder.Default
     @OneToMany(mappedBy = "sentencePlan", cascade = CascadeType.ALL)
     private List<NeedEntity> needs = new ArrayList<>(0);
 

@@ -11,8 +11,6 @@ import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysAssessment;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.OffenderEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.SentencePlanEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.NoOffenderAssessmentException;
-
-
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -47,7 +45,7 @@ public class AssessmentServiceTest {
     public void shouldAddAssessmentNeedsToSentencePlan() {
         var needs = List.of(new AssessmentNeed("Accommodation",true,true,true,true),
                 new AssessmentNeed("Alcohol",true,true,true,true));
-        var oasysAssessment = new OasysAssessment(123456,"ACTIVE", needs,true, true);
+        var oasysAssessment = new OasysAssessment(123456,"ACTIVE", needs,true);
 
         when(oasysAssessmentAPIClient.getLatestLayer3AssessmentForOffender(123456L))
                 .thenReturn(Optional.ofNullable(oasysAssessment));
@@ -69,7 +67,7 @@ public class AssessmentServiceTest {
     public void shouldAddNewAssessmentNeedsToSentencePlanIfNotUpdatedInPast10Minutes() {
         var needs = List.of(new AssessmentNeed("Accommodation",true,true,true,true),
                 new AssessmentNeed("Alcohol",true,true,true,true));
-        var oasysAssessment = new OasysAssessment(123456,"ACTIVE", needs,true, true);
+        var oasysAssessment = new OasysAssessment(123456,"ACTIVE", needs,true);
 
         when(oasysAssessmentAPIClient.getLatestLayer3AssessmentForOffender(123456L))
                 .thenReturn(Optional.ofNullable(oasysAssessment));
@@ -84,8 +82,6 @@ public class AssessmentServiceTest {
     public void shouldNotAddNewAssessmentNeedsToSentencePlanIfUpdatedInPast10Minutes() {
         var needs = List.of(new AssessmentNeed("Accommodation",true,true,true,true),
                 new AssessmentNeed("Alcohol",true,true,true,true));
-        var oasysAssessment = new OasysAssessment(123456,"ACTIVE", needs,true, true);
-
         sentencePlanEntity.setAssessmentNeedsLastImportedOn(LocalDateTime.now(clock).minusMinutes(9));
 
         assertThat(sentencePlanEntity.getNeeds()).isEmpty();
