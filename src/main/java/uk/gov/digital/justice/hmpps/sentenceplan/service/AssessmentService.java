@@ -35,7 +35,6 @@ public class AssessmentService {
                     sentencePlanEntity.getOffender().getOasysOffenderId())
                     .orElseThrow(NoOffenderAssessmentException::new);
 
-            sentencePlanEntity.setSafeguardingRisks(oasysAssessment.getChildSafeguardingIndicated(), oasysAssessment.getComplyWithChildProtectionPlanIndicated());
             sentencePlanEntity.updateNeeds(getNeedsFromOasysAssessment(oasysAssessment, sentencePlanEntity));
             sentencePlanEntity.setAssessmentNeedsLastImportedOn(LocalDateTime.now(clock));
         }

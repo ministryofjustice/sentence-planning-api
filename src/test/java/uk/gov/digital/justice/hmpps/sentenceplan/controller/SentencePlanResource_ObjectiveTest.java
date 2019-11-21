@@ -208,7 +208,7 @@ public class SentencePlanResource_ObjectiveTest {
 
         assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/"+ offenderId + "/assessments/latest?assessmentType=LAYER_3"))
                 .andExpect(method(GET))
-                .andRespond(withSuccess(mapper.writeValueAsString(new OasysAssessment(123456L, "ACTIVE", needs, true, true)), MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess(mapper.writeValueAsString(new OasysAssessment(123456L, "ACTIVE", needs, true)), MediaType.APPLICATION_JSON));
         return assessmentApi;
     }
 }

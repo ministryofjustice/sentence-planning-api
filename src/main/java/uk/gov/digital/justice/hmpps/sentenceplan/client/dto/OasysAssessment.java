@@ -24,7 +24,4 @@ public class OasysAssessment {
     @JsonProperty("childSafeguardingIndicated")
     private Boolean childSafeguardingIndicated;
 
-    @JsonProperty("complyWithChildProtectionPlanIndicated")
-    private Boolean complyWithChildProtectionPlanIndicated;
-
 }

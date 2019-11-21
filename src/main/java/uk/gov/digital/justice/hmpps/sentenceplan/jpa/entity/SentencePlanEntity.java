@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @Data
 @TypeDefs({
         @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
