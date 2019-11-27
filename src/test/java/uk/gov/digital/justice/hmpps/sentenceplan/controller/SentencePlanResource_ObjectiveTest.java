@@ -130,6 +130,29 @@ public class SentencePlanResource_ObjectiveTest {
     }
 
     @Test
+    public void shouldGetAllObjectivesWhenSentencePlanExists() {
+
+        var result = given()
+                .when()
+                .header("Accept", "application/json")
+                .get("/sentenceplans/{0}/objectives", SENTENCE_PLAN_ID)
+                .then()
+                .statusCode(200)
+                .extract()
+                .body().jsonPath().getList(".", Objective.class);
+
+        assertThat(result).hasSize(2);
+        var objective = result.get(0);
+
+        assertThat(objective.getDescription()).isEqualTo("Objective 1");
+        assertThat(objective.getNeeds()).containsExactlyInAnyOrder(
+                UUID.fromString("850a2ef7-1330-43c0-b4f5-68d1d829d1f1"), UUID.fromString("84d77a6b-b38a-4e9b-97c2-7b98f5af9cf7"));
+
+    }
+
+
+
+    @Test
     public void shouldReturnNotFoundForNonexistentPlan() {
         var result = given()
                 .when()
