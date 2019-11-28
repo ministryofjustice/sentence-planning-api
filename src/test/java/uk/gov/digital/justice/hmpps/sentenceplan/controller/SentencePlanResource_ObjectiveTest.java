@@ -136,7 +136,7 @@ public class SentencePlanResource_ObjectiveTest {
         var result = given()
                 .when()
                 .header("Accept", "application/json")
-                .get("/sentenceplans/{0}/objectives", SENTENCE_PLAN_ID)
+                .get("/sentenceplans/{0}/objectives", SENTENCE_PLAN_ID_FULL)
                 .then()
                 .statusCode(200)
                 .extract()
@@ -147,7 +147,7 @@ public class SentencePlanResource_ObjectiveTest {
 
         assertThat(objective.getDescription()).isEqualTo("Objective 1");
         assertThat(objective.getNeeds()).containsExactlyInAnyOrder(
-                UUID.fromString("850a2ef7-1330-43c0-b4f5-68d1d829d1f1"), UUID.fromString("84d77a6b-b38a-4e9b-97c2-7b98f5af9cf7"));
+                UUID.fromString("9acddbd3-af5e-4b41-a710-018064700eb5"), UUID.fromString("51c293ec-b2c4-491c-ade5-34375e1cd495"));
 
     }
 
