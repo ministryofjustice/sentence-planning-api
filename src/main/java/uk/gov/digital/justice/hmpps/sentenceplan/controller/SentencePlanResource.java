@@ -88,6 +88,13 @@ public class SentencePlanResource {
         return ResponseEntity.ok(Need.from(sentencePlanService.getSentencePlanNeeds(sentencePlanUUID)));
     }
 
+    @GetMapping(value = "/sentenceplans/{sentencePlanUUID}/objectives", produces = "application/json")
+    @ApiOperation(value = "Get objectives",
+            notes = "Get all objectives")
+    ResponseEntity<List<Objective>> getObjectives(@ApiParam(value = "Sentence Plan ID", required = true) @PathVariable UUID sentencePlanUUID) {
+        return ResponseEntity.ok(Objective.from(sentencePlanService.getSentencePlanObjectives(sentencePlanUUID)));
+    }
+
     @PostMapping(value = "/sentenceplans/{sentencePlanUUID}/objectives", produces = "application/json")
     @ApiOperation(value = "Add an Objective to a Sentence Plan")
     ResponseEntity addObjective(@ApiParam(value = "Sentence Plan ID", required = true) @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Objective details", required = true) @RequestBody @Valid AddSentencePlanObjective objective) {
