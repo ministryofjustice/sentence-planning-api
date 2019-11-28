@@ -76,11 +76,6 @@ public class SentencePlanService {
         return objectiveEntity;
     }
 
-    public List<ObjectiveEntity> getObjectives(UUID sentencePlanUuid) {
-        return new ArrayList<>(getSentencePlanEntity(sentencePlanUuid).getObjectives().values());
-
-    }
-
     @Transactional
     public void addAction(UUID sentencePlanUUID, UUID objectiveUUID, UUID interventionUUID, String description, YearMonth targetDate, UUID motivationUUID, List<ActionOwner> owner, String ownerOther, ActionStatus status) {
         var objectiveEntity = getObjectiveEntity(sentencePlanUUID, objectiveUUID);

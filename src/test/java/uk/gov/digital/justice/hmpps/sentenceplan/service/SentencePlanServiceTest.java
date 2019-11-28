@@ -154,10 +154,10 @@ public class SentencePlanServiceTest {
     public void shouldGetObjectivesForSentencePlan() {
 
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(getSentencePlanWithOneObjectiveOneAction());
-        var objectives = service.getObjectives(sentencePlanUuid);
+        var objectives = service.getSentencePlanObjectives(sentencePlanUuid);
 
         assertThat(objectives.size()).isEqualTo(1);
-        var objective = objectives.get(0);
+        var objective = objectives.stream().findFirst().get();
         assertThat(objective.getDescription()).isEqualTo("Objective 1");
         assertThat(objective.getNeeds().get(0)).isEqualTo(UUID.fromString("11111111-1111-1111-1111-111111111111"));
     }
