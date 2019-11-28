@@ -17,11 +17,13 @@ public class SentencePlanSummary {
     private LocalDate createdDate;
     private LocalDate completedDate;
     private boolean legacy;
+    private boolean isDraft;
 
-    public SentencePlanSummary(String id, LocalDateTime createdDate, LocalDateTime completedDate, boolean legacy) {
+    public SentencePlanSummary(String id, LocalDateTime createdDate, LocalDateTime completedDate, boolean legacy, boolean isDraft) {
         this.planId = id;
         this.createdDate = createdDate == null ? null : createdDate.toLocalDate();
         this.completedDate = completedDate == null ? null : completedDate.toLocalDate();
         this.legacy = legacy;
+        this.isDraft = isDraft;
     }
 }

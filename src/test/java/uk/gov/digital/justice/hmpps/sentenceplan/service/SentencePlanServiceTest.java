@@ -400,6 +400,42 @@ public class SentencePlanServiceTest {
     }
 
     @Test
+    public void getSentencePlansForOffenderShouldReturnDraftStatusTrueIfPlanHasStarted() {
+
+        var offender = getOffenderEntity();
+        var plan = getNewSentencePlan(sentencePlanUuid);
+        plan.setStartedDate(LocalDateTime.of(2019,11,11,9,0));
+        when(oasysAssessmentAPIClient.getSentencePlansForOffender(12345L)).thenReturn(EMPTY_LIST);
+        when(offenderService.getOasysOffender("12345")).thenReturn(offender);
+        when(sentencePlanRepository.findByOffenderUuid(offender.getUuid())).thenReturn(List.of(plan));
+
+        var result = service.getSentencePlansForOffender(12345L).get(0);
+
+        assertThat(result.getPlanId()).isEqualTo("11111111-1111-1111-1111-111111111111");
+        assertThat(result.isDraft()).isTrue();
+        verify(sentencePlanRepository, times(1)).findByOffenderUuid(UUID.fromString("11111111-1111-1111-1111-111111111111"));
+
+    }
+
+    @Test
+    public void getSentencePlansForOffenderShouldReturnDraftStatusFalseIfPlanHasNotStarted() {
+
+        var offender = getOffenderEntity();
+        var plan = getNewSentencePlan(sentencePlanUuid);
+        plan.setStartedDate(null);
+        when(oasysAssessmentAPIClient.getSentencePlansForOffender(12345L)).thenReturn(EMPTY_LIST);
+        when(offenderService.getOasysOffender("12345")).thenReturn(offender);
+        when(sentencePlanRepository.findByOffenderUuid(offender.getUuid())).thenReturn(List.of(plan));
+
+        var result = service.getSentencePlansForOffender(12345L).get(0);
+
+        assertThat(result.getPlanId()).isEqualTo("11111111-1111-1111-1111-111111111111");
+        assertThat(result.isDraft()).isFalse();
+        verify(sentencePlanRepository, times(1)).findByOffenderUuid(UUID.fromString("11111111-1111-1111-1111-111111111111"));
+
+    }
+
+    @Test
     public void getSentencePlansForOffenderShouldOrderPlansByCreatedDate() {
 
         var offender = getOffenderEntity();
