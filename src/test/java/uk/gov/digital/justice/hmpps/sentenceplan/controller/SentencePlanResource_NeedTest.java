@@ -22,10 +22,11 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.AssessmentNeed;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysAssessment;
+import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysIdentifiers;
+import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysOffender;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
-
+import uk.gov.digital.justice.hmpps.sentenceplan.service.OffenderReferenceType;
 import java.util.List;
-
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpMethod.GET;
@@ -39,8 +40,8 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Sql(scripts = "classpath:sentencePlan/before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
-@Sql(scripts = "classpath:sentencePlan/after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
+@Sql(scripts = "classpath:need/before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
+@Sql(scripts = "classpath:need/after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
 public class SentencePlanResource_NeedTest {
 
     @LocalServerPort
@@ -73,7 +74,7 @@ public class SentencePlanResource_NeedTest {
 
     @Test
     public void shouldGetNeedsWhenSentencePlanExists() throws JsonProcessingException {
-        setupMockRestServiceServer();
+        setupMockRestServiceServer(123456L);
 
         var result = given()
                 .when()
@@ -85,7 +86,7 @@ public class SentencePlanResource_NeedTest {
                 .body()
                 .jsonPath().getList(".", Need.class);
 
-        assertThat(result).hasSize(10);
+        assertThat(result).hasSize(2);
     }
 
     @Test
@@ -121,13 +122,41 @@ public class SentencePlanResource_NeedTest {
         assertThat(result.getStatus()).isEqualTo(404);
     }
 
-    private MockRestServiceServer setupMockRestServiceServer() throws JsonProcessingException {
+    @Test
+    public void shouldSetNeedsWhenCreatingNewPlan() throws JsonProcessingException {
+
+        var assessmentApi = setupMockRestServiceServer(123L);
+
+        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123/summary"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(123L, "Gary", "Smith", "", "", new OasysIdentifiers("12345678", 123L))), MediaType.APPLICATION_JSON));
+
+
+        var requestBody = new CreateSentencePlanRequest("123", OffenderReferenceType.OASYS);
+
+        var sentencePlan = given()
+                .when()
+                .header("Accept", "application/json")
+                .body(requestBody)
+                .header("Content-Type", "application/json")
+                .post("/sentenceplans")
+                .then()
+                .statusCode(201)
+                .extract()
+                .body()
+                .as(SentencePlan.class);
+
+        assessmentApi.verify();
+        assertThat(sentencePlan.getNeeds()).extracting("name").containsOnly("Accommodation", "Alcohol");
+    }
+
+    private MockRestServiceServer setupMockRestServiceServer(long offenderId) throws JsonProcessingException {
         var assessmentApi = bindTo(oauthRestTemplate).ignoreExpectOrder(true).build();
 
         var needs = List.of(new AssessmentNeed("Alcohol", true, true, true, true),
                 new AssessmentNeed("Accommodation", true, true, true, true));
 
-        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123456/assessments/latest?assessmentType=LAYER_3"))
+        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/" + offenderId + "/assessments/latest?assessmentType=LAYER_3"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(mapper.writeValueAsString(new OasysAssessment(123456L, "ACTIVE", needs, true)), MediaType.APPLICATION_JSON));
         return assessmentApi;

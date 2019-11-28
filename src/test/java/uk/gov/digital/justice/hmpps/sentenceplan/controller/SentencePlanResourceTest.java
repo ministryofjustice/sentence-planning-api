@@ -333,44 +333,6 @@ public class SentencePlanResourceTest {
     }
 
     @Test
-    public void shouldUpdateObjectivePriority() throws JsonProcessingException {
-
-        createMockAssessmentDataForOffender(OASYS_OFFENDER_ID);
-
-        var requestBody = List.of(
-                new  UpdateObjectivePriorityRequest(UUID.fromString("59023444-afda-4603-9284-c803d18ee4bb"), 1),
-                new  UpdateObjectivePriorityRequest(UUID.fromString("a63a8eac-4daf-4801-b32b-e3d20c249ad4"), 2)
-
-        );
-
-        given()
-            .when()
-            .body(requestBody)
-            .header("Content-Type", "application/json")
-            .post("/sentenceplans/{0}/objectives/priority", SENTENCE_PLAN_ID)
-            .then()
-            .statusCode(200);
-
-        var result = given()
-                .when()
-                .header("Accept", "application/json")
-                .get("/sentenceplans/{0}", SENTENCE_PLAN_ID)
-                .then()
-                .statusCode(200)
-                .extract()
-                .body()
-                .jsonPath().getList("objectives", Objective.class);
-
-        var objective1 = result.stream().filter(o->o.getId().equals(UUID.fromString("59023444-afda-4603-9284-c803d18ee4bb"))).findAny();
-        var objective2 = result.stream().filter(o->o.getId().equals(UUID.fromString("a63a8eac-4daf-4801-b32b-e3d20c249ad4"))).findAny();
-        assertThat(objective1.get().getPriority()).isEqualTo(1);
-        assertThat(objective2.get().getPriority()).isEqualTo(2);
-
-
-
-    }
-
-    @Test
     public void shouldAddComments() throws JsonProcessingException {
         createMockAssessmentDataForOffender(123456L);
 
