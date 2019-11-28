@@ -46,8 +46,8 @@ import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionStatus.IN_PROG
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@Sql(scripts = "classpath:sentencePlan/before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
-@Sql(scripts = "classpath:sentencePlan/after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
+@Sql(scripts = "classpath:objective/before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
+@Sql(scripts = "classpath:objective/after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
 public class SentencePlanResource_ObjectiveTest {
 
     @LocalServerPort
@@ -63,7 +63,8 @@ public class SentencePlanResource_ObjectiveTest {
     SentencePlanRepository sentencePlanRepository;
 
     private final String OBJECTIVE_ID = "59023444-afda-4603-9284-c803d18ee4bb";
-    private final String SENTENCE_PLAN_ID = "11111111-1111-1111-1111-111111111111";
+    private final String SENTENCE_PLAN_ID_FULL = "11111111-1111-1111-1111-111111111111";
+    private final String SENTENCE_PLAN_ID_EMPTY = "22222222-2222-2222-2222-222222222222";
     private final String NOT_FOUND_OBJECTIVE_ID = "00000000-0000-0000-0000-000000000000";
     private final String NOT_FOUND_SENTENCE_PLAN_ID = "99999999-9999-9999-9999-999999999999";
 
@@ -80,7 +81,7 @@ public class SentencePlanResource_ObjectiveTest {
 
     @Test
     public void shouldCreateActionOnExistingPlan() throws JsonProcessingException {
-        createMockAssessmentDataForOffender(123456L);
+        createMockAssessmentDataForOffender(789123L);
         var needs = List.of(UUID.fromString("9acddbd3-af5e-4b41-a710-018064700eb5"),
                 UUID.fromString("51c293ec-b2c4-491c-ade5-34375e1cd495"));
         var requestBody = new AddSentencePlanObjective(
@@ -91,21 +92,21 @@ public class SentencePlanResource_ObjectiveTest {
                 .when()
                 .body(requestBody)
                 .header("Content-Type", "application/json")
-                .post("/sentenceplans/{0}/objectives", SENTENCE_PLAN_ID)
+                .post("/sentenceplans/{0}/objectives", SENTENCE_PLAN_ID_EMPTY)
                 .then()
                 .statusCode(200);
 
         var result = given()
                 .when()
                 .header("Accept", "application/json")
-                .get("/sentenceplans/{0}", SENTENCE_PLAN_ID)
+                .get("/sentenceplans/{0}", SENTENCE_PLAN_ID_EMPTY)
                 .then()
                 .statusCode(200)
                 .extract()
                 .body()
                 .as(SentencePlan.class);
 
-        assertThat(result.getObjectives()).hasSize(3);
+        assertThat(result.getObjectives()).hasSize(1);
         var objective = result.getObjectives().stream().filter(a->a.getDescription().endsWith("new objective description")).findAny().get();
         assertThat(objective.getNeeds()).containsExactlyInAnyOrderElementsOf(needs);
 
@@ -117,7 +118,7 @@ public class SentencePlanResource_ObjectiveTest {
         var result = given()
                 .when()
                 .header("Accept", "application/json")
-                .get("/sentenceplans/{0}/objectives/{1}", SENTENCE_PLAN_ID, OBJECTIVE_ID)
+                .get("/sentenceplans/{0}/objectives/{1}", SENTENCE_PLAN_ID_FULL, OBJECTIVE_ID)
                 .then()
                 .statusCode(200)
                 .extract()
@@ -126,7 +127,7 @@ public class SentencePlanResource_ObjectiveTest {
 
         assertThat(result.getDescription()).isEqualTo("Objective 1");
         assertThat(result.getNeeds()).containsExactlyInAnyOrder(
-                UUID.fromString("850a2ef7-1330-43c0-b4f5-68d1d829d1f1"), UUID.fromString("84d77a6b-b38a-4e9b-97c2-7b98f5af9cf7"));
+                UUID.fromString("9acddbd3-af5e-4b41-a710-018064700eb5"), UUID.fromString("51c293ec-b2c4-491c-ade5-34375e1cd495"));
     }
 
     @Test
@@ -160,14 +161,14 @@ public class SentencePlanResource_ObjectiveTest {
                 .when()
                 .body(requestBody)
                 .header("Content-Type", "application/json")
-                .put("/sentenceplans/{0}/objectives/{1}", SENTENCE_PLAN_ID,OBJECTIVE_ID)
+                .put("/sentenceplans/{0}/objectives/{1}", SENTENCE_PLAN_ID_FULL,OBJECTIVE_ID)
                 .then()
                 .statusCode(200);
 
         var updatedObjective = given()
                 .when()
                 .header("Accept", "application/json")
-                .get("/sentenceplans/{0}/objectives/{1}", SENTENCE_PLAN_ID,OBJECTIVE_ID)
+                .get("/sentenceplans/{0}/objectives/{1}", SENTENCE_PLAN_ID_FULL,OBJECTIVE_ID)
                 .then()
                 .statusCode(200)
                 .extract()
@@ -182,7 +183,42 @@ public class SentencePlanResource_ObjectiveTest {
     }
 
     @Test
-    public void shouldNotUpdateInvalidAction() {
+    public void shouldUpdateObjectivePriority() throws JsonProcessingException {
+
+        createMockAssessmentDataForOffender(123456L);
+
+        var requestBody = List.of(
+                new  UpdateObjectivePriorityRequest(UUID.fromString("59023444-afda-4603-9284-c803d18ee4bb"), 1),
+                new  UpdateObjectivePriorityRequest(UUID.fromString("a63a8eac-4daf-4801-b32b-e3d20c249ad4"), 2)
+
+        );
+
+        given()
+                .when()
+                .body(requestBody)
+                .header("Content-Type", "application/json")
+                .post("/sentenceplans/{0}/objectives/priority", SENTENCE_PLAN_ID_FULL)
+                .then()
+                .statusCode(200);
+
+        var result = given()
+                .when()
+                .header("Accept", "application/json")
+                .get("/sentenceplans/{0}", SENTENCE_PLAN_ID_FULL)
+                .then()
+                .statusCode(200)
+                .extract()
+                .body()
+                .jsonPath().getList("objectives", Objective.class);
+
+        var objective1 = result.stream().filter(o->o.getId().equals(UUID.fromString("59023444-afda-4603-9284-c803d18ee4bb"))).findAny();
+        var objective2 = result.stream().filter(o->o.getId().equals(UUID.fromString("a63a8eac-4daf-4801-b32b-e3d20c249ad4"))).findAny();
+        assertThat(objective1.get().getPriority()).isEqualTo(1);
+        assertThat(objective2.get().getPriority()).isEqualTo(2);
+    }
+
+    @Test
+    public void shouldNotUpdateInvalidObjective() {
         var needs = List.of(UUID.fromString("9acddbd3-af5e-4b41-a710-018064700eb5"),
                 UUID.fromString("51c293ec-b2c4-491c-ade5-34375e1cd495"));
 
@@ -194,7 +230,7 @@ public class SentencePlanResource_ObjectiveTest {
                 .when()
                 .body(requestBody)
                 .header("Content-Type", "application/json")
-                .put("/sentenceplans/{0}/objectives/{1}", SENTENCE_PLAN_ID, NOT_FOUND_OBJECTIVE_ID)
+                .put("/sentenceplans/{0}/objectives/{1}", SENTENCE_PLAN_ID_FULL, NOT_FOUND_OBJECTIVE_ID)
                 .then()
                 .statusCode(404);
 
