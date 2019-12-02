@@ -6,7 +6,6 @@ import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.MotivationRefEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.MotivationRefDataRespository;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @Slf4j
@@ -22,10 +21,5 @@ private MotivationRefDataRespository motivationRefDataRespository;
 
         return motivationRefDataRespository.findAllByDeletedIsNull();
     }
-
-    public MotivationRefEntity getMotivationById(UUID motivationId) {
-        return motivationRefDataRespository.findByUuid(motivationId);
-    }
-
 
 }

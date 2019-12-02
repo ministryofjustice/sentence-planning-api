@@ -39,9 +39,6 @@ public class SentencePlanServiceTest {
     private AssessmentService assessmentService;
 
     @Mock
-    private MotivationRefService motivationRefService;
-
-    @Mock
     private OASYSAssessmentAPIClient oasysAssessmentAPIClient;
 
     private final String oasysOffenderId = "123456789";
@@ -51,8 +48,6 @@ public class SentencePlanServiceTest {
     private final UUID sentencePlanUuid = UUID.fromString("11111111-1111-1111-1111-111111111111");
 
     private List<MotivationRefEntity> motivations;
-
-    Clock clock =  Clock.fixed(Instant.parse("2019-06-01T10:00:00.00Z"), ZoneId.systemDefault());
 
     @Before
     public void setup() {
@@ -466,7 +461,7 @@ public class SentencePlanServiceTest {
     }
 
     @Test
-    public void addCommentsShoudlAddAllCommentsToPlan() {
+    public void addCommentsShouldAddAllCommentsToPlan() {
         var sentencePlan = mock(SentencePlanEntity.class);
         var comments = ArgumentCaptor.forClass(CommentEntity.class);
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);

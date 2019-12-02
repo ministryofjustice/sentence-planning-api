@@ -6,7 +6,6 @@ import uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.ActionStatus;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.ValidationException;
 
-import javax.persistence.Transient;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.YearMonth;

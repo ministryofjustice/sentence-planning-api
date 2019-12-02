@@ -67,6 +67,8 @@ public class SentencePlanResourceTest {
         - Objective 1 with 2 Actions
         - Objective 2 with 2 Actions with progress
 
+        1 Sentence Board Review
+
      */
 
     @LocalServerPort
