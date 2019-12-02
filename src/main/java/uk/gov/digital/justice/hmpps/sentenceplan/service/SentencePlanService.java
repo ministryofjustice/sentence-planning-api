@@ -139,21 +139,21 @@ public class SentencePlanService {
 
     @Transactional
     public void startSentencePlan(UUID sentencePlanUUID) {
-        var sentencePlanEntity = sentencePlanRepository.findByUuid(sentencePlanUUID);
+        var sentencePlanEntity = getSentencePlanEntity(sentencePlanUUID);
         sentencePlanEntity.start();
         log.info("Sentence Plan {} Started", sentencePlanUUID, value(EVENT, SENTENCE_PLAN_STARTED));
     }
 
     @Transactional
     public void endSentencePlan(UUID sentencePlanUUID) {
-        var sentencePlanEntity = sentencePlanRepository.findByUuid(sentencePlanUUID);
+        var sentencePlanEntity = getSentencePlanEntity(sentencePlanUUID);
         sentencePlanEntity.end();
         log.info("Sentence Plan {} Ended", sentencePlanUUID, value(EVENT, SENTENCE_PLAN_ENDED));
     }
 
     @Transactional
     public void addSentencePlanComments(UUID sentencePlanUUID, List<AddCommentRequest> comments) {
-        var sentencePlanEntity = sentencePlanRepository.findByUuid(sentencePlanUUID);
+        var sentencePlanEntity = getSentencePlanEntity(sentencePlanUUID);
 
         // TODO: Presumably createdBy comes from the Auth headers?
         comments.forEach(comment -> sentencePlanEntity.addComment(new CommentEntity(comment.getComment(), comment.getCommentType(), "ANONYMOUS")));
@@ -232,7 +232,7 @@ public class SentencePlanService {
         return sentencePlanEntity;
     }
 
-    private SentencePlanEntity getSentencePlanEntity(UUID sentencePlanUuid) {
+    public SentencePlanEntity getSentencePlanEntity(UUID sentencePlanUuid) {
         return Optional.ofNullable(sentencePlanRepository.findByUuid(sentencePlanUuid))
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Sentence Plan %s not found", sentencePlanUuid)));
     }

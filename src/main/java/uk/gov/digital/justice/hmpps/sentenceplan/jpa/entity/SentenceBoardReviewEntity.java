@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -33,16 +34,17 @@ public class SentenceBoardReviewEntity implements Serializable {
     private String attendees;
 
     @Column(name = "DATE_OF_BOARD")
-    private LocalDateTime dateOfBoard;
+    private LocalDate dateOfBoard;
 
     @ManyToOne
     @JoinColumn(name = "SENTENCE_PLAN_UUID", referencedColumnName = "UUID")
     private SentencePlanEntity sentencePlan;
 
-    public SentenceBoardReviewEntity(String comments, String attendees, SentencePlanEntity sentencePlan) {
+    public SentenceBoardReviewEntity(String comments, String attendees, LocalDate dateOfBoard, SentencePlanEntity sentencePlan) {
         this.uuid = UUID.randomUUID();
         this.comments = comments;
         this.attendees = attendees;
+        this.dateOfBoard = dateOfBoard;
         this.sentencePlan = sentencePlan;
     }
 

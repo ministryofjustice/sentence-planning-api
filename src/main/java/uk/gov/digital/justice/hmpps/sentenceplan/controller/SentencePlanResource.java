@@ -100,7 +100,7 @@ public class SentencePlanResource {
 
     @PutMapping(value = "/sentenceplans/{sentencePlanUUID}/objectives/{objectiveUUID}", produces = "application/json")
     @ApiOperation(value = "Update an Objective on a Sentence Plan")
-    ResponseEntity updateObjective(@ApiParam(value = "Sentence Plan ID", required = true) @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Sentence Plan ID", required = true) @PathVariable UUID objectiveUUID, @ApiParam(value = "Objective details", required = true) @RequestBody @Valid AddSentencePlanObjective objective) {
+    ResponseEntity updateObjective(@ApiParam(value = "Sentence Plan ID", required = true) @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Objective ID", required = true) @PathVariable UUID objectiveUUID, @ApiParam(value = "Objective details", required = true) @RequestBody @Valid AddSentencePlanObjective objective) {
         sentencePlanService.updateObjective(
                 sentencePlanUUID,
                 objectiveUUID,
@@ -111,7 +111,7 @@ public class SentencePlanResource {
 
     @GetMapping(value = "/sentenceplans/{sentencePlanUUID}/objectives/{objectiveUUID}", produces = "application/json")
     @ApiOperation(value = "Get an Objective for a Sentence Plan")
-    ResponseEntity<Objective> getObjective(@ApiParam(value = "Sentence Plan ID", required = true) @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Sentence Plan ID", required = true) @PathVariable UUID objectiveUUID) {
+    ResponseEntity<Objective> getObjective(@ApiParam(value = "Sentence Plan ID", required = true) @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Objective ID", required = true) @PathVariable UUID objectiveUUID) {
         return ResponseEntity.ok(Objective.from(sentencePlanService.getObjective(sentencePlanUUID, objectiveUUID)));
     }
 
