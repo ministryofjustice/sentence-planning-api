@@ -122,7 +122,10 @@ public class OffenderServiceTest {
       return new SentencePlanEntity(1L,sentencePlanUuid,
                 LocalDateTime.of(2019,6,1, 11,00),
                 LocalDateTime.of(2019,7,1, 11,00),
-                null,sentencePlanProperty, null, offender, null);
+                LocalDateTime.of(2019,7,1, 11,00),
+                "any user",
+                LocalDateTime.of(2019,7,1, 11,00),
+              "any user", sentencePlanProperty, null, offender, null);
     }
 
 

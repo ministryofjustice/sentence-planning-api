@@ -22,12 +22,15 @@ CREATE TABLE IF NOT EXISTS SENTENCE_PLAN
 (
   ID                                 SERIAL       PRIMARY KEY,
   UUID                               UUID         NOT NULL,
-  CREATED_DATE                       TIMESTAMP    NOT NULL,
   STARTED_DATE                       TIMESTAMP    NULL,
   COMPLETED_DATE                     TIMESTAMP    NULL,
   DATA                               JSONB        NULL,
   ASSESSMENT_NEEDS_LAST_IMPORTED_ON  TIMESTAMP    NULL,
   OFFENDER_UUID                      UUID         NOT NULL,
+  CREATED_ON                         TIMESTAMP    NOT NULL,
+  CREATED_BY                         TEXT         NOT NULL,
+  MODIFIED_ON                        TIMESTAMP    NULL,
+  MODIFIED_BY                        TEXT         NULL,
   CONSTRAINT sentence_plan_uuid_idempotent UNIQUE (UUID),
   CONSTRAINT fk_sentenceplan_offender FOREIGN KEY (OFFENDER_UUID) REFERENCES OFFENDER (UUID)
 );

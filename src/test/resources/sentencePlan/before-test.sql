@@ -16,8 +16,8 @@ VALUES ('38731914-701d-4b4e-abd3-1e0a6375f0b2', 'Pre-contemplation', 'In the dar
 ('2f1a5751-f6ee-450a-9b20-858500cb037e', 'Permanent exit', 'The new me', '2019-07-24');
 
 -- Full Plan
-INSERT INTO sentenceplanapitest.sentence_plan (uuid, created_date, started_date, completed_date, data, assessment_needs_last_imported_on, offender_uuid)
-VALUES ('11111111-1111-1111-1111-111111111111', '2019-11-14 08:11:53.177108', null, null,
+INSERT INTO sentenceplanapitest.sentence_plan (uuid, created_on, created_by, started_date, completed_date, data, assessment_needs_last_imported_on, offender_uuid)
+VALUES ('11111111-1111-1111-1111-111111111111', '2019-11-14 08:11:53.177108', 'system', null, null,
 '{
     "comments": {
         "YOUR_RESPONSIVITY": {
@@ -325,8 +325,8 @@ VALUES ('11111111-1111-1111-1111-111111111111', '2019-11-14 08:11:53.177108', nu
 ,'2019-11-14 08:11:53.425990', '11111111-1111-1111-1111-111111111111');
 
 -- Empty Plan
-INSERT INTO sentenceplanapitest.sentence_plan (uuid, created_date, started_date, completed_date, data, assessment_needs_last_imported_on, offender_uuid)
-VALUES ('22222222-2222-2222-2222-222222222222', '2019-11-14 08:11:53.177108', null, null,
+INSERT INTO sentenceplanapitest.sentence_plan (uuid, created_on, created_by, started_date, completed_date, data, assessment_needs_last_imported_on, offender_uuid)
+VALUES ('22222222-2222-2222-2222-222222222222', '2019-11-14 08:11:53.177108','system', null, null,
 '{}'
 , '2019-11-14 08:11:53.425990', '22222222-2222-2222-2222-222222222222');
 

@@ -23,7 +23,7 @@ public class SentencePlanEntityTest {
         var sentencePlan = new SentencePlanEntity(offender);
 
         assertThat(sentencePlan.getUuid()).isNotNull();
-        assertThat(sentencePlan.getCreatedDate()).isEqualToIgnoringSeconds(LocalDateTime.now());
+        assertThat(sentencePlan.getCreatedOn()).isEqualToIgnoringSeconds(LocalDateTime.now());
         assertThat(sentencePlan.getData().getObjectives()).isEmpty();
         assertThat(sentencePlan.getData().getComments()).isEmpty();
         assertThat(sentencePlan.getData().getChildSafeguardingIndicated()).isNull();
