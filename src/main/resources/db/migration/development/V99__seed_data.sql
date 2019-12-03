@@ -1,8 +1,8 @@
 INSERT INTO offender (uuid, oasys_offender_id, nomis_offender_id, delius_offender_id) VALUES ('11111111-1111-1111-1111-111111111111', 1, null, null);
 
-INSERT INTO intervention (uuid, short_description, description, active) VALUES ('b4d75533-a5ac-48f0-84ba-c6a3fa71f3df', 'Test Intevention 1', 'Test Intevention 1', true);
-INSERT INTO intervention (uuid, short_description, description, active) VALUES ('001cd5e6-c675-4202-b6cc-a4937bacecfc', 'Test Intevention 2', 'Test Intevention 2', true);
-INSERT INTO intervention (uuid, short_description, description, active) VALUES ('ca5f210f-fcc0-4342-b59b-3f963d73e587', 'Test Intevention 3', 'Test Intevention 3', true);
+INSERT INTO intervention_ref_data (uuid, short_description, description, active, external_reference) VALUES ('b4d75533-a5ac-48f0-84ba-c6a3fa71f3df', 'Test Intevention 1', 'Test Intevention 1', true, 'INV1');
+INSERT INTO intervention_ref_data (uuid, short_description, description, active, external_reference) VALUES ('001cd5e6-c675-4202-b6cc-a4937bacecfc', 'Test Intevention 2', 'Test Intevention 2', true, 'INV2');
+INSERT INTO intervention_ref_data (uuid, short_description, description, active, external_reference) VALUES ('ca5f210f-fcc0-4342-b59b-3f963d73e587', 'Test Intevention 3', 'Test Intevention 3', true, 'INV3');
 
 INSERT INTO motivation_ref_data (uuid, motivation_text, friendly_text, created)
 VALUES ('38731914-701d-4b4e-abd3-1e0a6375f0b2', 'Pre-contemplation', 'In the dark', '2019-07-24'),

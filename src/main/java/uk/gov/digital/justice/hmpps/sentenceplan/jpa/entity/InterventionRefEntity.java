@@ -2,10 +2,8 @@ package uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity;
 
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.UUID;
@@ -14,9 +12,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Builder
-@Table(name = "INTERVENTION")
-public class InterventionEntity  implements Serializable {
+@Table(name = "INTERVENTION_REF_DATA")
+public class InterventionRefEntity implements Serializable {
 
     @Id
     @Column(name = "ID")
@@ -24,7 +21,10 @@ public class InterventionEntity  implements Serializable {
     private Long id;
 
     @Column(name = "UUID")
-    private UUID uuid;
+    private UUID uuid = UUID.randomUUID();
+
+    @Column(name = "EXTERNAL_REFERENCE")
+    private String externalReference;
 
     @Column(name = "DESCRIPTION")
     private String description;
@@ -35,7 +35,4 @@ public class InterventionEntity  implements Serializable {
     @Column(name = "ACTIVE")
     private boolean active;
 
-    @ManyToOne
-    @JoinColumn(name = "SENTENCE_PLAN_UUID", referencedColumnName = "UUID")
-    private SentencePlanEntity sentencePlan;
 }

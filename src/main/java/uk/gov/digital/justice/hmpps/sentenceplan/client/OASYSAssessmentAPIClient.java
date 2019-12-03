@@ -10,6 +10,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.LogEvent;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysAssessment;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysOffender;
+import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysRefElement;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysSentencePlan;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.exception.OasysClientException;
 
@@ -73,6 +74,16 @@ public class OASYSAssessmentAPIClient {
             }
             log.error("Failed to retrieve sentence plans for offender", LogEvent.OASYS_ASSESSMENT_CLIENT_FAILURE);
             throw new OasysClientException("Failed to retrieve sentence plans for offender");
+        }
+    }
+
+    public List<OasysRefElement> getInterventionRefData() {
+        try {
+            return restTemplate.exchange(assessmentApiBasePath + "/referencedata/INTERVENTION",HttpMethod.GET, null, new ParameterizedTypeReference<List<OasysRefElement>>() {}).getBody();
+        }
+        catch(HttpClientErrorException e) {
+            log.error("Failed to retrieve intervention reference data", LogEvent.OASYS_ASSESSMENT_CLIENT_FAILURE);
+            throw new OasysClientException("Failed to retrieve intervention reference data");
         }
     }
 }

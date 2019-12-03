@@ -51,14 +51,4 @@ CREATE TABLE IF NOT EXISTS NEED
   CONSTRAINT fk_need_sentenceplan FOREIGN KEY (SENTENCE_PLAN_UUID) REFERENCES SENTENCE_PLAN (UUID)
 );
 
-DROP TABLE IF EXISTS INTERVENTION;
 
-CREATE TABLE IF NOT EXISTS INTERVENTION
-(
-  ID                                SERIAL        PRIMARY KEY,
-  UUID                              UUID          NOT NULL,
-  SHORT_DESCRIPTION                 TEXT          NOT NULL,
-  DESCRIPTION                       TEXT          NOT NULL,
-  ACTIVE                            BOOLEAN       NOT NULL,
-  CONSTRAINT intervention_uuid_idempotent UNIQUE (UUID)
-);
