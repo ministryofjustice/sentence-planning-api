@@ -96,12 +96,10 @@ public class SentenceBoardReviewServiceTest {
     }
 
     private SentencePlanEntity getNewSentencePlan(UUID uuid) {
-
-        return SentencePlanEntity.builder()
-                .createdDate(LocalDateTime.of(2019,6,1, 11,00))
-                .startedDate(null)
-                .uuid(uuid)
-                .needs(List.of(NeedEntity.builder().uuid(UUID.fromString("11111111-1111-1111-1111-111111111111")).description("description").build()))
-                .data(new SentencePlanPropertiesEntity()).build();
+        var needs = List.of(NeedEntity.builder().uuid(UUID.fromString("11111111-1111-1111-1111-111111111111")).description("description").build());
+        var plan = new  SentencePlanEntity();
+        plan.setUuid(uuid);
+        plan.setNeeds(needs);
+        return plan;
     }
 }
