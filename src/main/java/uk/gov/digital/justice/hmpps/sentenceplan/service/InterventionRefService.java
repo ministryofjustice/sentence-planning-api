@@ -21,7 +21,6 @@ public class InterventionRefService {
         this.oasysAssessmentAPIClient = oasysAssessmentAPIClient;
     }
 
-
     public List<InterventionRefEntity> getActiveInterventions() {
         return interventionRespository.findAllByActiveIsTrue();
     }
@@ -34,10 +33,8 @@ public class InterventionRefService {
     public void refreshInterventions() {
         var updatedInterventions = oasysAssessmentAPIClient.getInterventionRefData();
         var existingInterventions = interventionRespository.findAll();
-        var updatedInterventionCodes = updatedInterventions.stream().map(i -> i.getCode()).collect(Collectors.toList());
 
-        //set removed interventions to inactive
-        existingInterventions.stream().filter(i -> !updatedInterventionCodes.contains(i)).forEach(i -> i.setActive(false));
+        existingInterventions.stream().forEach(i -> i.setActive(false));
 
         //add new and update existing interventions
         updatedInterventions.stream().forEach(
