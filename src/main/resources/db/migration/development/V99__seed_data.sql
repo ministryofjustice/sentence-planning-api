@@ -15,14 +15,14 @@ VALUES ('38731914-701d-4b4e-abd3-1e0a6375f0b2', 'Pre-contemplation', 'In the dar
 
 
 --Empty Plan
-INSERT INTO sentence_plan (uuid, created_date, started_date, completed_date, data, assessment_needs_last_imported_on, offender_uuid)
-VALUES ('234e4a8e-8287-4be5-86d0-0c4b30257f8a', '2019-11-13 14:38:47.779555', null, '2019-11-14 08:05:52.503931',
+INSERT INTO sentence_plan (uuid, created_on, created_by, started_date, completed_date, data, assessment_needs_last_imported_on, offender_uuid)
+VALUES ('234e4a8e-8287-4be5-86d0-0c4b30257f8a', '2019-11-13 14:38:47.779555', 'system', null, '2019-11-14 08:05:52.503931',
 '{}', '2019-11-14 08:12:39.719172', '11111111-1111-1111-1111-111111111111');
 
 
 -- Full plan
-INSERT INTO sentence_plan (uuid, created_date, started_date, completed_date, data, assessment_needs_last_imported_on, offender_uuid)
-VALUES ('033ef9aa-8bb9-4638-8abb-9a98394a959c', '2019-11-14 08:11:53.177108', null, null,
+INSERT INTO sentence_plan (uuid, created_on, created_by, started_date, completed_date, data, assessment_needs_last_imported_on, offender_uuid)
+VALUES ('033ef9aa-8bb9-4638-8abb-9a98394a959c', '2019-11-14 08:11:53.177108', 'system', null, null,
 '{
     "comments": {
         "YOUR_RESPONSIVITY": {

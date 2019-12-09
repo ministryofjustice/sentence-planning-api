@@ -444,9 +444,9 @@ public class SentencePlanServiceTest {
         var sentencePlan1 = getNewSentencePlan(UUID.fromString("11111111-1111-1111-1111-111111111111"));
         var sentencePlan2 = getNewSentencePlan(UUID.fromString("22222222-2222-2222-2222-222222222222"));
         var sentencePlan3 = getNewSentencePlan(UUID.fromString("33333333-3333-3333-3333-333333333333"));
-        sentencePlan1.setCreatedDate(LocalDateTime.of(2019,1,2,1,0));
-        sentencePlan2.setCreatedDate(LocalDateTime.of(2019,1,1,1,0));
-        sentencePlan3.setCreatedDate(LocalDateTime.of(2019,1,3,1,0));
+        sentencePlan1.setCreatedOn(LocalDateTime.of(2019,1,2,1,0));
+        sentencePlan2.setCreatedOn(LocalDateTime.of(2019,1,1,1,0));
+        sentencePlan3.setCreatedOn(LocalDateTime.of(2019,1,3,1,0));
 
         when(sentencePlanRepository.findByOffenderUuid(offender.getUuid())).thenReturn(List.of(sentencePlan1,sentencePlan2,sentencePlan3));
 
@@ -513,6 +513,9 @@ public class SentencePlanServiceTest {
 
         return new SentencePlanEntity(1L,sentencePlanUuid,
                 LocalDateTime.of(2019,6,1, 11,00),
+                LocalDateTime.of(2019,7,1, 11,00),
+                LocalDateTime.of(2019,7,1, 11,00),
+                "any user",
                 LocalDateTime.of(2019,7,1, 11,00),
                 null,sentencePlanProperty, null, offender, null);
 

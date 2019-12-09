@@ -51,7 +51,7 @@ public class SentencePlan {
                                 data.getChildSafeguardingIndicated(),
                                 data.getComplyWithChildProtectionPlanIndicated(),
                                 Offender.from(offenderEntity),
-                                sentencePlan.getCreatedDate(),
+                                sentencePlan.getCreatedOn(),
                                 draft);
     }
 }
