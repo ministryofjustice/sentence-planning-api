@@ -21,7 +21,6 @@ public class InterventionRefService {
         this.oasysAssessmentAPIClient = oasysAssessmentAPIClient;
     }
 
-
     public List<InterventionRefEntity> getActiveInterventions() {
         return interventionRespository.findAllByActiveIsTrue();
     }

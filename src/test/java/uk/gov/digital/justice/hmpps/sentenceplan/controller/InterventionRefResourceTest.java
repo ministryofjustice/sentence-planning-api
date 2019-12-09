@@ -76,6 +76,7 @@ public class InterventionRefResourceTest {
     @Test
     public void shouldReturnActiveInterventionsData() {
 
+
         var result = given()
                 .when()
                 .header("Accept", "application/json")
@@ -99,7 +100,6 @@ public class InterventionRefResourceTest {
         assertThat(result[2].getUuid()).isEqualTo(UUID.fromString("33333333-3333-3333-3333-333333333333"));
         assertThat(result[2].getShortDescription()).isEqualTo("Inv 3");
         assertThat(result[2].getLongDescription()).isEqualTo("Intervention 3");
-
     }
 
     @Test
@@ -259,10 +259,8 @@ public class InterventionRefResourceTest {
 
         var intervention1 = Arrays.stream(result).filter(i->i.getUuid().equals(UUID.fromString("11111111-1111-1111-1111-111111111111"))).findFirst();
         assertThat(intervention1).isEmpty();
-
         var intervention2 = Arrays.stream(result).filter(i->i.getUuid().equals(UUID.fromString("22222222-2222-2222-2222-222222222222"))).findFirst();
         assertThat(intervention2).isNotEmpty();
-
     }
 
     private MockRestServiceServer createMockOasysInterventions() throws JsonProcessingException {
