@@ -7,13 +7,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.MotivationRef;
-import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.MotivationRefEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.MotivationRefService;
 
 import java.util.List;
 
 @Api(tags = {"Motivation Data API"})
-
 @RestController
 @RequestMapping(
         produces = MediaType.APPLICATION_JSON_VALUE)

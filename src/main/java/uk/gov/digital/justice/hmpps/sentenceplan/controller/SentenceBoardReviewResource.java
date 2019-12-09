@@ -30,7 +30,7 @@ public class SentenceBoardReviewResource {
 
     @PostMapping(value = "/sentenceplans/{sentencePlanUUID}/reviews", produces = "application/json")
     @ApiOperation(value = "Add a Board Review to a Sentence Plan")
-    ResponseEntity addReview(@ApiParam(value = "Sentence Plan ID", required = true) @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Review details", required = true) @RequestBody @Valid AddSentenceBoardReviewRequest review) {
+    ResponseEntity addReview(@ApiParam(value = "Sentence Plan ID", required = true) @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Review details", required = true, example = "11111111-1111-1111-1111-111111111111") @RequestBody @Valid AddSentenceBoardReviewRequest review) {
         sentenceBoardReviewService.addSentenceBoardReview(
                 sentencePlanUUID,
                 review.getComments(),
@@ -41,14 +41,14 @@ public class SentenceBoardReviewResource {
 
     @GetMapping(value = "/sentenceplans/{sentencePlanUUID}/reviews", produces = "application/json")
     @ApiOperation(value = "Gets all Sentence Plan Board Reviews")
-    ResponseEntity<List<SentenceBoardReviewSummary>> getAllReviews(@ApiParam(value = "Sentence Plan ID", required = true) @PathVariable UUID sentencePlanUUID) {
+    ResponseEntity<List<SentenceBoardReviewSummary>> getAllReviews(@ApiParam(value = "Sentence Plan ID", required = true, example = "11111111-1111-1111-1111-111111111111") @PathVariable UUID sentencePlanUUID) {
         return ResponseEntity.ok(SentenceBoardReviewSummary.from(sentenceBoardReviewService.getSentenceBoardReviewsBySentencePlanUUID(
                 sentencePlanUUID)));
     }
 
     @GetMapping(value = "/sentenceplans/{sentencePlanUUID}/reviews/{sentenceBoardReviewUUID}", produces = "application/json")
     @ApiOperation(value = "Get a Sentence Board Review for a Sentence Plan")
-    ResponseEntity<SentenceBoardReview> getReview(@ApiParam(value = "Sentence Plan ID", required = true) @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Sentence Board Review ID", required = true) @PathVariable UUID sentenceBoardReviewUUID) {
+    ResponseEntity<SentenceBoardReview> getReview(@ApiParam(value = "Sentence Plan ID", required = true, example = "11111111-1111-1111-1111-111111111111") @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Sentence Board Review ID", required = true) @PathVariable UUID sentenceBoardReviewUUID) {
         return ResponseEntity.ok(SentenceBoardReview.from(sentenceBoardReviewService.getSentenceBoardReviewBySentencePlanUUID(sentencePlanUUID, sentenceBoardReviewUUID)));
     }
 }

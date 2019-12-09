@@ -1,5 +1,6 @@
 package uk.gov.digital.justice.hmpps.sentenceplan.api;
 
+import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
+@ApiModel(description = "Sentence Plan Summary model")
 public class SentencePlanSummary {
     private String planId;
     private LocalDate createdDate;
