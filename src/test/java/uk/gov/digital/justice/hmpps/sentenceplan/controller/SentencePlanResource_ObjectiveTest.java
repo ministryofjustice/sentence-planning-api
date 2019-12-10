@@ -80,7 +80,7 @@ public class SentencePlanResource_ObjectiveTest {
     }
 
     @Test
-    public void shouldCreateActionOnExistingPlan() throws JsonProcessingException {
+    public void shouldCreateObjectiveOnExistingPlan() throws JsonProcessingException {
         createMockAssessmentDataForOffender(789123L);
         var needs = List.of(UUID.fromString("9acddbd3-af5e-4b41-a710-018064700eb5"),
                 UUID.fromString("51c293ec-b2c4-491c-ade5-34375e1cd495"));
@@ -88,13 +88,16 @@ public class SentencePlanResource_ObjectiveTest {
                 "new objective description",
                 needs);
 
-                given()
-                .when()
-                .body(requestBody)
-                .header("Content-Type", "application/json")
-                .post("/sentenceplans/{0}/objectives", SENTENCE_PLAN_ID_EMPTY)
-                .then()
-                .statusCode(200);
+        var objective = given()
+                    .when()
+                    .body(requestBody)
+                    .header("Content-Type", "application/json")
+                    .post("/sentenceplans/{0}/objectives", SENTENCE_PLAN_ID_EMPTY)
+                    .then()
+                    .statusCode(200)
+                    .extract()
+                    .body()
+                    .as(Objective.class);
 
         var result = given()
                 .when()
@@ -107,7 +110,6 @@ public class SentencePlanResource_ObjectiveTest {
                 .as(SentencePlan.class);
 
         assertThat(result.getObjectives()).hasSize(1);
-        var objective = result.getObjectives().stream().filter(a->a.getDescription().endsWith("new objective description")).findAny().get();
         assertThat(objective.getNeeds()).containsExactlyInAnyOrderElementsOf(needs);
 
     }

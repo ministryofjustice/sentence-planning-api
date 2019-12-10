@@ -104,17 +104,17 @@ public class SentencePlanServiceTest {
 
     @Test
     public void shouldAddObjectiveToSentencePlan() {
-        var objective = ArgumentCaptor.forClass(ObjectiveEntity.class);
         var newSentencePlan = mock(SentencePlanEntity.class);
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(newSentencePlan);
         var needs = List.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
-        service.addObjective(sentencePlanUuid, "Objective 1", needs);
-        verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
-        verify(newSentencePlan,times(1)).addObjective(objective.capture());
+        var objective = service.addObjective(sentencePlanUuid, "Objective 1", needs);
 
-        assertThat(objective.getValue().getActions()).isEmpty();
-        assertThat(objective.getValue().getDescription()).isEqualTo("Objective 1");
-        assertThat(objective.getValue().getNeeds()).containsExactlyElementsOf(needs);
+        verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
+        verify(newSentencePlan,times(1)).addObjective(any());
+
+        assertThat(objective.getActions()).isEmpty();
+        assertThat(objective.getDescription()).isEqualTo("Objective 1");
+        assertThat(objective.getNeeds()).containsExactlyElementsOf(needs);
 
     }
 

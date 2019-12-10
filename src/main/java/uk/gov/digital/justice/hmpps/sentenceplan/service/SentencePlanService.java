@@ -56,11 +56,12 @@ public class SentencePlanService {
     }
 
     @Transactional
-    public void addObjective(UUID sentencePlanUUID, String description, List<UUID> needs) {
+    public ObjectiveEntity addObjective(UUID sentencePlanUUID, String description, List<UUID> needs) {
         var sentencePlanEntity = getSentencePlanEntity(sentencePlanUUID);
         var objectiveEntity = new ObjectiveEntity(description, needs);
         sentencePlanEntity.addObjective(objectiveEntity);
         log.info("Created Objective for Sentence Plan {}", sentencePlanUUID, value(EVENT, SENTENCE_PLAN_OBJECTIVE_CREATED));
+        return objectiveEntity;
     }
 
     @Transactional
