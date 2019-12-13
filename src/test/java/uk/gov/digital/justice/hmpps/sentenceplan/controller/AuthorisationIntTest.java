@@ -20,22 +20,21 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
+import uk.gov.digital.justice.hmpps.sentenceplan.api.AddSentenceBoardReviewRequest;
+import uk.gov.digital.justice.hmpps.sentenceplan.api.SentenceBoardReview;
+import uk.gov.digital.justice.hmpps.sentenceplan.api.SentenceBoardReviewSummary;
+import uk.gov.digital.justice.hmpps.sentenceplan.api.SentencePlan;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.RequestData;
-import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.*;
+import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.AssessmentNeed;
+import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysAssessment;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
-import uk.gov.digital.justice.hmpps.sentenceplan.service.OffenderReferenceType;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
-import static java.util.Collections.EMPTY_LIST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 import static org.springframework.test.web.client.ExpectedCount.between;
@@ -50,8 +49,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Sql(scripts = "classpath:sentencePlan/before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
 @Sql(scripts = "classpath:sentencePlan/after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
-public class SentenceBoardReviewResourceTest {
-
+public class AuthorisationIntTest {
 
     @LocalServerPort
     int port;
@@ -62,13 +60,8 @@ public class SentenceBoardReviewResourceTest {
     @Autowired
     OAuth2RestTemplate oauthRestTemplate;
 
-    @Autowired
-    SentencePlanRepository sentencePlanRepository;
-
     private final String SENTENCE_PLAN_ID = "11111111-1111-1111-1111-111111111111";
     private final String USER = "TEST_USER";
-    private final String SBR_ID = "11111111-4444-4444-4444-111111111111";
-
 
     @Before
     public void setup() {
@@ -80,79 +73,60 @@ public class SentenceBoardReviewResourceTest {
         oauthRestTemplate.getOAuth2ClientContext().setAccessToken(
                 new DefaultOAuth2AccessToken("accesstoken")
         );
-
     }
 
     @Test
-    public void shouldGetSentenceBoardReviewSummaries() throws JsonProcessingException {
+    public void shouldReturn200IfUserIsAuthorisedToAccessSentencePlan() throws JsonProcessingException {
 
-        createMockAuthService();
-
+        createAuthorisedMockAuthService();
         var result = given()
                 .when()
                 .header("Accept", "application/json")
                 .header(RequestData.USERNAME_HEADER, USER)
-                .get("/sentenceplans/{sentencePlanUUID}/reviews", SENTENCE_PLAN_ID)
-                .then()
-                .statusCode(200)
-                .extract()
-                .body()
-                .jsonPath().getList(".", SentenceBoardReviewSummary.class);
-
-        assertThat(result.get(0).getId().toString()).isEqualTo(SBR_ID);
-        assertThat(result.get(0).getDateOfBoard()).isEqualTo(LocalDate.of(2019,11,14));
-
-    }
-
-    @Test
-    public void shouldGetSentenceBoardReview() throws JsonProcessingException {
-        createMockAuthService();
-        var result = given()
-                .when()
-                .header("Accept", "application/json")
-                .header(RequestData.USERNAME_HEADER, USER)
-                .get("/sentenceplans/{sentencePlanUUID}/reviews/{sentenceBoardReviewUUID}", SENTENCE_PLAN_ID, SBR_ID)
-                .then()
-                .statusCode(200)
-                .extract()
-                .body()
-                .as(SentenceBoardReview.class);
-
-        assertThat(result.getId().toString()).isEqualTo(SBR_ID);
-        assertThat(result.getDateOfBoard()).isEqualTo(LocalDate.of(2019,11,14));
-        assertThat(result.getAttendees()).isEqualTo("Any Attendees");
-        assertThat(result.getComments()).isEqualTo("Any Comments");
-    }
-
-    @Test
-    public void shouldCreateSentenceBoardReview() throws JsonProcessingException {
-        createMockAuthService();
-                given()
-                .when()
-                        .header(RequestData.USERNAME_HEADER, USER)
-                .body(new AddSentenceBoardReviewRequest("any", "any", LocalDate.now()))
-                .header("Content-Type", "application/json")
-                .post("/sentenceplans/{sentencePlanUUID}/reviews", SENTENCE_PLAN_ID)
+                .get("/sentenceplans/{0}", SENTENCE_PLAN_ID)
                 .then()
                 .statusCode(200);
+    }
 
-        var response = given()
+    @Test
+    public void shouldReturn401IfUserIsNotAuthorisedToAccessSentencePlan() throws JsonProcessingException {
+
+        createNotAuthorisedMockAuthService();
+        var result = given()
                 .when()
                 .header("Accept", "application/json")
                 .header(RequestData.USERNAME_HEADER, USER)
-                .get("/sentenceplans/{sentencePlanUUID}/reviews", SENTENCE_PLAN_ID)
+                .get("/sentenceplans/{0}", SENTENCE_PLAN_ID)
                 .then()
-                .statusCode(200)
-                .extract()
-                .body()
-                .jsonPath().getList(".", SentenceBoardReviewSummary.class);
-
-        assertThat(response.size()).isEqualTo(2);
+                .statusCode(401);
     }
 
-    private void createMockAuthService() {
-        bindTo(oauthRestTemplate).ignoreExpectOrder(true).build().expect(between(1,2), requestTo("http://localhost:8081/authentication/user/" + USER + "/offender/" + 123456L))
+    private MockRestServiceServer createMockAssessmentDataForOffender(Long offenderId) throws JsonProcessingException {
+        var assessmentApi = bindTo(oauthRestTemplate).ignoreExpectOrder(true).build();
+
+        var needs = List.of(new AssessmentNeed("Alcohol", true, true, true, true),
+                new AssessmentNeed("Accommodation", true, true, true, true));
+
+        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/"+ offenderId + "/assessments/latest?assessmentType=LAYER_3"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(mapper.writeValueAsString(new OasysAssessment(123456L, "ACTIVE", needs, true)), MediaType.APPLICATION_JSON));
+
+        return assessmentApi;
+    }
+
+    private void createAuthorisedMockAuthService() throws JsonProcessingException {
+        var asssessmentApi = createMockAssessmentDataForOffender(123456L);
+
+        asssessmentApi.expect(between(1,2), requestTo("http://localhost:8081/authentication/user/" + USER + "/offender/" + 123456L))
                 .andExpect(method(GET))
                 .andRespond(withSuccess());
+    }
+
+    private void createNotAuthorisedMockAuthService() throws JsonProcessingException {
+        var asssessmentApi = createMockAssessmentDataForOffender(123456L);
+
+        asssessmentApi.expect(between(1,2), requestTo("http://localhost:8081/authentication/user/" + USER + "/offender/" + 123456L))
+                .andExpect(method(GET))
+                .andRespond(withStatus(HttpStatus.UNAUTHORIZED));
     }
 }

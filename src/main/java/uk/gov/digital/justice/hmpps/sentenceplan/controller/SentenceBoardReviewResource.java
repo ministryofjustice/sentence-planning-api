@@ -8,6 +8,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
+import uk.gov.digital.justice.hmpps.sentenceplan.security.AccessLevel;
+import uk.gov.digital.justice.hmpps.sentenceplan.security.Authorised;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.SentenceBoardReviewService;
 
 import javax.validation.Valid;
@@ -30,6 +32,7 @@ public class SentenceBoardReviewResource {
 
     @PostMapping(value = "/sentenceplans/{sentencePlanUUID}/reviews", produces = "application/json")
     @ApiOperation(value = "Add a Board Review to a Sentence Plan")
+    @Authorised(accessLevel = AccessLevel.WRITE_SENTENCE_PLAN)
     ResponseEntity addReview(@ApiParam(value = "Sentence Plan ID", required = true) @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Review details", required = true, example = "11111111-1111-1111-1111-111111111111") @RequestBody @Valid AddSentenceBoardReviewRequest review) {
         sentenceBoardReviewService.addSentenceBoardReview(
                 sentencePlanUUID,
@@ -41,6 +44,7 @@ public class SentenceBoardReviewResource {
 
     @GetMapping(value = "/sentenceplans/{sentencePlanUUID}/reviews", produces = "application/json")
     @ApiOperation(value = "Gets all Sentence Plan Board Reviews")
+    @Authorised(accessLevel = AccessLevel.READ_SENTENCE_PLAN)
     ResponseEntity<List<SentenceBoardReviewSummary>> getAllReviews(@ApiParam(value = "Sentence Plan ID", required = true, example = "11111111-1111-1111-1111-111111111111") @PathVariable UUID sentencePlanUUID) {
         return ResponseEntity.ok(SentenceBoardReviewSummary.from(sentenceBoardReviewService.getSentenceBoardReviewsBySentencePlanUUID(
                 sentencePlanUUID)));
@@ -48,6 +52,7 @@ public class SentenceBoardReviewResource {
 
     @GetMapping(value = "/sentenceplans/{sentencePlanUUID}/reviews/{sentenceBoardReviewUUID}", produces = "application/json")
     @ApiOperation(value = "Get a Sentence Board Review for a Sentence Plan")
+    @Authorised(accessLevel = AccessLevel.READ_SENTENCE_PLAN)
     ResponseEntity<SentenceBoardReview> getReview(@ApiParam(value = "Sentence Plan ID", required = true, example = "11111111-1111-1111-1111-111111111111") @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Sentence Board Review ID", required = true) @PathVariable UUID sentenceBoardReviewUUID) {
         return ResponseEntity.ok(SentenceBoardReview.from(sentenceBoardReviewService.getSentenceBoardReviewBySentencePlanUUID(sentencePlanUUID, sentenceBoardReviewUUID)));
     }

@@ -4,15 +4,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClientException;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.LogEvent;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysAssessment;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysOffender;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysRefElement;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysSentencePlan;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.exception.OasysClientException;
+import uk.gov.digital.justice.hmpps.sentenceplan.security.AccessLevel;
 
 import java.util.Collections;
 import java.util.List;
@@ -84,6 +87,18 @@ public class OASYSAssessmentAPIClient {
         catch(HttpClientErrorException e) {
             log.error("Failed to retrieve intervention reference data", LogEvent.OASYS_ASSESSMENT_CLIENT_FAILURE);
             throw new OasysClientException("Failed to retrieve intervention reference data");
+        }
+    }
+
+    public boolean authoriseUserAccess(String username, Long oasysOffenderId, AccessLevel accessLevel) {
+        try {
+             var response = restTemplate.getForEntity(assessmentApiBasePath + "/authentication/user/{oasysUserId}/offender/{offenderId}",
+                    String.class, username , oasysOffenderId);
+             return response.getStatusCode().equals(HttpStatus.OK);
+        }
+        catch(RuntimeException e) {
+            log.warn("Failed to authorise User {}", username, LogEvent.USER_AUTHORISATION_FAILURE);
+            return false;
         }
     }
 }

@@ -5,11 +5,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.ErrorResponse;
+import uk.gov.digital.justice.hmpps.sentenceplan.security.AuthorisationException;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.CurrentSentencePlanForOffenderExistsException;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.NoOffenderAssessmentException;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+
+import static org.springframework.http.HttpStatus.*;
 
 @ControllerAdvice
 @Slf4j
@@ -47,5 +48,11 @@ public class RestResponseEntityExceptionHandler {
                 .userMessage("Assessment not found for offender").build(), BAD_REQUEST);
     }
 
-
+    @ExceptionHandler(AuthorisationException.class)
+    public ResponseEntity<ErrorResponse> handle(AuthorisationException e) {
+        log.error("AuthorisationException: {}", e.getMessage());
+        return new ResponseEntity<>(ErrorResponse.builder().status(401)
+                .developerMessage(e.getMessage())
+                .userMessage(e.getMessage()).build(), UNAUTHORIZED);
+    }
 }

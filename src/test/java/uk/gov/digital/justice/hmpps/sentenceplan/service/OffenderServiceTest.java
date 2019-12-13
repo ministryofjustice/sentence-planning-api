@@ -26,7 +26,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner.PRACTITIONER;
 import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner.SERVICE_USER;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -58,7 +57,7 @@ public class OffenderServiceTest {
         when(oasysAssessmentAPIClient.getOffenderById(123456L))
                 .thenReturn(Optional.ofNullable(offender));
 
-        offenderService.getOffenderByType("123456", OffenderReferenceType.OASYS);
+        offenderService.getOffenderByType(123456L);
 
         verify( offenderRespository, times(1)).save(any());
 
@@ -71,7 +70,7 @@ public class OffenderServiceTest {
 
         when(offenderRespository.findByOasysOffenderId(123456L)).thenReturn(Optional.ofNullable(offender));
 
-        offenderService.getOffenderByType("123456", OffenderReferenceType.OASYS);
+        offenderService.getOffenderByType(123456L);
 
         verify( offenderRespository, never()).save(any());
         verify( oasysAssessmentAPIClient, never()).getOffenderById(123456L);
@@ -83,7 +82,7 @@ public class OffenderServiceTest {
         when(oasysAssessmentAPIClient.getOffenderById(123456L))
                 .thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> {  offenderService.getOffenderByType("123456",OffenderReferenceType.OASYS);})
+        assertThatThrownBy(() -> {  offenderService.getOffenderByType(123456L);})
                 .isInstanceOf(EntityNotFoundException.class);
     }
 
@@ -108,6 +107,14 @@ public class OffenderServiceTest {
 
         offenderService.updateOasysOffender(sentencePlan);
         verify(oasysAssessmentAPIClient, times(0)).getOffenderById(1L);
+    }
+
+    @Test
+    public void shouldGetOffenderForSentencePlan() {
+        var offender = mock(OffenderEntity.class);
+        when(offenderRespository.findOffenderBySentencePlanUuid(sentencePlanUuid)).thenReturn(offender);
+        offenderService.getSentencePlanOffender(sentencePlanUuid);
+        verify(offenderRespository, times(1)).findOffenderBySentencePlanUuid(sentencePlanUuid);
     }
 
     private SentencePlanEntity getSentencePlanWithOffender() {

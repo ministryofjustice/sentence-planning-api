@@ -35,8 +35,8 @@ public class SentencePlanService {
     }
 
     @Transactional
-    public SentencePlanEntity createSentencePlan(String offenderId, OffenderReferenceType offenderReferenceType) {
-        var offender = offenderService.getOffenderByType(offenderId, offenderReferenceType);
+    public SentencePlanEntity createSentencePlan(Long offenderId) {
+        var offender = offenderService.getOffenderByType(offenderId);
 
         if (getCurrentSentencePlan(offender.getUuid()).isPresent()) {
             throw new CurrentSentencePlanForOffenderExistsException("Offender already has a current sentence plan");
@@ -164,7 +164,7 @@ public class SentencePlanService {
     }
 
     public List<SentencePlanSummary> getSentencePlansForOffender(Long oasysOffenderId) {
-        var offender = offenderService.getOasysOffender(Long.toString(oasysOffenderId)).getUuid();
+        var offender = offenderService.getOasysOffender(oasysOffenderId).getUuid();
 
         var newSentencePlans = sentencePlanRepository.findByOffenderUuid(offender);
         var oasysSentencePlans = oasysAssessmentAPIClient.getSentencePlansForOffender(oasysOffenderId);
@@ -185,7 +185,7 @@ public class SentencePlanService {
                 .orElseThrow(() -> new EntityNotFoundException("OASys sentence plan does not exist for offender."));
     }
 
-    public SentencePlanEntity getCurrentSentencePlanForOffender(String offenderId) {
+    public SentencePlanEntity getCurrentSentencePlanForOffender(Long offenderId) {
         var offender = offenderService.getOasysOffender(offenderId);
         var activeSentencePlan = getCurrentSentencePlan(offender.getUuid());
         if(activeSentencePlan.isPresent()) {
@@ -232,7 +232,6 @@ public class SentencePlanService {
         return Optional.ofNullable(sentencePlanRepository.findByUuid(sentencePlanUuid))
                 .orElseThrow(() -> new EntityNotFoundException(String.format("Sentence Plan %s not found", sentencePlanUuid)));
     }
-
 
     public Collection<ObjectiveEntity> getSentencePlanObjectives(UUID sentencePlanUUID) {
         var sentencePlanEntity = getSentencePlanEntity(sentencePlanUUID);
