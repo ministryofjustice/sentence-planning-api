@@ -1,0 +1,21 @@
+pipeline {
+  agent {
+    kubernetes {
+      yamlFile 'CodeQualityAgent.yaml'
+    }
+  }
+  stages {
+    stage('Sonar scanner') {
+      steps {
+        sh 'set'
+        container('sonar-scanner') {
+          withCredentials([string(credentialsId: 'hmpps-pcs-tooling-sonarqube-user-token', variable: 'SONAR_TOKEN')]) {
+            withEnv(["SONAR_PROJECT_KEY=sentence-planning-api:${env.GIT_BRANCH}"]) {
+              sh './sonar-entrypoint.sh'
+            }
+          }
+        }
+      }
+    }
+  }
+}
