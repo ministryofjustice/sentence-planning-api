@@ -20,6 +20,7 @@ import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
+import uk.gov.digital.justice.hmpps.sentenceplan.application.RequestData;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.AssessmentNeed;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysAssessment;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysIdentifiers;
@@ -32,6 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
+import static org.springframework.test.web.client.ExpectedCount.between;
 import static org.springframework.test.web.client.MockRestServiceServer.bindTo;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
@@ -43,6 +45,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 @Sql(scripts = "classpath:need/before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
 @Sql(scripts = "classpath:need/after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
 public class SentencePlanResource_NeedTest {
+
 
     @LocalServerPort
     int port;
@@ -56,6 +59,7 @@ public class SentencePlanResource_NeedTest {
     @Autowired
     SentencePlanRepository sentencePlanRepository;
 
+    private static final String USER = "TEST_USER";
     private final String SENTENCE_PLAN_ID = "11111111-1111-1111-1111-111111111111";
     private final String NO_NEEDS_SENTENCE_PLAN_ID = "22222222-2222-2222-2222-222222222222";
     private final String NOT_FOUND_SENTENCE_PLAN_ID = "99999999-9999-9999-9999-999999999999";
@@ -74,11 +78,12 @@ public class SentencePlanResource_NeedTest {
 
     @Test
     public void shouldGetNeedsWhenSentencePlanExists() throws JsonProcessingException {
-        setupMockRestServiceServer(123456L);
-
+        var assessmentApi = setupMockRestServiceServer(123456L);
+        createMockAuthService(123456L, assessmentApi);
         var result = given()
                 .when()
                 .header("Accept", "application/json")
+                .header(RequestData.USERNAME_HEADER, USER)
                 .get("/sentenceplans/{0}/needs", SENTENCE_PLAN_ID)
                 .then()
                 .statusCode(200)
@@ -91,11 +96,12 @@ public class SentencePlanResource_NeedTest {
 
     @Test
     public void shouldGetEmptyArrayWhenNoNeedsExist() throws JsonProcessingException {
-        setupMockRestServiceServerNoNeeds();
-
+        var assessmentApi = setupMockRestServiceServerNoNeeds();
+        createMockAuthService(789123L, assessmentApi);
         var result = given()
                 .when()
                 .header("Accept", "application/json")
+                .header(RequestData.USERNAME_HEADER, USER)
                 .get("/sentenceplans/{0}/needs", NO_NEEDS_SENTENCE_PLAN_ID)
                 .then()
                 .statusCode(200)
@@ -110,6 +116,7 @@ public class SentencePlanResource_NeedTest {
     public void shouldReturnNotFoundForNonexistentPlan() {
         var result = given()
                 .when()
+                .header(RequestData.USERNAME_HEADER, USER)
                 .get("/sentenceplans/{0}/needs", NOT_FOUND_SENTENCE_PLAN_ID)
                 .then()
                 .statusCode(404)
@@ -126,20 +133,17 @@ public class SentencePlanResource_NeedTest {
     public void shouldSetNeedsWhenCreatingNewPlan() throws JsonProcessingException {
 
         var assessmentApi = setupMockRestServiceServer(123L);
+        createMockAuthService(123L, assessmentApi);
 
         assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123/summary"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(123L, "Gary", "Smith", "", "", new OasysIdentifiers("12345678", 123L))), MediaType.APPLICATION_JSON));
 
-
-        var requestBody = new CreateSentencePlanRequest("123", OffenderReferenceType.OASYS);
-
         var sentencePlan = given()
                 .when()
                 .header("Accept", "application/json")
-                .body(requestBody)
-                .header("Content-Type", "application/json")
-                .post("/sentenceplans")
+                .header(RequestData.USERNAME_HEADER, USER)
+                .post("/offenders/{oasysOffenderId}/sentenceplans", 123L)
                 .then()
                 .statusCode(201)
                 .extract()
@@ -169,6 +173,12 @@ public class SentencePlanResource_NeedTest {
                 .andExpect(method(GET))
                 .andRespond(withSuccess(mapper.writeValueAsString(new OasysAssessment(789123L, "ACTIVE", null, true)), MediaType.APPLICATION_JSON));
         return assessmentApi;
+    }
+
+    private void createMockAuthService(Long offenderId, MockRestServiceServer assessmentApi) {
+        assessmentApi.expect(between(1,2), requestTo("http://localhost:8081/authentication/user/" + USER + "/offender/" + offenderId))
+                .andExpect(method(GET))
+                .andRespond(withSuccess());
     }
 
 

@@ -11,6 +11,8 @@ import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.OffenderResposit
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.UUID;
 
 
 @Service
@@ -28,23 +30,19 @@ private Clock clock;
 
     public void updateOasysOffender(SentencePlanEntity sentencePlanEntity) {
         if(sentencePlanEntity.getOffender().getOasysOffenderLastImportedOn() == null || sentencePlanEntity.getOffender().getOasysOffenderLastImportedOn().getDayOfYear() < LocalDateTime.now(clock).getDayOfYear()) {
-            var offenderId = sentencePlanEntity.getOffender().getOasysOffenderId().toString();
+            var offenderId = sentencePlanEntity.getOffender().getOasysOffenderId();
             var offender = getOasysOffender(offenderId);
             sentencePlanEntity.getOffender().updateIdentityDetails(offender);
         }
     }
 
-    public OffenderEntity getOasysOffender(String offenderId) {
-        return getOffenderByType(offenderId, OffenderReferenceType.OASYS);
+    public OffenderEntity getOasysOffender(Long offenderId) {
+        return getOffenderByType(offenderId);
     }
 
 
-    public OffenderEntity getOffenderByType(String offenderId, OffenderReferenceType offenderReferenceType) {
-        switch (offenderReferenceType) {
-            case OASYS:
-                return retrieveOasysOffender(Long.parseLong(offenderId));
-        }
-        throw new RuntimeException("Unknown offender reference type");
+    public OffenderEntity getOffenderByType(Long offenderId) {
+        return retrieveOasysOffender(offenderId);
     }
 
     private OffenderEntity retrieveOasysOffender(long offenderId) {
@@ -59,5 +57,9 @@ private Clock clock;
         return offender;
     }
 
+    public OffenderEntity getSentencePlanOffender(UUID sentencePlanUuid) {
+        return Optional.ofNullable(offenderRespository.findOffenderBySentencePlanUuid(sentencePlanUuid))
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Sentence Plan %s not found", sentencePlanUuid)));
+    }
 
 }

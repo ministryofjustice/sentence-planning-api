@@ -12,11 +12,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
+import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.web.client.MockRestServiceServer;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
+import uk.gov.digital.justice.hmpps.sentenceplan.application.RequestData;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
 
 import java.time.YearMonth;
@@ -25,8 +28,14 @@ import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
+import static org.springframework.test.web.client.ExpectedCount.between;
+import static org.springframework.test.web.client.MockRestServiceServer.bindTo;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner.PRACTITIONER;
 import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner.SERVICE_USER;
 import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionStatus.COMPLETED;
@@ -54,10 +63,13 @@ public class SentencePlanResource_ActionTest {
     private final String OBJECTIVE_ID = "59023444-afda-4603-9284-c803d18ee4bb";
     private final String SENTENCE_PLAN_ID_FULL = "11111111-1111-1111-1111-111111111111";
     private final String SENTENCE_PLAN_ID_EMPTY = "22222222-2222-2222-2222-222222222222";
+    private final Long OFFENDER_FULL = 123456L;
+    private final Long OFFENDER_EMPTY = 789123L;
     private final String ACTION_ID = "0554387d-a19f-4cca-9443-5eb5e339709d";
     private final String NOT_FOUND_ACTION_ID = "00000000-0000-0000-0000-000000000000";
     private final String NOT_FOUND_SENTENCE_PLAN_ID = "99999999-9999-9999-9999-999999999999";
     public static final UUID MOTIVATION_UUID = UUID.fromString("38731914-701d-4b4e-abd3-1e0a6375f0b2");
+    private final String USER = "TEST_USER";
 
     @Before
     public void setup() {
@@ -65,11 +77,15 @@ public class SentencePlanResource_ActionTest {
         RestAssured.config = RestAssuredConfig.config().objectMapperConfig(new ObjectMapperConfig().jackson2ObjectMapperFactory(
                 (aClass, s) -> mapper
         ));
+
+        oauthRestTemplate.getOAuth2ClientContext().setAccessToken(
+                new DefaultOAuth2AccessToken("accesstoken")
+        );
     }
 
     @Test
     public void shouldCreateActionOnExistingPlan() {
-
+        createMockAuthService(OFFENDER_EMPTY);
         var requestBody = new AddSentencePlanAction(
                 null,
                 "new action description",
@@ -83,6 +99,7 @@ public class SentencePlanResource_ActionTest {
                 .when()
                 .body(requestBody)
                 .header("Content-Type", "application/json")
+                        .header(RequestData.USERNAME_HEADER, USER)
                 .post("/sentenceplans/{0}/objectives/{1}/actions", SENTENCE_PLAN_ID_EMPTY, OBJECTIVE_ID)
                 .then()
                 .statusCode(200);
@@ -90,6 +107,7 @@ public class SentencePlanResource_ActionTest {
         var result = given()
                 .when()
                 .header("Accept", "application/json")
+                .header(RequestData.USERNAME_HEADER, USER)
                 .get("/sentenceplans/{0}/objectives/{1}", SENTENCE_PLAN_ID_EMPTY, OBJECTIVE_ID)
                 .then()
                 .statusCode(200)
@@ -108,10 +126,11 @@ public class SentencePlanResource_ActionTest {
 
     @Test
     public void shouldGetSingleActionWhenSentencePlanExists() {
-
+        createMockAuthService(OFFENDER_FULL);
         var result = given()
                 .when()
                 .header("Accept", "application/json")
+                .header(RequestData.USERNAME_HEADER, USER)
                 .get("/sentenceplans/{0}/objectives/{1}/actions/{2}", SENTENCE_PLAN_ID_FULL, OBJECTIVE_ID, ACTION_ID)
                 .then()
                 .statusCode(200)
@@ -130,8 +149,10 @@ public class SentencePlanResource_ActionTest {
 
     @Test
     public void shouldReturnNotFoundForNonexistentPlan() {
+        createMockAuthService(OFFENDER_FULL);
         var result = given()
                 .when()
+                .header(RequestData.USERNAME_HEADER, USER)
                 .get("/sentenceplans/{0}/objectives/{1}/actions/{2}", NOT_FOUND_SENTENCE_PLAN_ID, OBJECTIVE_ID, ACTION_ID)
                 .then()
                 .statusCode(404)
@@ -147,7 +168,7 @@ public class SentencePlanResource_ActionTest {
 
     @Test
     public void shouldUpdateActionOnExistingPlan() {
-
+        createMockAuthService(OFFENDER_FULL);
         var requestBody = new AddSentencePlanAction(
                 null,
                 "updated action description",
@@ -160,6 +181,7 @@ public class SentencePlanResource_ActionTest {
                 .when()
                 .body(requestBody)
                 .header("Content-Type", "application/json")
+                .header(RequestData.USERNAME_HEADER, USER)
                 .put("/sentenceplans/{0}/objectives/{1}/actions/{2}", SENTENCE_PLAN_ID_FULL,OBJECTIVE_ID, ACTION_ID)
                 .then()
                 .statusCode(200)
@@ -170,6 +192,7 @@ public class SentencePlanResource_ActionTest {
         var updatedAction = given()
                 .when()
                 .header("Accept", "application/json")
+                .header(RequestData.USERNAME_HEADER, USER)
                 .get("/sentenceplans/{0}/objectives/{1}/actions/{2}", SENTENCE_PLAN_ID_FULL,OBJECTIVE_ID, ACTION_ID)
                 .then()
                 .statusCode(200)
@@ -186,7 +209,7 @@ public class SentencePlanResource_ActionTest {
 
     @Test
     public void shouldNotUpdateInvalidAction() {
-
+        createMockAuthService(OFFENDER_FULL);
         var requestBody = new AddSentencePlanAction(
                 null,
                 "updated action description",
@@ -200,6 +223,7 @@ public class SentencePlanResource_ActionTest {
                 .when()
                 .body(requestBody)
                 .header("Content-Type", "application/json")
+                .header(RequestData.USERNAME_HEADER, USER)
                 .put("/sentenceplans/{0}/objectives/{1}/actions/{2}", SENTENCE_PLAN_ID_FULL,OBJECTIVE_ID, NOT_FOUND_ACTION_ID)
                 .then()
                 .statusCode(404)
@@ -210,13 +234,14 @@ public class SentencePlanResource_ActionTest {
 
     @Test
     public void shouldProgressAction() {
-
+        createMockAuthService(OFFENDER_FULL);
         var requestBody = new ProgressActionRequest(ActionStatus.PARTIALLY_COMPLETED, YearMonth.of(2019,12),MOTIVATION_UUID,"new test comment" );
 
         var result = given()
                 .when()
                 .body(requestBody)
                 .header("Content-Type", "application/json")
+                .header(RequestData.USERNAME_HEADER, USER)
                 .post("/sentenceplans/{0}/objectives/{1}/actions/{2}/progress", SENTENCE_PLAN_ID_FULL, OBJECTIVE_ID, ACTION_ID)
                 .then()
                 .statusCode(200)
@@ -227,6 +252,7 @@ public class SentencePlanResource_ActionTest {
         var progressedAction = given()
                 .when()
                 .header("Accept", "application/json")
+                .header(RequestData.USERNAME_HEADER, USER)
                 .get("/sentenceplans/{0}/objectives/{1}/actions/{2}", SENTENCE_PLAN_ID_FULL, OBJECTIVE_ID, ACTION_ID)
                 .then()
                 .statusCode(200)
@@ -243,19 +269,32 @@ public class SentencePlanResource_ActionTest {
 
     @Test
     public void shouldNotProgressInvalidAction() {
-
+        createMockAuthService(OFFENDER_FULL);
         var requestBody = new ProgressActionRequest(ActionStatus.PARTIALLY_COMPLETED, YearMonth.of(2019,12),MOTIVATION_UUID,"new test comment" );
 
         var result = given()
                 .when()
                 .body(requestBody)
                 .header("Content-Type", "application/json")
+                .header(RequestData.USERNAME_HEADER, USER)
                 .post("/sentenceplans/{0}/objectives/{1}/actions/{2}/progress", SENTENCE_PLAN_ID_FULL, OBJECTIVE_ID, NOT_FOUND_ACTION_ID)
                 .then()
                 .statusCode(404)
                 .extract().statusCode();
 
         assertThat(result).isEqualTo(404);
+    }
+
+    private void createMockAuthService(Long offenderId, MockRestServiceServer assessmentApi) {
+        assessmentApi.expect(between(1,2), requestTo("http://localhost:8081/authentication/user/" + USER + "/offender/" + offenderId))
+                .andExpect(method(GET))
+                .andRespond(withSuccess());
+    }
+
+    private void createMockAuthService(Long offenderId) {
+        bindTo(oauthRestTemplate).ignoreExpectOrder(true).build().expect(between(1,2), requestTo("http://localhost:8081/authentication/user/" + USER + "/offender/" + offenderId))
+                .andExpect(method(GET))
+                .andRespond(withSuccess());
     }
 
 }

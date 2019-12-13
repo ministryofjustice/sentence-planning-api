@@ -41,7 +41,7 @@ public class SentencePlanServiceTest {
     @Mock
     private OASYSAssessmentAPIClient oasysAssessmentAPIClient;
 
-    private final String oasysOffenderId = "123456789";
+    private final Long oasysOffenderId = 123456789L;
 
     private SentencePlanService service;
 
@@ -60,14 +60,14 @@ public class SentencePlanServiceTest {
     public void createSentencePlanShouldRetrieveOffenderAndAssessmentAndSavePlan() {
         var offender = mock(OffenderEntity.class);;
 
-        when(offenderService.getOffenderByType(oasysOffenderId,  OffenderReferenceType.OASYS)).thenReturn(offender);
+        when(offenderService.getOffenderByType(oasysOffenderId)).thenReturn(offender);
         when(sentencePlanRepository.findByOffenderUuid(any())).thenReturn(null);
         when(sentencePlanRepository.findByOffenderUuid(any())).thenReturn(EMPTY_LIST);
         when(sentencePlanRepository.save(any())).thenReturn(getNewSentencePlan(sentencePlanUuid));
 
-        service.createSentencePlan(oasysOffenderId, OffenderReferenceType.OASYS);
+        service.createSentencePlan(oasysOffenderId);
 
-        verify(offenderService,times(1)).getOffenderByType(oasysOffenderId,  OffenderReferenceType.OASYS);
+        verify(offenderService,times(1)).getOffenderByType(oasysOffenderId);
         verify(sentencePlanRepository,times(1)).save(any());
     }
 
@@ -75,13 +75,13 @@ public class SentencePlanServiceTest {
     public void shouldNotCreateSentencePlanIfCurrentPlanExistsForOffender() {
         var offender = mock(OffenderEntity.class);;
 
-        when(offenderService.getOffenderByType(oasysOffenderId,  OffenderReferenceType.OASYS)).thenReturn(offender);
+        when(offenderService.getOffenderByType(oasysOffenderId)).thenReturn(offender);
         when(sentencePlanRepository.findByOffenderUuid(any())).thenReturn(List.of(getNewSentencePlan(sentencePlanUuid)));  when(sentencePlanRepository.findByOffenderUuid(any())).thenReturn(List.of(getNewSentencePlan(sentencePlanUuid)));
 
-        var exception = catchThrowable(() -> { service.createSentencePlan(oasysOffenderId, OffenderReferenceType.OASYS); });
+        var exception = catchThrowable(() -> { service.createSentencePlan(oasysOffenderId); });
         assertThat(exception).isInstanceOf(CurrentSentencePlanForOffenderExistsException.class);
 
-        verify(offenderService,times(1)).getOffenderByType(oasysOffenderId,  OffenderReferenceType.OASYS);
+        verify(offenderService,times(1)).getOffenderByType(oasysOffenderId);
         verify(sentencePlanRepository,never()).save(any());
     }
 
@@ -343,7 +343,7 @@ public class SentencePlanServiceTest {
                 .oasysSetId(123456L).build();
 
         when(oasysAssessmentAPIClient.getSentencePlansForOffender(12345L)).thenReturn(List.of(legacyPlan));
-        when(offenderService.getOasysOffender("12345")).thenReturn(offender);
+        when(offenderService.getOasysOffender(12345L)).thenReturn(offender);
         when(sentencePlanRepository.findByOffenderUuid(offender.getUuid())).thenReturn(EMPTY_LIST);
 
         var result = service.getSentencePlansForOffender(12345L).get(0);
@@ -383,7 +383,7 @@ public class SentencePlanServiceTest {
 
         var offender = getOffenderEntity();
         when(oasysAssessmentAPIClient.getSentencePlansForOffender(12345L)).thenReturn(EMPTY_LIST);
-        when(offenderService.getOasysOffender("12345")).thenReturn(offender);
+        when(offenderService.getOasysOffender(12345L)).thenReturn(offender);
         when(sentencePlanRepository.findByOffenderUuid(offender.getUuid())).thenReturn(List.of(getNewSentencePlan(sentencePlanUuid)));
 
         var result = service.getSentencePlansForOffender(12345L).get(0);
@@ -401,7 +401,7 @@ public class SentencePlanServiceTest {
         var plan = getNewSentencePlan(sentencePlanUuid);
         plan.setStartedDate(LocalDateTime.of(2019,11,11,9,0));
         when(oasysAssessmentAPIClient.getSentencePlansForOffender(12345L)).thenReturn(EMPTY_LIST);
-        when(offenderService.getOasysOffender("12345")).thenReturn(offender);
+        when(offenderService.getOasysOffender(12345L)).thenReturn(offender);
         when(sentencePlanRepository.findByOffenderUuid(offender.getUuid())).thenReturn(List.of(plan));
 
         var result = service.getSentencePlansForOffender(12345L).get(0);
@@ -419,7 +419,7 @@ public class SentencePlanServiceTest {
         var plan = getNewSentencePlan(sentencePlanUuid);
         plan.setStartedDate(null);
         when(oasysAssessmentAPIClient.getSentencePlansForOffender(12345L)).thenReturn(EMPTY_LIST);
-        when(offenderService.getOasysOffender("12345")).thenReturn(offender);
+        when(offenderService.getOasysOffender(12345L)).thenReturn(offender);
         when(sentencePlanRepository.findByOffenderUuid(offender.getUuid())).thenReturn(List.of(plan));
 
         var result = service.getSentencePlansForOffender(12345L).get(0);
@@ -439,7 +439,7 @@ public class SentencePlanServiceTest {
                 .createdDate(LocalDate.of(2018,1,1))
                 .oasysSetId(123456L).build();
         when(oasysAssessmentAPIClient.getSentencePlansForOffender(12345L)).thenReturn(List.of(legacyPlan));
-        when(offenderService.getOasysOffender("12345")).thenReturn(offender);
+        when(offenderService.getOasysOffender(12345L)).thenReturn(offender);
 
         var sentencePlan1 = getNewSentencePlan(UUID.fromString("11111111-1111-1111-1111-111111111111"));
         var sentencePlan2 = getNewSentencePlan(UUID.fromString("22222222-2222-2222-2222-222222222222"));
