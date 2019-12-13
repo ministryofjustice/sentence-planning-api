@@ -44,8 +44,10 @@ public class AuthorisationAspect {
 
         var authorisationResult =  oasysAssessmentAPIClient.authoriseUserAccess(requestData.getUsername(), oasysOffenderId, authorised.accessLevel());
         if (authorisationResult) {
+            log.info("User {} authorised to perform {} on offender {}", requestData.getUsername(), joinPoint.getSignature().getName(), oasysOffenderId);
             return joinPoint.proceed();
         }
+        log.warn("User {} NOT authorised to to perform {} on offender {}", requestData.getUsername(), joinPoint.getSignature().getName(), oasysOffenderId);
         throw new AuthorisationException(String.format("User %s is not authorised to access the requested resource", requestData.getUsername()));
     }
 
