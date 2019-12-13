@@ -4,6 +4,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.RequestData;
@@ -32,7 +33,7 @@ public class AuthorisationAspectTest {
     @Mock
     RequestData requestData;
 
-    @Mock
+    @Mock( answer = Answers.RETURNS_DEEP_STUBS)
     ProceedingJoinPoint proceedingJoinPoint;
 
     AuthorisationAspect aspect;
@@ -87,6 +88,7 @@ public class AuthorisationAspectTest {
 
         when(oasysAssessmentAPIClient.authoriseUserAccess("USER", offender.getOasysOffenderId(), READ_SENTENCE_PLAN)).thenReturn(true);
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
+        when(proceedingJoinPoint.getSignature().getName()).thenReturn("methodName");
         when(annotation.accessLevel()).thenReturn(READ_SENTENCE_PLAN);
 
         aspect.validateUserAccess(proceedingJoinPoint,annotation);
@@ -102,6 +104,7 @@ public class AuthorisationAspectTest {
 
         when(oasysAssessmentAPIClient.authoriseUserAccess("USER", offender.getOasysOffenderId(), READ_SENTENCE_PLAN)).thenReturn(false);
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
+        when(proceedingJoinPoint.getSignature().getName()).thenReturn("methodName");
         when(annotation.accessLevel()).thenReturn(READ_SENTENCE_PLAN);
 
         assertThatThrownBy(() -> { aspect.validateUserAccess(proceedingJoinPoint,annotation);})
@@ -117,7 +120,7 @@ public class AuthorisationAspectTest {
         var args = new Object[1];
         args[0] = "TEST";
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
-
+        when(proceedingJoinPoint.getSignature().getName()).thenReturn("methodName");
         assertThatThrownBy(() -> { aspect.validateUserAccess(proceedingJoinPoint,annotation);})
                 .isInstanceOf(AuthorisationException.class)
                 .hasMessageContaining("Unable parse method parameters for type java.lang.String");
@@ -132,6 +135,7 @@ public class AuthorisationAspectTest {
         args[0] = sentencePlanUuid;
         when(offenderService.getSentencePlanOffender(sentencePlanUuid)).thenThrow(new EntityNotFoundException(""));
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
+        when(proceedingJoinPoint.getSignature().getName()).thenReturn("methodName");
         assertThatThrownBy(() -> { aspect.validateUserAccess(proceedingJoinPoint,annotation);})
                 .isInstanceOf(EntityNotFoundException.class);
         verify(proceedingJoinPoint, never()).proceed();
