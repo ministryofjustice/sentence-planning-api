@@ -43,7 +43,6 @@ public class SentencePlanResource {
 
     @GetMapping(value = "/sentenceplans/{sentencePlanUUID}", produces = "application/json")
     @ApiOperation(value = "Gets a Sentence Plan from its ID",
-            response = SentencePlan.class,
             notes = "Request sentence plan")
     @Authorised(accessLevel = AccessLevel.READ_SENTENCE_PLAN)
     ResponseEntity<SentencePlan> getSentencePlan(@ApiParam(value = "Sentence Plan ID", required = true, example = "11111111-1111-1111-1111-111111111111") @PathVariable UUID sentencePlanUUID) {
@@ -87,8 +86,6 @@ public class SentencePlanResource {
 
     @GetMapping(value = "/sentenceplans/{sentencePlanUUID}/needs", produces = "application/json")
     @ApiOperation(value = "Get Sentence Plan needs from ID",
-            response = Action.class,
-            responseContainer = "List",
             notes = "Request sentence plan needs")
     @Authorised(accessLevel = AccessLevel.READ_SENTENCE_PLAN)
     ResponseEntity<List<Need>> getSentencePlanNeeds(@ApiParam(value = "Sentence Plan ID", required = true, example = "11111111-1111-1111-1111-111111111111") @PathVariable UUID sentencePlanUUID) {
@@ -107,7 +104,6 @@ public class SentencePlanResource {
     @ApiOperation(value = "Add an Objective to a Sentence Plan")
     @Authorised(accessLevel = AccessLevel.WRITE_SENTENCE_PLAN)
     ResponseEntity<Objective> addObjective(@ApiParam(value = "Sentence Plan ID", required = true, example = "11111111-1111-1111-1111-111111111111") @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Objective details", required = true) @RequestBody @Valid AddSentencePlanObjective objective) {
-         ;
         return ResponseEntity.ok(Objective.from(sentencePlanService.addObjective(
                 sentencePlanUUID,
                 objective.getDescription(),
