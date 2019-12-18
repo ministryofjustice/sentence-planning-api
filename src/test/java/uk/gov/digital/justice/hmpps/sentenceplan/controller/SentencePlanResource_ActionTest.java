@@ -235,7 +235,7 @@ public class SentencePlanResource_ActionTest {
     @Test
     public void shouldProgressAction() {
         createMockAuthService(OFFENDER_FULL);
-        var requestBody = new ProgressActionRequest(ActionStatus.PARTIALLY_COMPLETED, YearMonth.of(2019,12),MOTIVATION_UUID,"new test comment" );
+        var requestBody = new ProgressActionRequest(ActionStatus.PARTIALLY_COMPLETED, YearMonth.of(2019,12),MOTIVATION_UUID,List.of(), null,"new test comment" );
 
         var result = given()
                 .when()
@@ -270,7 +270,7 @@ public class SentencePlanResource_ActionTest {
     @Test
     public void shouldNotProgressInvalidAction() {
         createMockAuthService(OFFENDER_FULL);
-        var requestBody = new ProgressActionRequest(ActionStatus.PARTIALLY_COMPLETED, YearMonth.of(2019,12),MOTIVATION_UUID,"new test comment" );
+        var requestBody = new ProgressActionRequest(ActionStatus.PARTIALLY_COMPLETED, YearMonth.of(2019,12),MOTIVATION_UUID, List.of(), null,"new test comment" );
 
         var result = given()
                 .when()

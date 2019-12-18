@@ -11,6 +11,7 @@ import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepo
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.CurrentSentencePlanForOffenderExistsException;
 
 import javax.transaction.Transactional;
+import java.security.acl.Owner;
 import java.time.YearMonth;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -85,13 +86,6 @@ public class SentencePlanService {
         log.info("Created Action for Sentence Plan {} Objective {}", sentencePlanUUID, objectiveUUID, value(EVENT, SENTENCE_PLAN_ACTION_CREATED));
     }
 
-    @Transactional
-    public void updateAction(UUID sentencePlanUUID, UUID objectiveUUID, UUID actionUUID, UUID interventionUUID, String description, YearMonth targetDate, UUID motivationUUID, List<ActionOwner> owner, String ownerOther, ActionStatus status) {
-        var actionEntity = getActionEntity(sentencePlanUUID, objectiveUUID, actionUUID);
-        actionEntity.updateAction(interventionUUID, description, targetDate, motivationUUID, owner, ownerOther, status);
-        log.info("Created Action for Sentence Plan {} Objective {}", sentencePlanUUID, objectiveUUID, value(EVENT, SENTENCE_PLAN_ACTION_UPDATED));
-    }
-
     public ActionEntity getAction(UUID sentencePlanUuid, UUID objectiveUUID, UUID actionId) {
         var actionEntity = getActionEntity(sentencePlanUuid, objectiveUUID, actionId);
         log.info("Retrieved Action {} for Sentence Plan {} Objective {}", sentencePlanUuid, objectiveUUID, actionId, value(EVENT, SENTENCE_PLAN_ACTION_RETRIEVED));
@@ -124,11 +118,12 @@ public class SentencePlanService {
         log.info("Updated Action priority for Sentence Plan {} Objective {}", sentencePlanUuid, objectiveUUID, value(EVENT, SENTENCE_PLAN_ACTION_PRIORITY_UPDATED));
     }
 
+
     @Transactional
-    public void progressAction(UUID sentencePlanUUID, UUID objectiveUUID, UUID actionId, ActionStatus status, YearMonth targetDate, UUID motivationUUID, String comment) {
+    public void progressAction(UUID sentencePlanUUID, UUID objectiveUUID, UUID actionId, ActionStatus status, YearMonth targetDate, UUID motivationUUID, String comment, List<ActionOwner> owner, String ownerOther) {
         var actionEntity = getActionEntity(sentencePlanUUID, objectiveUUID, actionId);
         // TODO: Presumably createdBy comes from the Auth headers?
-        var progressEntity = new ProgressEntity(status, targetDate, motivationUUID, comment, "ANONYMOUS");
+        var progressEntity = new ProgressEntity(status, targetDate, motivationUUID, comment, owner, ownerOther, "ANONYMOUS");
         actionEntity.addProgress(progressEntity);
         log.info("Progressed Action for Sentence Plan {} Objective {}", sentencePlanUUID, objectiveUUID, value(EVENT, SENTENCE_PLAN_ACTION_PROGRESSED));
     }
