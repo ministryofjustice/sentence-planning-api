@@ -26,7 +26,7 @@ public class ActionProgressEntityTest {
     @Test
     public void shouldCreateAction() {
 
-        var progressEntity = new ProgressEntity(status, targetDate, motivation,comment,created, List.of(), null,createdBy);
+        var progressEntity = new ProgressEntity(status, targetDate, motivation,comment,created, List.of(), null, createdBy);
 
         assertThat(progressEntity.getStatus()).isEqualTo(status);
         assertThat(progressEntity.getCreated()).isEqualToIgnoringSeconds(created);
@@ -34,7 +34,7 @@ public class ActionProgressEntityTest {
         assertThat(progressEntity.getTargetDate()).isEqualTo(targetDate);
         assertThat(progressEntity.getMotivationUUID()).isEqualTo(motivation);
         assertThat(progressEntity.getOwner()).isEmpty();
-        assertThat(progressEntity.getOwner()).isNull();
+        assertThat(progressEntity.getOwnerOther()).isNull();
         assertThat(progressEntity.getCreatedBy()).isEqualTo(createdBy);
     }
 }
