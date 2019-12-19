@@ -286,53 +286,6 @@ public class SentencePlanServiceTest {
         assertThat(objective.getAction(UUID.fromString("22222222-2222-2222-2222-222222222222")).getPriority()).isEqualTo(3);
     }
 
-
-    @Test
-    public void updateActionShouldSaveToRepository() {
-        var objective = mock(ObjectiveEntity.class);
-        var action = mock(ActionEntity.class);
-        var objectiveUUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
-        var actionUUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
-        var motivationUUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
-        var newSentencePlan = mock(SentencePlanEntity.class);
-
-        when(objective.getAction(actionUUID)).thenReturn(action);
-        when(newSentencePlan.getObjective(objectiveUUID)).thenReturn(objective);
-        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(newSentencePlan);
-
-        service.updateAction(sentencePlanUuid, objectiveUUID, actionUUID,
-                null,"Updated Action 1",  YearMonth.of(2019,12),
-                motivationUUID, List.of(PRACTITIONER),null, ActionStatus.COMPLETED);
-
-
-        verify(action).updateAction(null,"Updated Action 1",  YearMonth.of(2019,12),
-                motivationUUID , List.of(PRACTITIONER),null, ActionStatus.COMPLETED);
-
-    }
-
-    @Test
-    public void progressActionShouldSaveUpdatedActionToRepository() {
-        var objective = mock(ObjectiveEntity.class);
-        var action = mock(ActionEntity.class);
-        var actionProgress = ArgumentCaptor.forClass(ProgressEntity.class);
-        var objectiveUUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
-        var actionUUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
-        var motivationUUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
-        var newSentencePlan = mock(SentencePlanEntity.class);
-
-        when(objective.getAction(actionUUID)).thenReturn(action);
-        when(newSentencePlan.getObjective(objectiveUUID)).thenReturn(objective);
-        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(newSentencePlan);
-
-        service.progressAction(sentencePlanUuid, objectiveUUID, actionUUID, ActionStatus.ABANDONED,
-                YearMonth.of(2019,12),
-                motivationUUID, "A comment");
-
-        verify(action).addProgress(actionProgress.capture());
-
-        assertThat(actionProgress.getValue().getComment()).isEqualTo("A comment");
-   }
-
     @Test
     public void getSentencePlansForOffenderShouldReturnOASysPlans() {
 

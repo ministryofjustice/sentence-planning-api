@@ -179,7 +179,7 @@ public class ActionEntityTest {
 
         assertThat(action.getStatus()).isEqualTo(status);
 
-        var newProgress = new ProgressEntity(ActionStatus.COMPLETED, targetDate,motivation,"Comment", LocalDateTime.of(2019,6,6, 9,0),"a person");
+        var newProgress = new ProgressEntity(ActionStatus.COMPLETED, targetDate,motivation,"Comment", LocalDateTime.of(2019,6,6, 9,0), List.of(), null, "a person");
         action.addProgress(newProgress);
 
         assertThat(action.getStatus()).isEqualTo(ActionStatus.COMPLETED);

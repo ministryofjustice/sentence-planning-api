@@ -7,6 +7,7 @@ import uk.gov.digital.justice.hmpps.sentenceplan.api.ActionStatus;
 
 import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,13 +26,15 @@ public class ActionProgressEntityTest {
     @Test
     public void shouldCreateAction() {
 
-        var progressEntity = new ProgressEntity(status, targetDate, motivation,comment,created,createdBy);
+        var progressEntity = new ProgressEntity(status, targetDate, motivation,comment,created, List.of(), null, createdBy);
 
         assertThat(progressEntity.getStatus()).isEqualTo(status);
         assertThat(progressEntity.getCreated()).isEqualToIgnoringSeconds(created);
         assertThat(progressEntity.getComment()).isEqualToIgnoringCase(comment);
         assertThat(progressEntity.getTargetDate()).isEqualTo(targetDate);
         assertThat(progressEntity.getMotivationUUID()).isEqualTo(motivation);
+        assertThat(progressEntity.getOwner()).isEmpty();
+        assertThat(progressEntity.getOwnerOther()).isNull();
         assertThat(progressEntity.getCreatedBy()).isEqualTo(createdBy);
     }
 }

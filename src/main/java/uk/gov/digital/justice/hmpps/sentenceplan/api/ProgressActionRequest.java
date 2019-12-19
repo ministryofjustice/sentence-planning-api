@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotNull;
 import java.time.YearMonth;
+import java.util.List;
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -30,6 +31,15 @@ public class ProgressActionRequest {
     @NotNull
     @JsonProperty("motivationUUID")
     private UUID motivationUUID;
+
+    @ApiModelProperty(required = true, value = "The owner of the Action")
+    @NotNull
+    @JsonProperty("owner")
+    private List<ActionOwner> owner;
+
+    @ApiModelProperty(required = true, value = "Other owner (if other type used)")
+    @JsonProperty("ownerOther")
+    private String ownerOther;
 
     @ApiModelProperty(required = true, value = "Comment for the update")
     @JsonProperty("comment")
