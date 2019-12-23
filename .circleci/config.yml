@@ -150,11 +150,11 @@ jobs:
     steps:
       - deploy_to_env:
           env: "preprod"
-#  deploy_prod:
-#    executor: deployer
-#    steps:
-#      - deploy_to_env:
-#          env: "prod"
+  deploy_prod:
+    executor: deployer
+    steps:
+      - deploy_to_env:
+          env: "prod"
 
 workflows:
   version: 2
@@ -181,12 +181,12 @@ workflows:
           context: sentence-planning-preprod
           requires:
             - request-preprod-approval
-#      - request-prod-approval:
-#          type: approval
-#          requires:
-#            - deploy_preprod
-#      - deploy_prod:
-#          context: sentence-planning-api-prod
-#          requires:
-#            - request-prod-approval
+      - request-prod-approval:
+          type: approval
+          requires:
+            - deploy_preprod
+      - deploy_prod:
+          context: sentence-planning-api-prod
+          requires:
+            - request-prod-approval
 
