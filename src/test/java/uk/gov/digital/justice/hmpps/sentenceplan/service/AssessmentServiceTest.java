@@ -38,7 +38,7 @@ public class AssessmentServiceTest {
     @Before
     public void setup() {
         assessmentService = new AssessmentService(oasysAssessmentAPIClient, clock);
-        sentencePlanEntity = new SentencePlanEntity(new OffenderEntity(123456L, "123456", 123L));
+        sentencePlanEntity = new SentencePlanEntity(new OffenderEntity(123456L, "123456", "123"));
     }
 
     @Test

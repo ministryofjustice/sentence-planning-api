@@ -460,7 +460,7 @@ public class SentencePlanServiceTest {
         var action = new ActionEntity(UUID.fromString("11111111-1111-1111-1111-111111111111"),null,"Action 1", YearMonth.of(2019,8),
                 UUID.fromString("11111111-1111-1111-1111-111111111111"), List.of(SERVICE_USER), null, NOT_STARTED, 1, emptyList(),
                 LocalDateTime.of(2019,6,6, 2,00),null);
-        var offender = new OffenderEntity(1L, "two", 3L);
+        var offender = new OffenderEntity(1L, "two", "3");
         objective.addAction(action);
         sentencePlanProperty.setObjectives(Map.of(objective.getId(), objective));
 
@@ -490,6 +490,6 @@ public class SentencePlanServiceTest {
     }
 
     private OffenderEntity getOffenderEntity() {
-        return new OffenderEntity(1L, UUID.fromString("11111111-1111-1111-1111-111111111111"), 12345L, null, null, 123L, LocalDateTime.now(), EMPTY_LIST);
+        return new OffenderEntity(1L, UUID.fromString("11111111-1111-1111-1111-111111111111"), 12345L, null, null, "123", LocalDateTime.now(), EMPTY_LIST);
     }
 }

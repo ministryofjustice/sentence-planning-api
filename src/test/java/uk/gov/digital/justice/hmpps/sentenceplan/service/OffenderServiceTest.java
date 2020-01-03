@@ -51,7 +51,7 @@ public class OffenderServiceTest {
     @Test
     public void shouldStoreOffenderMetaDataIfNotExists() {
 
-        var offender = new OasysOffender(123456L, "John", "Smith","","",new OasysIdentifiers("12345", 123L));
+        var offender = new OasysOffender(123456L, "John", "Smith","","",new OasysIdentifiers("12345", "123"));
 
         when(offenderRespository.findByOasysOffenderId(123456L)).thenReturn(Optional.empty());
         when(oasysAssessmentAPIClient.getOffenderById(123456L))
@@ -66,7 +66,7 @@ public class OffenderServiceTest {
     @Test
     public void shouldNotGetOffenderFromOasysIfExistsInRepository() {
 
-        var offender = new OffenderEntity(1L, UUID.randomUUID(), 123456L,"", "", 123L, LocalDateTime.now(), EMPTY_LIST);
+        var offender = new OffenderEntity(1L, UUID.randomUUID(), 123456L,"", "", "123", LocalDateTime.now(), EMPTY_LIST);
 
         when(offenderRespository.findByOasysOffenderId(123456L)).thenReturn(Optional.ofNullable(offender));
 
@@ -89,7 +89,7 @@ public class OffenderServiceTest {
     @Test
     public void shouldUpdateBookingNumberIfNotUpdatedToday() {
         var sentencePlan = getSentencePlanWithOffender();
-        var offender = new OasysOffender(1L, null, null, null, null, new OasysIdentifiers("Nomis", 3456L));
+        var offender = new OasysOffender(1L, null, null, null, null, new OasysIdentifiers("Nomis", "3456"));
         when(oasysAssessmentAPIClient.getOffenderById(1L)).thenReturn(Optional.ofNullable(offender));
         when(offenderRespository.save(any())).thenReturn(null);
 
@@ -123,7 +123,7 @@ public class OffenderServiceTest {
         var sentencePlanProperty = new SentencePlanPropertiesEntity();
         var objective = new ObjectiveEntity("Objective 1", needs);
         var action = new ActionEntity(null,"Action 1", YearMonth.of(2019,8), UUID.fromString("11111111-1111-1111-1111-111111111111"), List.of(SERVICE_USER), null, ActionStatus.NOT_STARTED);
-        var offender = new OffenderEntity(1L, "two", 3L);
+        var offender = new OffenderEntity(1L, "two", "3");
         objective.addAction(action);
         sentencePlanProperty.setObjectives(Map.of(objective.getId(), objective));
       return new SentencePlanEntity(1L,sentencePlanUuid,

@@ -15,7 +15,7 @@ public class Offender {
     @JsonProperty("oasysOffenderId")
     private Long oasysOffenderId;
     @JsonProperty("nomisBookingNumber")
-    private Long nomisBookingNumber;
+    private String nomisBookingNumber;
 
     public static Offender from(OffenderEntity offenderEntity) {
         return new Offender(offenderEntity.getOasysOffenderId(), offenderEntity.getNomisBookingNumber());
