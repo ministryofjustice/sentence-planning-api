@@ -13,6 +13,6 @@ public class OasysIdentifiers {
     @JsonProperty("nomisId")
     private String nomisId;
     @JsonProperty("bookingNumber")
-    private Long bookingNumber;
+    private String bookingNumber;
 
 }
