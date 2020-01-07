@@ -10,12 +10,12 @@ metadata:
 spec:
   replicas: {{ .Values.replicaCount }}
   revisionHistoryLimit: 2
-  minReadySeconds: 10
+  minReadySeconds: {{ .Values.minReadySeconds }}
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxSurge: 100%
-      maxUnavailable: 50%
+      maxSurge: {{ .Values.maxSurge }}
+      maxUnavailable: {{ .Values.maxUnavailable }}
   selector:
     matchLabels:
       app: {{ template "app.name" . }}

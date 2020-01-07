@@ -2,6 +2,9 @@
 # Declare variables to be passed into your templates.
 
 replicaCount: 1
+minReadySeconds: 10
+maxSurge: 100%
+maxUnavailable: 50%
 
 image:
   repository: docker.io/mojdigitalstudio/sentence-planning-api
