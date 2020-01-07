@@ -10,8 +10,8 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - port: 80 
-      targetPort: {{ .Values.image.port }} 
+    - port: 80
+      targetPort: {{ .Values.gatekeeper.image.port }}
       name: http
   selector:
     app: {{ template "app.name" . }}

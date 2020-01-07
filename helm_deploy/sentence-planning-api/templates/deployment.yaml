@@ -39,6 +39,13 @@ spec:
                   - {{ template "app.name" . }}
               topologyKey: kubernetes.io/hostname
       containers:
+        - name: gatekeeper
+              image: "{{ .Values.gatekeeper.image.repository }}:{{ .Values.gatekeeper.image.tag }}"
+              imagePullPolicy: "{{ .Values.gatekeeper.image.pullPolicy }}"
+              ports:
+                - name: gatekeeper
+                  containerPort: {{ .Values.gatekeeper.image.port }}
+          {{ include "gatekeeper.args" . | nindent 10 }}
         - name: sentence-planning-api
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}" 
           imagePullPolicy: {{ .Values.image.pullPolicy }}
