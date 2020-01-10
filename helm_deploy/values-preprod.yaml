@@ -25,5 +25,5 @@ env:
   OAUTH_ROOT_URL: "https://gateway.t3.nomis-api.hmpps.dsd.io/auth"
   ASSESSMENT_API_URI_ROOT: "https://dev.devtest.assessment-api.hmpps.dsd.io"
   SENTENCEPLAN_API_CLIENT_ID: "sentence-plan-api-client"
-  KEYCLOAK_REALM: https://development.oasys-auth.service.justice.gov.uk/auth/realms/sentence-planning
+  KEYCLOAK_REALM: https://oasys-auth.service.justice.gov.uk/auth/realms/sentence-planning
   KEYCLOAK_UPSTREAM_URL: http://127.0.0.1:8080
