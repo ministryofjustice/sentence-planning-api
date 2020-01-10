@@ -22,6 +22,7 @@ args:
     - --cors-origins='*'
     - --resources=uri=/health|white-listed=true
     - --resources=uri=/info|white-listed=true
+    - --resources=uri=/ping|white-listed=true
     - --resources=uri=/*
     - --http-only-cookie=true
     - --add-claims=name
