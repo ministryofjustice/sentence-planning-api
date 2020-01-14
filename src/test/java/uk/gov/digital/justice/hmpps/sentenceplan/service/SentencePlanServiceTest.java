@@ -162,8 +162,8 @@ public class SentencePlanServiceTest {
     public void updateObjectivePriorityShouldNotChangeOrderWhenEmpty() {
         var objective1UUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
         var objective2UUID = UUID.fromString("22222222-2222-2222-2222-222222222222");
-        var objective1 = new ObjectiveEntity(objective1UUID, "Objective 1", emptyList(), emptyMap(),1, LocalDateTime.now());
-        var objective2 = new ObjectiveEntity(objective2UUID, "Objective 2", emptyList(), emptyMap(),2, LocalDateTime.now());
+        var objective1 = new ObjectiveEntity(objective1UUID, "Objective 1", emptyList(), emptyMap(),false, 1, LocalDateTime.now());
+        var objective2 = new ObjectiveEntity(objective2UUID, "Objective 2", emptyList(), emptyMap(),false, 2, LocalDateTime.now());
         var newSentencePlan = mock(SentencePlanEntity.class);
         when(newSentencePlan.getObjectives()).thenReturn(Map.of(objective1UUID, objective1, objective2UUID, objective2));
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(newSentencePlan);
@@ -182,8 +182,8 @@ public class SentencePlanServiceTest {
     public void updateObjectivePriorityShouldChangePriority() {
         var objective1UUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
         var objective2UUID = UUID.fromString("22222222-2222-2222-2222-222222222222");
-        var objective1 = new ObjectiveEntity(objective1UUID, "Objective 1", emptyList(), emptyMap(),1, LocalDateTime.now());
-        var objective2 = new ObjectiveEntity(objective2UUID, "Objective 2", emptyList(), emptyMap(),2, LocalDateTime.now());
+        var objective1 = new ObjectiveEntity(objective1UUID, "Objective 1", emptyList(), emptyMap(), false, 1, LocalDateTime.now());
+        var objective2 = new ObjectiveEntity(objective2UUID, "Objective 2", emptyList(), emptyMap(), false, 2, LocalDateTime.now());
         var newSentencePlan = mock(SentencePlanEntity.class);
         when(newSentencePlan.getObjectives()).thenReturn(Map.of(objective1UUID, objective1, objective2UUID, objective2));
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(newSentencePlan);
@@ -202,8 +202,8 @@ public class SentencePlanServiceTest {
     public void updateObjectivePriorityShouldIgnoreMissingObjectiveUUIDs() {
         var objective1UUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
         var objective2UUID = UUID.fromString("22222222-2222-2222-2222-222222222222");
-        var objective1 = new ObjectiveEntity(objective1UUID, "Objective 1", emptyList(), emptyMap(),1, LocalDateTime.now());
-        var objective2 = new ObjectiveEntity(objective2UUID, "Objective 2", emptyList(), emptyMap(),2, LocalDateTime.now());
+        var objective1 = new ObjectiveEntity(objective1UUID, "Objective 1", emptyList(), emptyMap(), false, 1, LocalDateTime.now());
+        var objective2 = new ObjectiveEntity(objective2UUID, "Objective 2", emptyList(), emptyMap(), false, 2, LocalDateTime.now());
         var newSentencePlan = mock(SentencePlanEntity.class);
         when(newSentencePlan.getObjectives()).thenReturn(Map.of(objective1UUID, objective1, objective2UUID, objective2));
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(newSentencePlan);

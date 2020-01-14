@@ -90,7 +90,7 @@ public class SentencePlanResource_ObjectiveTest {
                 UUID.fromString("51c293ec-b2c4-491c-ade5-34375e1cd495"));
         var requestBody = new AddSentencePlanObjective(
                 "new objective description",
-                needs);
+                needs, false);
 
         var objective = given()
                     .when()
@@ -191,7 +191,8 @@ public class SentencePlanResource_ObjectiveTest {
 
         var requestBody = new AddSentencePlanObjective(
                 "new objective description",
-                needs);
+                needs,
+                false);
 
         given()
                 .when()
@@ -267,7 +268,8 @@ public class SentencePlanResource_ObjectiveTest {
 
         var requestBody = new AddSentencePlanObjective(
                 "new objective description",
-                needs);
+                needs,
+                false);
 
         var result = given()
                 .when()

@@ -27,7 +27,6 @@ public class SentencePlanEntityTest {
         assertThat(sentencePlan.getData().getObjectives()).isEmpty();
         assertThat(sentencePlan.getData().getComments()).isEmpty();
         assertThat(sentencePlan.getData().getChildSafeguardingIndicated()).isNull();
-        assertThat(sentencePlan.getData().getComplyWithChildProtectionPlanIndicated()).isNull();
         assertThat(sentencePlan.getNeeds()).isEmpty();
         assertThat(sentencePlan.getStartedDate()).isNull();
     }

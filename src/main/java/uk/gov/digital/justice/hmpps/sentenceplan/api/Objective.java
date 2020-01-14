@@ -28,10 +28,13 @@ public class Objective {
     private List<Action> actions;
     @JsonProperty("priority")
     private Integer priority;
+    @JsonProperty("meetsChildSafeguarding")
+    private boolean meetsChildSafeguarding;
+
 
     public static Objective from(ObjectiveEntity objective) {
         var actions = Action.from(objective.getActions().values());
-        return new Objective(objective.getId(), objective.getDescription(), objective.getNeeds(), actions, objective.getPriority());
+        return new Objective(objective.getId(), objective.getDescription(), objective.getNeeds(), actions, objective.getPriority(), objective.isMeetsChildSafeguarding());
     }
 
     public static List<Objective> from(Collection<ObjectiveEntity> objectives) {
