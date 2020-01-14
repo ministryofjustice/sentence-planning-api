@@ -24,4 +24,7 @@ public class AddSentencePlanObjective {
     @JsonProperty("needs")
     private List<UUID> needs;
 
+    @ApiModelProperty(required = true, value = "Whether the objective meets child safeguarding issues.")
+    @JsonProperty("meetsChildSafeguarding")
+    private boolean meetsChildSafeguarding;
 }

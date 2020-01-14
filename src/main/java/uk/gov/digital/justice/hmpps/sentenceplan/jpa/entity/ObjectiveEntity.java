@@ -22,6 +22,8 @@ public class ObjectiveEntity implements Serializable {
 
     private Map<UUID, ActionEntity> actions = new HashMap<>(0);
 
+    private boolean meetsChildSafeguarding = false;
+
     @Setter
     private int priority;
 
