@@ -12,7 +12,6 @@ import java.util.*;
 public class SentencePlanPropertiesEntity implements Serializable {
 
     private Boolean childSafeguardingIndicated;
-    private Boolean complyWithChildProtectionPlanIndicated;
     private Map<UUID, ObjectiveEntity> objectives = new HashMap<>(0);
     private EnumMap<CommentType, CommentEntity> comments = new EnumMap<>(CommentType.class);
 

@@ -107,9 +107,8 @@ public class SentencePlanEntity implements Serializable {
         );
     }
 
-    public void setSafeguardingRisks(Boolean childSafeguardingIndicated, Boolean complyWithChildProtectionPlanIndicated) {
+    public void setSafeguardingRisks(Boolean childSafeguardingIndicated) {
         this.data.setChildSafeguardingIndicated(childSafeguardingIndicated);
-        this.data.setComplyWithChildProtectionPlanIndicated(complyWithChildProtectionPlanIndicated);
     }
 
     public void addObjective(ObjectiveEntity objective) {
