@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.vladmihalcea.hibernate.type.util.ObjectMapperSupplier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.context.annotation.Bean;
@@ -28,7 +29,7 @@ import java.util.Optional;
 
 @Configuration
 @EnableSwagger2
-public class SpringConfiguration implements WebMvcConfigurer {
+public class SpringConfiguration implements WebMvcConfigurer, ObjectMapperSupplier {
 
     @Autowired(required = false)
     private BuildProperties buildProperties;
@@ -97,5 +98,11 @@ public class SpringConfiguration implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(createRequestData());
+    }
+
+    //used by the JSONB entity column type to serialise/deserialise
+    @Override
+    public ObjectMapper get() {
+        return initialiseObjectMapper();
     }
 }
