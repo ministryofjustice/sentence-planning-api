@@ -325,7 +325,8 @@ VALUES ('033ef9aa-8bb9-4638-8abb-9a98394a959c', '2019-11-14 08:11:53.177108', 's
             "description": "Objective 2"
         }
     },
-    "childSafeguardingIndicated": true
+    "childSafeguardingIndicated": true,
+    "oldfield": true
 }'
 , '2019-11-14 08:11:53.425990', '11111111-1111-1111-1111-111111111111');
 
