@@ -37,6 +37,7 @@ public class AssessmentService {
 
             sentencePlanEntity.updateNeeds(getNeedsFromOasysAssessment(oasysAssessment, sentencePlanEntity));
             sentencePlanEntity.setAssessmentNeedsLastImportedOn(LocalDateTime.now(clock));
+            sentencePlanEntity.setSafeguardingRisks(oasysAssessment.getChildSafeguardingIndicated());
         }
     }
 

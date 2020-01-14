@@ -29,8 +29,6 @@ public class SentencePlan {
     private List<Comment> comments;
     @JsonProperty("childSafeguardingIndicated")
     private Boolean childSafeguardingIndicated;
-    @JsonProperty("complyWithChildProtectionPlanIndicated")
-    private Boolean complyWithChildProtectionPlanIndicated;
     @JsonProperty("offender")
     private Offender offender;
     @JsonProperty("createdDate")
@@ -51,7 +49,6 @@ public class SentencePlan {
                                 Need.from(sentencePlan.getNeeds()),
                                 Comment.from(data.getComments().values()),
                                 data.getChildSafeguardingIndicated(),
-                                data.getComplyWithChildProtectionPlanIndicated(),
                                 Offender.from(offenderEntity),
                                 sentencePlan.getCreatedOn(),
                                 draft);

@@ -5,9 +5,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.gov.digital.justice.hmpps.sentenceplan.api.Need;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.OASYSAssessmentAPIClient;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.AssessmentNeed;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysAssessment;
+import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.NeedEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.OffenderEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.SentencePlanEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.NoOffenderAssessmentException;
@@ -15,6 +17,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,6 +55,19 @@ public class AssessmentServiceTest {
         assertThat(sentencePlanEntity.getNeeds()).isEmpty();
         assessmentService.addLatestAssessmentNeedsToPlan(sentencePlanEntity);
         assertThat(sentencePlanEntity.getNeeds().size()).isEqualTo(2);
+    }
+
+    @Test
+    public void shouldSetChildSafeguarding() {
+        List<AssessmentNeed> needs = Collections.emptyList();
+        var oasysAssessment = new OasysAssessment(123456,"ACTIVE", needs,true);
+
+        when(oasysAssessmentAPIClient.getLatestLayer3AssessmentForOffender(123456L))
+                .thenReturn(Optional.ofNullable(oasysAssessment));
+
+        assessmentService.addLatestAssessmentNeedsToPlan(sentencePlanEntity);
+        assertThat(sentencePlanEntity.getNeeds()).isEmpty();
+        assertThat(sentencePlanEntity.getData().getChildSafeguardingIndicated()).isTrue();
     }
 
     @Test
