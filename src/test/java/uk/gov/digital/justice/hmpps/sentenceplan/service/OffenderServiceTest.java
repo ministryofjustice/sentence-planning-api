@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner.SERVICE_USER;
 

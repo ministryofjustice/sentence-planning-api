@@ -1,6 +1,5 @@
 package uk.gov.digital.justice.hmpps.sentenceplan.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
 import io.restassured.config.ObjectMapperConfig;
