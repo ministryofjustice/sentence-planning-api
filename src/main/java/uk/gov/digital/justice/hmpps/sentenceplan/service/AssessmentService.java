@@ -19,8 +19,8 @@ import java.util.stream.Collectors;
 @Slf4j
 public class AssessmentService {
     private static final int UPDATE_INTERVAL_MINUTES = 10;
-    private OASYSAssessmentAPIClient oasysAssessmentAPIClient;
-    private Clock clock;
+    private final OASYSAssessmentAPIClient oasysAssessmentAPIClient;
+    private final Clock clock;
 
     public AssessmentService(OASYSAssessmentAPIClient oasysAssessmentAPIClient, Clock clock) {
         this.oasysAssessmentAPIClient = oasysAssessmentAPIClient;

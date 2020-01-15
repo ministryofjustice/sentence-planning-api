@@ -18,15 +18,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.client.MockRestServiceServer;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.InterventionRef;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.MotivationRef;
-import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.AssessmentNeed;
-import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysAssessment;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysRefElement;
-import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.InterventionRefEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.InterventionRespository;
-import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
 
 import java.util.Arrays;
 import java.util.List;
@@ -263,7 +257,7 @@ public class InterventionRefResourceTest {
         assertThat(intervention2).isNotEmpty();
     }
 
-    private MockRestServiceServer createMockOasysInterventions() throws JsonProcessingException {
+    private void createMockOasysInterventions() throws JsonProcessingException {
         var assessmentApi = bindTo(oauthRestTemplate).ignoreExpectOrder(true).build();
 
         var oasysInterventions = List.of(
@@ -274,7 +268,6 @@ public class InterventionRefResourceTest {
         assessmentApi.expect(requestTo("http://localhost:8081/referencedata/INTERVENTION"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(mapper.writeValueAsString(oasysInterventions), MediaType.APPLICATION_JSON));
-        return assessmentApi;
     }
 
 }

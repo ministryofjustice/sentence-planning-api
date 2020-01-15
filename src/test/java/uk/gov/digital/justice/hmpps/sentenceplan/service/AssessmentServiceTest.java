@@ -5,11 +5,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.Need;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.OASYSAssessmentAPIClient;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.AssessmentNeed;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysAssessment;
-import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.NeedEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.OffenderEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.SentencePlanEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.NoOffenderAssessmentException;
@@ -36,7 +34,7 @@ public class AssessmentServiceTest {
 
     SentencePlanEntity sentencePlanEntity;
 
-    Clock clock =  Clock.fixed(Instant.parse("2019-06-01T10:00:00.00Z"), ZoneId.systemDefault());
+    final Clock clock =  Clock.fixed(Instant.parse("2019-06-01T10:00:00.00Z"), ZoneId.systemDefault());
 
     @Before
     public void setup() {
@@ -96,8 +94,6 @@ public class AssessmentServiceTest {
 
     @Test
     public void shouldNotAddNewAssessmentNeedsToSentencePlanIfUpdatedInPast10Minutes() {
-        var needs = List.of(new AssessmentNeed("Accommodation",true,true,true,true),
-                new AssessmentNeed("Alcohol",true,true,true,true));
         sentencePlanEntity.setAssessmentNeedsLastImportedOn(LocalDateTime.now(clock).minusMinutes(9));
 
         assertThat(sentencePlanEntity.getNeeds()).isEmpty();
@@ -109,7 +105,7 @@ public class AssessmentServiceTest {
     public void shouldThrowExceptionWhenNoAssessmentExistsForOffender() {
         when(oasysAssessmentAPIClient.getLatestLayer3AssessmentForOffender(123456L))
                 .thenReturn(Optional.empty());
-        assertThatThrownBy(() -> {  assessmentService.addLatestAssessmentNeedsToPlan(sentencePlanEntity);})
+        assertThatThrownBy(() -> assessmentService.addLatestAssessmentNeedsToPlan(sentencePlanEntity))
                 .isInstanceOf(NoOffenderAssessmentException.class);
     }
 

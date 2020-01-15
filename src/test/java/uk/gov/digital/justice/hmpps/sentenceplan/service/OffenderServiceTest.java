@@ -12,18 +12,11 @@ import uk.gov.digital.justice.hmpps.sentenceplan.client.OASYSAssessmentAPIClient
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysIdentifiers;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysOffender;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.OffenderRespository;
-
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-
-import static java.util.Collections.EMPTY_LIST;
+import java.util.*;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner.SERVICE_USER;
@@ -66,7 +59,7 @@ public class OffenderServiceTest {
     @Test
     public void shouldNotGetOffenderFromOasysIfExistsInRepository() {
 
-        var offender = new OffenderEntity(1L, UUID.randomUUID(), 123456L,"", "", "123", LocalDateTime.now(), EMPTY_LIST);
+        var offender = new OffenderEntity(1L, UUID.randomUUID(), 123456L,"", "", "123", LocalDateTime.now(), Collections.emptyList());
 
         when(offenderRespository.findByOasysOffenderId(123456L)).thenReturn(Optional.ofNullable(offender));
 
@@ -82,7 +75,7 @@ public class OffenderServiceTest {
         when(oasysAssessmentAPIClient.getOffenderById(123456L))
                 .thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> {  offenderService.getOffenderByType(123456L);})
+        assertThatThrownBy(() -> offenderService.getOffenderByType(123456L))
                 .isInstanceOf(EntityNotFoundException.class);
     }
 
@@ -127,11 +120,11 @@ public class OffenderServiceTest {
         objective.addAction(action);
         sentencePlanProperty.setObjectives(Map.of(objective.getId(), objective));
       return new SentencePlanEntity(1L,sentencePlanUuid,
-                LocalDateTime.of(2019,6,1, 11,00),
-                LocalDateTime.of(2019,7,1, 11,00),
-                LocalDateTime.of(2019,7,1, 11,00),
+                LocalDateTime.of(2019,6,1, 11,0),
+                LocalDateTime.of(2019,7,1, 11,0),
+                LocalDateTime.of(2019,7,1, 11,0),
                 "any user",
-                LocalDateTime.of(2019,7,1, 11,00),
+                LocalDateTime.of(2019,7,1, 11,0),
               "any user", sentencePlanProperty, null, offender, null);
     }
 

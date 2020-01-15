@@ -26,7 +26,7 @@ import java.util.UUID;
 @Slf4j
 public class SentencePlanResource {
 
-    private SentencePlanService sentencePlanService;
+    private final SentencePlanService sentencePlanService;
 
     public SentencePlanResource(SentencePlanService sentencePlanService) {
         this.sentencePlanService = sentencePlanService;

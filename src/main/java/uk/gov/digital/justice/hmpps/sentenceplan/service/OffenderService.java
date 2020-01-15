@@ -18,9 +18,9 @@ import java.util.UUID;
 @Service
 @Slf4j
 public class OffenderService {
-private OffenderRespository offenderRespository;
-private OASYSAssessmentAPIClient oasysAssessmentAPIClient;
-private Clock clock;
+private final OffenderRespository offenderRespository;
+private final OASYSAssessmentAPIClient oasysAssessmentAPIClient;
+private final Clock clock;
 
     public OffenderService(OffenderRespository offenderRespository, OASYSAssessmentAPIClient oasysAssessmentAPIClient, Clock clock) {
         this.offenderRespository = offenderRespository;

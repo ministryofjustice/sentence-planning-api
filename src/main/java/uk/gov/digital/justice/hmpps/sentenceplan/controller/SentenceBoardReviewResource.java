@@ -24,7 +24,7 @@ import java.util.UUID;
 @Slf4j
 public class SentenceBoardReviewResource {
 
-    private SentenceBoardReviewService sentenceBoardReviewService;
+    private final SentenceBoardReviewService sentenceBoardReviewService;
 
     public SentenceBoardReviewResource(SentenceBoardReviewService sentenceBoardReviewService) {
         this.sentenceBoardReviewService = sentenceBoardReviewService;

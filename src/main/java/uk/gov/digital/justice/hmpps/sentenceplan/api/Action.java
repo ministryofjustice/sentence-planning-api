@@ -50,7 +50,7 @@ public class Action {
                 action.getMotivationUUID(),
                 action.getPriority(),
                 action.getUpdated(),
-                action.getProgress().stream().map(p -> ActionProgress.from(p)).collect(Collectors.toList()));
+                action.getProgress().stream().map(ActionProgress::from).collect(Collectors.toList()));
     }
 
     public static List<Action> from(Collection<ActionEntity> actions) {

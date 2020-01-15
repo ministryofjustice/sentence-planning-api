@@ -18,7 +18,7 @@ import java.util.List;
 @Slf4j
 public class MotivationResource {
 
-    private MotivationRefService motivationRefService;
+    private final MotivationRefService motivationRefService;
 
     public MotivationResource(MotivationRefService motivationRefService) {
         this.motivationRefService = motivationRefService;

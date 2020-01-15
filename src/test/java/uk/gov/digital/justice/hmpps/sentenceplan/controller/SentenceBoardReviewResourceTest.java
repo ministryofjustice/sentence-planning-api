@@ -11,38 +11,27 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.client.MockRestServiceServer;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.RequestData;
-import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
-import uk.gov.digital.justice.hmpps.sentenceplan.service.OffenderReferenceType;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
-import static java.util.Collections.EMPTY_LIST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 import static org.springframework.test.web.client.ExpectedCount.between;
 import static org.springframework.test.web.client.MockRestServiceServer.bindTo;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 @RunWith(SpringRunner.class)
@@ -84,7 +73,7 @@ public class SentenceBoardReviewResourceTest {
     }
 
     @Test
-    public void shouldGetSentenceBoardReviewSummaries() throws JsonProcessingException {
+    public void shouldGetSentenceBoardReviewSummaries() {
 
         createMockAuthService();
 
@@ -105,7 +94,7 @@ public class SentenceBoardReviewResourceTest {
     }
 
     @Test
-    public void shouldGetSentenceBoardReview() throws JsonProcessingException {
+    public void shouldGetSentenceBoardReview() {
         createMockAuthService();
         var result = given()
                 .when()
@@ -125,7 +114,7 @@ public class SentenceBoardReviewResourceTest {
     }
 
     @Test
-    public void shouldCreateSentenceBoardReview() throws JsonProcessingException {
+    public void shouldCreateSentenceBoardReview() {
         createMockAuthService();
                 given()
                 .when()

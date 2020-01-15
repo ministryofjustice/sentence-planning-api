@@ -12,7 +12,7 @@ import java.util.Optional;
 @Service(value = "auditorAware")
 public class AuditorAwareImpl implements AuditorAware<String> {
 
-    private RequestData requestData;
+    private final RequestData requestData;
 
     public AuditorAwareImpl(RequestData requestData) {
         this.requestData = requestData;

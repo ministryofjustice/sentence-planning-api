@@ -11,6 +11,4 @@ import java.util.UUID;
 public interface MotivationRefDataRespository extends CrudRepository<MotivationRefEntity, Long> {
 
     List<MotivationRefEntity> findAllByDeletedIsNull();
-
-    MotivationRefEntity findByUuid(UUID uuid);
 }

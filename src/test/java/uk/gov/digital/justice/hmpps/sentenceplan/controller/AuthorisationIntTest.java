@@ -20,20 +20,11 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.AddSentenceBoardReviewRequest;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.SentenceBoardReview;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.SentenceBoardReviewSummary;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.SentencePlan;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.RequestData;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.AssessmentNeed;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysAssessment;
-import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
-
-import java.time.LocalDate;
 import java.util.List;
-
 import static io.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
@@ -79,26 +70,26 @@ public class AuthorisationIntTest {
     public void shouldReturn200IfUserIsAuthorisedToAccessSentencePlan() throws JsonProcessingException {
 
         createAuthorisedMockAuthService();
-        var result = given()
-                .when()
-                .header("Accept", "application/json")
-                .header(RequestData.USERNAME_HEADER, USER)
-                .get("/sentenceplans/{0}", SENTENCE_PLAN_ID)
-                .then()
-                .statusCode(200);
+        given()
+            .when()
+            .header("Accept", "application/json")
+            .header(RequestData.USERNAME_HEADER, USER)
+            .get("/sentenceplans/{0}", SENTENCE_PLAN_ID)
+            .then()
+            .statusCode(200);
     }
 
     @Test
     public void shouldReturn401IfUserIsNotAuthorisedToAccessSentencePlan() throws JsonProcessingException {
 
         createNotAuthorisedMockAuthService();
-        var result = given()
-                .when()
-                .header("Accept", "application/json")
-                .header(RequestData.USERNAME_HEADER, USER)
-                .get("/sentenceplans/{0}", SENTENCE_PLAN_ID)
-                .then()
-                .statusCode(401);
+        given()
+            .when()
+            .header("Accept", "application/json")
+            .header(RequestData.USERNAME_HEADER, USER)
+            .get("/sentenceplans/{0}", SENTENCE_PLAN_ID)
+            .then()
+            .statusCode(401);
     }
 
     private MockRestServiceServer createMockAssessmentDataForOffender(Long offenderId) throws JsonProcessingException {

@@ -11,7 +11,6 @@ import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepo
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.CurrentSentencePlanForOffenderExistsException;
 
 import javax.transaction.Transactional;
-import java.security.acl.Owner;
 import java.time.YearMonth;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -23,10 +22,10 @@ import static uk.gov.digital.justice.hmpps.sentenceplan.application.LogEvent.*;
 @Service
 @Slf4j
 public class SentencePlanService {
-    private SentencePlanRepository sentencePlanRepository;
-    private OffenderService offenderService;
-    private AssessmentService assessmentService;
-    private OASYSAssessmentAPIClient oasysAssessmentAPIClient;
+    private final SentencePlanRepository sentencePlanRepository;
+    private final OffenderService offenderService;
+    private final AssessmentService assessmentService;
+    private final OASYSAssessmentAPIClient oasysAssessmentAPIClient;
 
     public SentencePlanService(SentencePlanRepository sentencePlanRepository, OffenderService offenderService, AssessmentService assessmentService, OASYSAssessmentAPIClient oasysAssessmentAPIClient) {
         this.sentencePlanRepository = sentencePlanRepository;
