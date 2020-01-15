@@ -1,6 +1,5 @@
 package uk.gov.digital.justice.hmpps.sentenceplan.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
 import io.restassured.config.ObjectMapperConfig;
@@ -11,33 +10,21 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.client.MockRestServiceServer;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.MotivationRef;
-import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.AssessmentNeed;
-import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysAssessment;
-import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysIdentifiers;
-import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysOffender;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
 
-import java.util.List;
 import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
-import static org.springframework.test.web.client.MockRestServiceServer.bindTo;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")

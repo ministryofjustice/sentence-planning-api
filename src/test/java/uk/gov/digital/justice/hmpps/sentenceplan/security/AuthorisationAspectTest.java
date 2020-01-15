@@ -38,9 +38,9 @@ public class AuthorisationAspectTest {
 
     AuthorisationAspect aspect;
 
-    UUID sentencePlanUuid =  UUID.fromString("11111111-1111-1111-1111-111111111111");
+    final UUID sentencePlanUuid =  UUID.fromString("11111111-1111-1111-1111-111111111111");
 
-    OffenderEntity offender = new OffenderEntity(123456L, "12345", null);
+    final OffenderEntity offender = new OffenderEntity(123456L, "12345", null);
 
     @Before
     public void setup() {
@@ -73,7 +73,7 @@ public class AuthorisationAspectTest {
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
         when(annotation.accessLevel()).thenReturn(READ_SENTENCE_PLAN);
 
-        assertThatThrownBy(() -> {         aspect.validateUserAccess(proceedingJoinPoint,annotation);})
+        assertThatThrownBy(() -> aspect.validateUserAccess(proceedingJoinPoint,annotation))
                 .isInstanceOf(AuthorisationException.class)
                 .hasMessageContaining("User USER is not authorised to access the requested resource");
 
@@ -107,7 +107,7 @@ public class AuthorisationAspectTest {
         when(proceedingJoinPoint.getSignature().getName()).thenReturn("methodName");
         when(annotation.accessLevel()).thenReturn(READ_SENTENCE_PLAN);
 
-        assertThatThrownBy(() -> { aspect.validateUserAccess(proceedingJoinPoint,annotation);})
+        assertThatThrownBy(() -> aspect.validateUserAccess(proceedingJoinPoint,annotation))
                 .isInstanceOf(AuthorisationException.class)
         .hasMessageContaining("User USER is not authorised to access the requested resource");
 
@@ -121,7 +121,7 @@ public class AuthorisationAspectTest {
         args[0] = "TEST";
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
         when(proceedingJoinPoint.getSignature().getName()).thenReturn("methodName");
-        assertThatThrownBy(() -> { aspect.validateUserAccess(proceedingJoinPoint,annotation);})
+        assertThatThrownBy(() -> aspect.validateUserAccess(proceedingJoinPoint,annotation))
                 .isInstanceOf(AuthorisationException.class)
                 .hasMessageContaining("Unable parse method parameters for type java.lang.String");
 
@@ -136,7 +136,7 @@ public class AuthorisationAspectTest {
         when(offenderService.getSentencePlanOffender(sentencePlanUuid)).thenThrow(new EntityNotFoundException(""));
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
         when(proceedingJoinPoint.getSignature().getName()).thenReturn("methodName");
-        assertThatThrownBy(() -> { aspect.validateUserAccess(proceedingJoinPoint,annotation);})
+        assertThatThrownBy(() -> aspect.validateUserAccess(proceedingJoinPoint,annotation))
                 .isInstanceOf(EntityNotFoundException.class);
         verify(proceedingJoinPoint, never()).proceed();
         verify(offenderService, times(1)).getSentencePlanOffender(sentencePlanUuid);

@@ -24,14 +24,11 @@ import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.RequestData;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
-import uk.gov.digital.justice.hmpps.sentenceplan.service.OffenderReferenceType;
-
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import static io.restassured.RestAssured.given;
-import static io.restassured.RestAssured.with;
-import static java.util.Collections.EMPTY_LIST;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -89,7 +86,7 @@ public class SentencePlanResourceTest {
 
     private final String SENTENCE_PLAN_ID = "11111111-1111-1111-1111-111111111111";
     private final String NOT_FOUND_SENTENCE_PLAN_ID = "99999999-9999-9999-9999-999999999999";
-    private  long OASYS_OFFENDER_ID = 123456;
+    private final long OASYS_OFFENDER_ID = 123456;
     private final String USER = "TEST_USER";
 
     @Before
@@ -133,7 +130,7 @@ public class SentencePlanResourceTest {
                 .andExpect(method(GET))
                 .andRespond(withSuccess(
                         mapper.writeValueAsString(List.of(
-                            new OasysSentencePlan(12345L, LocalDate.of(2010, 1,1), null, EMPTY_LIST)
+                            new OasysSentencePlan(12345L, LocalDate.of(2010, 1,1), null, Collections.emptyList())
                         )), MediaType.APPLICATION_JSON));
 
         var result = given()
@@ -165,7 +162,7 @@ public class SentencePlanResourceTest {
                 .andExpect(method(GET))
                 .andRespond(withSuccess(
                         mapper.writeValueAsString(List.of(
-                                new OasysSentencePlan(12345L, LocalDate.of(2010, 1,1), null, EMPTY_LIST)
+                                new OasysSentencePlan(12345L, LocalDate.of(2010, 1,1), null, Collections.emptyList())
                         )), MediaType.APPLICATION_JSON));
 
         var result = given()
@@ -311,7 +308,7 @@ public class SentencePlanResourceTest {
     }
 
     @Test
-    public void shouldReturn401WhenOffenderNotFound() throws JsonProcessingException {
+    public void shouldReturn401WhenOffenderNotFound() {
 
         var assessmentApi = bindTo(oauthRestTemplate).ignoreExpectOrder(true).build();
         assessmentApi.expect(between(1,2), requestTo("http://localhost:8081/authentication/user/" + USER + "/offender/123"))

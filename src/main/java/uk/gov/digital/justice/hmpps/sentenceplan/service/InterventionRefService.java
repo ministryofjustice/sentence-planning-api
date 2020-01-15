@@ -7,14 +7,13 @@ import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.InterventionRefEntit
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.InterventionRespository;
 import javax.transaction.Transactional;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class InterventionRefService {
 
-    private InterventionRespository interventionRespository;
-    private OASYSAssessmentAPIClient oasysAssessmentAPIClient;
+    private final InterventionRespository interventionRespository;
+    private final OASYSAssessmentAPIClient oasysAssessmentAPIClient;
 
     public InterventionRefService(InterventionRespository interventionRespository, OASYSAssessmentAPIClient oasysAssessmentAPIClient) {
         this.interventionRespository = interventionRespository;
@@ -34,10 +33,10 @@ public class InterventionRefService {
         var updatedInterventions = oasysAssessmentAPIClient.getInterventionRefData();
         var existingInterventions = interventionRespository.findAll();
 
-        existingInterventions.stream().forEach(i -> i.setActive(false));
+        existingInterventions.forEach(i -> i.setActive(false));
 
         //add new and update existing interventions
-        updatedInterventions.stream().forEach(
+        updatedInterventions.forEach(
                 updatedIntervention -> {
                     var intervention = existingInterventions.stream()
                             .filter(i -> i.getExternalReference().equals(updatedIntervention.getCode())).findFirst()

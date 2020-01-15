@@ -25,13 +25,8 @@ public class ActionEntityTest {
     private static final UUID intervention = UUID.fromString("11111111-1111-1111-1111-111111111111");
     private static final ActionStatus status = ActionStatus.IN_PROGRESS;
     private static final YearMonth targetDate = YearMonth.of(2019,6);
-
-
-    private static final List<ActionOwner> ownerUpdate = List.of(PRACTITIONER);
     private static final String descriptionUpdate = "DescriptionU";
-    private static final String strengthUpdate = "StrengthU";
     private static final UUID interventionUpdate = UUID.fromString("11111111-1111-1111-1111-111111111112");
-    private static final ActionStatus statusUpdate = ActionStatus.PARTIALLY_COMPLETED;
 
     @Test
     public void shouldCreateAction() {
@@ -53,7 +48,7 @@ public class ActionEntityTest {
 
     @Test
     public void shouldCreateActionWithOtherOwner() {
-        var action = new ActionEntity(null, description, targetDate,motivation, List.of(OTHER),"Other", status);
+        var action = new ActionEntity(null, description, targetDate, motivation, List.of(OTHER), "Other", status);
 
         assertThat(action.getOwner()).hasSize(1);
         assertThat(action.getOwner()).contains(OTHER);

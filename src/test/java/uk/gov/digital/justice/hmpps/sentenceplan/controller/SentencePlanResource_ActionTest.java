@@ -36,9 +36,7 @@ import static org.springframework.test.web.client.MockRestServiceServer.bindTo;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
-import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner.PRACTITIONER;
 import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner.SERVICE_USER;
-import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionStatus.COMPLETED;
 import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionStatus.IN_PROGRESS;
 
 @RunWith(SpringRunner.class)

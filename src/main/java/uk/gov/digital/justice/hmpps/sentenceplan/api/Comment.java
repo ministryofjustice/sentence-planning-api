@@ -6,11 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.CommentEntity;
-
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor

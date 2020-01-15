@@ -8,9 +8,6 @@ import org.springframework.stereotype.Component;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.RequestData;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.OASYSAssessmentAPIClient;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.OffenderService;
-import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
-
-import java.util.Optional;
 import java.util.UUID;
 
 @Aspect
@@ -19,8 +16,8 @@ import java.util.UUID;
 public class AuthorisationAspect {
 
     private OASYSAssessmentAPIClient oasysAssessmentAPIClient;
-    private OffenderService offenderService;
-    private RequestData requestData;
+    private final OffenderService offenderService;
+    private final RequestData requestData;
 
 
     public AuthorisationAspect(OASYSAssessmentAPIClient oasysAssessmentAPIClient, RequestData requestData, OffenderService offenderService) {
@@ -32,7 +29,7 @@ public class AuthorisationAspect {
     @Around("@annotation(authorised)")
     public Object validateUserAccess(ProceedingJoinPoint joinPoint, Authorised authorised) throws Throwable {
 
-        Long oasysOffenderId = null;
+        Long oasysOffenderId;
         if (joinPoint.getArgs()[0] instanceof UUID) {
             var sentencePlanUuid = (UUID) joinPoint.getArgs()[0];
             oasysOffenderId = getSentencePlanOffenderId(sentencePlanUuid);

@@ -3,7 +3,6 @@ package uk.gov.digital.justice.hmpps.sentenceplan.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.SentenceBoardReviewEntity;
-import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.SentencePlanEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentenceBoardReviewRepository;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
 
@@ -20,8 +19,8 @@ import static uk.gov.digital.justice.hmpps.sentenceplan.application.LogEvent.*;
 @Slf4j
 public class SentenceBoardReviewService {
 
-private SentenceBoardReviewRepository sentenceBoardReviewRepository;
-private SentencePlanService sentencePlanService;
+private final SentenceBoardReviewRepository sentenceBoardReviewRepository;
+private final SentencePlanService sentencePlanService;
 
     public SentenceBoardReviewService(SentenceBoardReviewRepository sentenceBoardReviewRepository, SentencePlanService sentencePlanService) {
         this.sentenceBoardReviewRepository = sentenceBoardReviewRepository;
@@ -30,8 +29,8 @@ private SentencePlanService sentencePlanService;
 
     @Transactional
     public void  addSentenceBoardReview(UUID sentencePlanUUID, String comments, String attendees, LocalDate dateOfBoard) {
-        SentencePlanEntity sentencePlan = sentencePlanService.getSentencePlanEntity(sentencePlanUUID);
-        SentenceBoardReviewEntity sentenceBoardReviewEntity = new SentenceBoardReviewEntity(comments, attendees, dateOfBoard, sentencePlan);
+        var sentencePlan = sentencePlanService.getSentencePlanEntity(sentencePlanUUID);
+        var sentenceBoardReviewEntity = new SentenceBoardReviewEntity(comments, attendees, dateOfBoard, sentencePlan);
         sentenceBoardReviewRepository.save(sentenceBoardReviewEntity);
         log.info("Created Sentence Board Review {} for Sentence Plan {}", sentenceBoardReviewEntity.getUuid(), sentencePlanUUID, value(EVENT, SENTENCE_BOARD_REVIEW_CREATED));
     }

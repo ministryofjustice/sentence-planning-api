@@ -1,7 +1,5 @@
 package uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository;
 
-import org.springframework.data.jpa.repository.Query;
-import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.OffenderEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.SentencePlanEntity;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;

@@ -26,7 +26,6 @@ import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysAssessment;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysIdentifiers;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysOffender;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
-import uk.gov.digital.justice.hmpps.sentenceplan.service.OffenderReferenceType;
 import java.util.List;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;

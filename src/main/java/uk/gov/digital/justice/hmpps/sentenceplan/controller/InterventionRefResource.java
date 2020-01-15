@@ -7,7 +7,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.InterventionRef;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.MotivationRef;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.InterventionRefService;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,7 +18,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class InterventionRefResource {
 
-    private InterventionRefService interventionRefService;
+    private final InterventionRefService interventionRefService;
 
     public InterventionRefResource(InterventionRefService interventionRefService) {
         this.interventionRefService = interventionRefService;
@@ -32,7 +31,7 @@ public class InterventionRefResource {
     ResponseEntity<List<InterventionRef>> getActiveInterventions() {
         return ResponseEntity.ok(
                 interventionRefService.getActiveInterventions().stream()
-                        .map(r->InterventionRef.from(r)).collect(Collectors.toList()));
+                        .map(InterventionRef::from).collect(Collectors.toList()));
     }
 
     @GetMapping(value = "/interventions/all", produces = "application/json")
@@ -42,7 +41,7 @@ public class InterventionRefResource {
     ResponseEntity<List<InterventionRef>> getAllInterventions() {
         return ResponseEntity.ok(
                 interventionRefService.getAllInterventions().stream()
-                        .map(r->InterventionRef.from(r)).collect(Collectors.toList()));
+                        .map(InterventionRef::from).collect(Collectors.toList()));
     }
 
 

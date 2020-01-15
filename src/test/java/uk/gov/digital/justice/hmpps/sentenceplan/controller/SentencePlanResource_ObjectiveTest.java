@@ -26,7 +26,6 @@ import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.AssessmentNeed;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysAssessment;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
 
-import java.time.YearMonth;
 import java.util.List;
 import java.util.UUID;
 
@@ -40,10 +39,6 @@ import static org.springframework.test.web.client.MockRestServiceServer.bindTo;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
-import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner.PRACTITIONER;
-import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner.SERVICE_USER;
-import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionStatus.COMPLETED;
-import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionStatus.IN_PROGRESS;
 
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")
@@ -271,14 +266,14 @@ public class SentencePlanResource_ObjectiveTest {
                 needs,
                 false);
 
-        var result = given()
-                .when()
-                .body(requestBody)
-                .header("Content-Type", "application/json")
-                .header(RequestData.USERNAME_HEADER, USER)
-                .put("/sentenceplans/{0}/objectives/{1}", SENTENCE_PLAN_ID_FULL, NOT_FOUND_OBJECTIVE_ID)
-                .then()
-                .statusCode(404);
+        given()
+            .when()
+            .body(requestBody)
+            .header("Content-Type", "application/json")
+            .header(RequestData.USERNAME_HEADER, USER)
+            .put("/sentenceplans/{0}/objectives/{1}", SENTENCE_PLAN_ID_FULL, NOT_FOUND_OBJECTIVE_ID)
+            .then()
+            .statusCode(404);
 
     }
 
