@@ -3,7 +3,6 @@ package uk.gov.digital.justice.hmpps.sentenceplan.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +22,6 @@ import java.util.UUID;
 @RestController
 @RequestMapping(
         produces = MediaType.APPLICATION_JSON_VALUE)
-@Slf4j
 public class SentencePlanResource {
 
     private final SentencePlanService sentencePlanService;

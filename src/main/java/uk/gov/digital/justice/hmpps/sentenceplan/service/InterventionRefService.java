@@ -8,6 +8,10 @@ import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.InterventionResp
 import javax.transaction.Transactional;
 import java.util.List;
 
+import static net.logstash.logback.argument.StructuredArguments.value;
+import static uk.gov.digital.justice.hmpps.sentenceplan.application.LogEvent.EVENT;
+import static uk.gov.digital.justice.hmpps.sentenceplan.application.LogEvent.INTERVENTIONS_UPDATED;
+
 @Service
 @Slf4j
 public class InterventionRefService {
@@ -48,5 +52,6 @@ public class InterventionRefService {
                     intervention.setExternalReference(updatedIntervention.getCode());
                     interventionRespository.save(intervention);
                 });
+        log.info("Updated Interventions", value(EVENT, INTERVENTIONS_UPDATED));
     }
 }

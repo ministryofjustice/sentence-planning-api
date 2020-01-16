@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping(
         produces = MediaType.APPLICATION_JSON_VALUE)
-@Slf4j
 public class InterventionRefResource {
 
     private final InterventionRefService interventionRefService;
