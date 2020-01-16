@@ -47,7 +47,7 @@ public class InterventionRefResource {
 
     @PostMapping(value = "/interventions", produces = "application/json")
     @ApiOperation(value = "Refresh Intervention Data")
-    ResponseEntity progressAction() {
+    ResponseEntity refreshInterventions() {
         interventionRefService.refreshInterventions();
         return ResponseEntity.ok().build();
     }
