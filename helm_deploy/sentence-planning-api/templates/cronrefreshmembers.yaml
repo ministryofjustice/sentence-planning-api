@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: sp-interventions-refresh
 spec:
-  schedule: "0 4 * * *"
+  schedule: "*/5 * * * *"
   jobTemplate:
     spec:
       backoffLimit: 3
