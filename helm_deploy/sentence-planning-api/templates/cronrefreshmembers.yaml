@@ -17,5 +17,5 @@ spec:
               image: ubuntu
               command: ["/bin/sh", "-c"]
               args:
-                - http_status=$( curl -X POST -vk -w '%{http_code}' {{ .Values.env.SENTENCEPLANNING_API_URL | quote }}/interventions ); if [[ $http_status -eq 200 ]]; then exit 0; else exit 1; fi
+                - http_status=$( curl -X POST -vk -w '%{http_code}' {{ .Values.env.SENTENCEPLANNING_API_URL }}/interventions ); if [[ $http_status -eq 200 ]]; then exit 0; else exit 1; fi
           restartPolicy: OnFailure
