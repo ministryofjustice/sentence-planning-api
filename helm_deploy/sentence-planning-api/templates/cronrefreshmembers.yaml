@@ -11,6 +11,9 @@ spec:
         spec:
           containers:
             - name: sp-interventions-refresh-job
+              securityContext:
+                runAsNonRoot: true
+                runAsUser: 1000
               image: openjdk:11-slim
               command: ["/bin/sh", "-c"]
               args:
