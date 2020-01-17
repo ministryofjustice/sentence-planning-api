@@ -69,4 +69,43 @@ public class SentencePlanRepositoryTest {
         assertThat(result.getModifyUserId()).isEqualToIgnoringCase("USER");
     }
 
+
+        @Test
+        public void initialRevision() {
+            var offender =offenderRepository.findByOasysOffenderId(123456L);
+            var sentencePlan = new SentencePlanEntity(offender.get());
+
+            repository.save(sentencePlan);
+
+            var revisions = repository.findRevisions(sentencePlan.getId());
+
+            assertThat(revisions)
+                    .isNotEmpty()
+                    .allSatisfy(revision -> assertThat(revision.getEntity())
+                            .extracting(SentencePlanEntity::getId, SentencePlanEntity::getUuid, SentencePlanEntity::getCreateUserId, SentencePlanEntity::getCreatedOn, SentencePlanEntity::getModifyUserId, SentencePlanEntity::getModifyDateTime)
+                            .containsExactly(sentencePlan.getId(), sentencePlan.getUuid(), sentencePlan.getCreateUserId(), sentencePlan.getCreatedOn(), sentencePlan.getModifyUserId(), sentencePlan.getModifyDateTime())
+                    );
+        }
+
+    @Test
+    public void updateIncreasesRevisionNumber() {
+        var offender =offenderRepository.findByOasysOffenderId(123456L);
+        var sentencePlan = new SentencePlanEntity(offender.get());
+        repository.save(sentencePlan);
+
+        sentencePlan.addComment(new CommentEntity("a comment", CommentType.LIASON_ARRANGEMENTS, "a user"));
+        repository.save(sentencePlan);
+
+        assertThat(repository.findRevisions(sentencePlan.getId())).hasSize(2);
+        var revision = repository.findLastChangeRevision(sentencePlan.getId());
+
+        assertThat(revision)
+                .isPresent()
+                .hasValueSatisfying(rev ->
+                        assertThat(rev.getRevisionNumber()).hasValue(2)
+                )
+                .hasValueSatisfying(rev ->
+                        assertThat(rev.getEntity().getData().getComments()).hasSize(1));
+    }
+
 } 

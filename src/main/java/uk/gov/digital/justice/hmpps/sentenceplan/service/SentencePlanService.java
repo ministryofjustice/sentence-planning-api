@@ -1,8 +1,10 @@
 package uk.gov.digital.justice.hmpps.sentenceplan.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.history.Revision;
 import org.springframework.stereotype.Service;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
+import uk.gov.digital.justice.hmpps.sentenceplan.application.RequestData;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.OASYSAssessmentAPIClient;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysSentencePlan;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
@@ -26,12 +28,14 @@ public class SentencePlanService {
     private final OffenderService offenderService;
     private final AssessmentService assessmentService;
     private final OASYSAssessmentAPIClient oasysAssessmentAPIClient;
+    private final RequestData requestData;
 
-    public SentencePlanService(SentencePlanRepository sentencePlanRepository, OffenderService offenderService, AssessmentService assessmentService, OASYSAssessmentAPIClient oasysAssessmentAPIClient) {
+    public SentencePlanService(SentencePlanRepository sentencePlanRepository, OffenderService offenderService, AssessmentService assessmentService, OASYSAssessmentAPIClient oasysAssessmentAPIClient, RequestData requestData) {
         this.sentencePlanRepository = sentencePlanRepository;
         this.offenderService = offenderService;
         this.assessmentService = assessmentService;
         this.oasysAssessmentAPIClient = oasysAssessmentAPIClient;
+        this.requestData = requestData;
     }
 
     @Transactional
@@ -121,8 +125,7 @@ public class SentencePlanService {
     @Transactional
     public void progressAction(UUID sentencePlanUUID, UUID objectiveUUID, UUID actionId, ActionStatus status, YearMonth targetDate, UUID motivationUUID, String comment, List<ActionOwner> owner, String ownerOther) {
         var actionEntity = getActionEntity(sentencePlanUUID, objectiveUUID, actionId);
-        // TODO: Presumably createdBy comes from the Auth headers?
-        var progressEntity = new ProgressEntity(status, targetDate, motivationUUID, comment, owner, ownerOther, "ANONYMOUS");
+        var progressEntity = new ProgressEntity(status, targetDate, motivationUUID, comment, owner, ownerOther, requestData.getUsername());
         actionEntity.addProgress(progressEntity);
         log.info("Progressed Action for Sentence Plan {} Objective {}", sentencePlanUUID, objectiveUUID, value(EVENT, SENTENCE_PLAN_ACTION_PROGRESSED));
     }
@@ -144,9 +147,7 @@ public class SentencePlanService {
     @Transactional
     public void addSentencePlanComments(UUID sentencePlanUUID, List<AddCommentRequest> comments) {
         var sentencePlanEntity = getSentencePlanEntity(sentencePlanUUID);
-
-        // TODO: Presumably createdBy comes from the Auth headers?
-        comments.forEach(comment -> sentencePlanEntity.addComment(new CommentEntity(comment.getComment(), comment.getCommentType(), "ANONYMOUS")));
+        comments.forEach(comment -> sentencePlanEntity.addComment(new CommentEntity(comment.getComment(), comment.getCommentType(), requestData.getUsername())));
         log.info("Added Comments to Sentence Plan {}", sentencePlanEntity.getUuid(), value(EVENT, SENTENCE_PLAN_COMMENTS_CREATED));
     }
 
@@ -232,5 +233,11 @@ public class SentencePlanService {
         var objectives = sentencePlanEntity.getData().getObjectives().values();
         log.info("Retrieved Objectives for Sentence Plan {}", sentencePlanUUID, value(EVENT, SENTENCE_PLAN_OBJECTIVES_RETRIEVED));
         return objectives;
+    }
+
+    public List<Revision<Integer, SentencePlanEntity>> getSentencePlanRevisions(UUID sentencePlanUuid) {
+        var sentencePlanEntity = getSentencePlanEntity(sentencePlanUuid);
+        var revisions = sentencePlanRepository.findRevisions(sentencePlanEntity.getId());
+        return revisions.getContent();
     }
 }

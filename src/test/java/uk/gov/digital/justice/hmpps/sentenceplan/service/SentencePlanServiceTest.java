@@ -7,6 +7,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
+import uk.gov.digital.justice.hmpps.sentenceplan.application.RequestData;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.OASYSAssessmentAPIClient;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysSentencePlan;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.CurrentSentencePlanForOffenderExistsException;
@@ -40,6 +41,9 @@ public class SentencePlanServiceTest {
     @Mock
     private OASYSAssessmentAPIClient oasysAssessmentAPIClient;
 
+    @Mock
+    private RequestData requestData;
+
     private final Long oasysOffenderId = 123456789L;
 
     private SentencePlanService service;
@@ -52,7 +56,8 @@ public class SentencePlanServiceTest {
     public void setup() {
         motivations = List.of(new MotivationRefEntity("motivation 1", "motivation 1"),
                 new MotivationRefEntity("motivation 1", "motivation 1"));
-        service = new SentencePlanService(sentencePlanRepository, offenderService, assessmentService, oasysAssessmentAPIClient);
+        service = new SentencePlanService(sentencePlanRepository, offenderService, assessmentService, oasysAssessmentAPIClient, requestData);
+        when(requestData.getUsername()).thenReturn("a user");
     }
 
     @Test

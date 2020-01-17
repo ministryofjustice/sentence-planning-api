@@ -2,6 +2,9 @@ DELETE FROM sentenceplanapitest.motivation_ref_data WHERE true;
 DELETE FROM sentenceplanapitest.need WHERE true;
 DELETE FROM sentenceplanapitest.sentence_plan where true;
 DELETE FROM sentenceplanapitest.offender WHERE true;
+DELETE FROM sentenceplanapitest.sentence_plan_aud WHERE true;
+DELETE FROM sentenceplanapitest.revinfo WHERE true;
+ALTER SEQUENCE sentenceplanapitest.hibernate_sequence RESTART WITH 1;
 
 INSERT INTO sentenceplanapitest.offender (uuid, oasys_offender_id, nomis_offender_id, delius_offender_id) VALUES ('11111111-1111-1111-1111-111111111111', 123456, null, null);
 INSERT INTO sentenceplanapitest.offender (uuid, oasys_offender_id, nomis_offender_id, delius_offender_id) VALUES ('22222222-2222-2222-2222-222222222222', 789123, null, null);
