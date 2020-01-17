@@ -3,11 +3,14 @@ package uk.gov.digital.justice.hmpps.sentenceplan.controller;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.history.Revision;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysSentencePlan;
+import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.SentencePlanEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.security.AccessLevel;
 import uk.gov.digital.justice.hmpps.sentenceplan.security.Authorised;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.SentencePlanService;
@@ -22,6 +25,7 @@ import java.util.UUID;
 @RestController
 @RequestMapping(
         produces = MediaType.APPLICATION_JSON_VALUE)
+@Slf4j
 public class SentencePlanResource {
 
     private final SentencePlanService sentencePlanService;
@@ -46,6 +50,15 @@ public class SentencePlanResource {
     ResponseEntity<SentencePlan> getSentencePlan(@ApiParam(value = "Sentence Plan ID", required = true, example = "11111111-1111-1111-1111-111111111111") @PathVariable UUID sentencePlanUUID) {
         return ResponseEntity.ok(SentencePlan.from(sentencePlanService.getSentencePlanFromUuid(sentencePlanUUID)));
     }
+
+    @GetMapping(value = "/sentenceplans/{sentencePlanUUID}/revisions", produces = "application/json")
+    @ApiOperation(value = "Gets a previous revisions of a Sentence Plan",
+            notes = "Request sentence plan history")
+    @Authorised(accessLevel = AccessLevel.READ_SENTENCE_PLAN)
+    ResponseEntity<List<Revision<Integer, SentencePlanEntity>>> getSentencePlanRevisions(@ApiParam(value = "Sentence Plan ID", required = true, example = "11111111-1111-1111-1111-111111111111") @PathVariable UUID sentencePlanUUID) {
+        return ResponseEntity.ok(sentencePlanService.getSentencePlanRevisions(sentencePlanUUID));
+    }
+
 
     @PostMapping(value = "/sentenceplans/{sentencePlanUUID}/end", produces = "application/json")
     @ApiOperation(value = "End a sentence plan",

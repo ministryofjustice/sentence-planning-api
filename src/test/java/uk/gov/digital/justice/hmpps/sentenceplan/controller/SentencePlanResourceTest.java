@@ -438,6 +438,69 @@ public class SentencePlanResourceTest {
         assertThat(comment.get().getComment()).isEqualTo("Any New Comment");
     }
 
+    @Test
+    public void shouldCreateNewRevisionsOnChange() throws JsonProcessingException {
+        var assessmentApi = createMockAssessmentDataForOffender(123L);
+        createMockAuthService(123L, assessmentApi);
+        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123/summary"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(123L, "Gary", "Smith", "", "", new OasysIdentifiers("12345678", "123"))), MediaType.APPLICATION_JSON));
+
+        //create a new sentence plan
+        var sentencePlan = given()
+                .when()
+                .header("Accept", "application/json")
+                .header(RequestData.USERNAME_HEADER, USER)
+                .post("/offenders/{oasysOffenderId}/sentenceplans", 123L)
+                .then()
+                .statusCode(201)
+                .extract()
+                .body()
+                .as(SentencePlan.class);
+
+
+        var revisions = given()
+                .when()
+                .header("Accept", "application/json")
+                .header(RequestData.USERNAME_HEADER, USER)
+                .get("/sentenceplans/{0}/revisions", sentencePlan.getUuid())
+                .then()
+                .statusCode(200)
+                .extract()
+                .jsonPath().getList(".", SentencePlanSummary.class);
+
+        //value is 1 after creation
+        assertThat(revisions).hasSize(1);
+
+
+        var comment = new AddCommentRequest("Test Comment", CommentType.THEIR_SUMMARY);
+        var requestBody = List.of(comment);
+
+        //add a comment to create an update and another revision
+        given()
+            .when()
+            .body(requestBody)
+            .header("Content-Type", "application/json")
+            .header(RequestData.USERNAME_HEADER, USER)
+            .put("/sentenceplans/{0}/comments", sentencePlan.getUuid())
+            .then()
+            .statusCode(200)
+            .extract().statusCode();
+
+        var afterUpdateRevisions = given()
+                .when()
+                .header("Accept", "application/json")
+                .header(RequestData.USERNAME_HEADER, USER)
+                .get("/sentenceplans/{0}/revisions", sentencePlan.getUuid())
+                .then()
+                .statusCode(200)
+                .extract()
+                .jsonPath().getList(".", SentencePlanSummary.class);
+
+        assertThat(afterUpdateRevisions).hasSize(2);
+
+    }
+
     private MockRestServiceServer createMockAssessmentDataForOffender(Long offenderId) throws JsonProcessingException {
         var assessmentApi = bindTo(oauthRestTemplate).ignoreExpectOrder(true).build();
 
@@ -452,7 +515,7 @@ public class SentencePlanResourceTest {
     }
 
     private void createMockAuthService(Long offenderId, MockRestServiceServer assessmentApi) {
-        assessmentApi.expect(between(1,3), requestTo("http://localhost:8081/authentication/user/" + USER + "/offender/" + offenderId))
+        assessmentApi.expect(between(1,4), requestTo("http://localhost:8081/authentication/user/" + USER + "/offender/" + offenderId))
                 .andExpect(method(GET))
                 .andRespond(withSuccess());
     }
