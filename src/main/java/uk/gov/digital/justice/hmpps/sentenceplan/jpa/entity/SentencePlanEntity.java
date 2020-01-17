@@ -133,6 +133,10 @@ public class SentencePlanEntity implements Serializable {
         need.setActive(true);
         this.needs.add(need);
     }
+
+    public boolean isDraft() {
+        return this.startedDate == null;
+    }
 }
 
 

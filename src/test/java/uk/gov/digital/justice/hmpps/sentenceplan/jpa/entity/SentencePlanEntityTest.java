@@ -42,6 +42,19 @@ public class SentencePlanEntityTest {
     }
 
     @Test
+    public void shouldBeDraftWhenStartedDateNull() {
+        var offender = mock(OffenderEntity.class);
+        var sentencePlan = new SentencePlanEntity(offender);
+
+        assertThat(sentencePlan.getStartedDate()).isNull();
+        assertThat(sentencePlan.isDraft()).isTrue();
+
+        sentencePlan.start();
+
+        assertThat(sentencePlan.isDraft()).isFalse();
+    }
+
+    @Test
     public void shouldEndThePlan() {
         var offender = mock(OffenderEntity.class);
         var sentencePlan = new SentencePlanEntity(offender);

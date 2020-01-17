@@ -42,8 +42,6 @@ public class SentencePlan {
 
         var offenderEntity = Optional.ofNullable(sentencePlan.getOffender()).orElseGet(OffenderEntity::new);
 
-        var draft = sentencePlan.getStartedDate() == null;
-
         return new SentencePlan(sentencePlan.getUuid(),
                                 Objective.from(data.getObjectives().values()),
                                 Need.from(sentencePlan.getNeeds()),
@@ -51,6 +49,6 @@ public class SentencePlan {
                                 data.getChildSafeguardingIndicated(),
                                 Offender.from(offenderEntity),
                                 sentencePlan.getCreatedOn(),
-                                draft);
+                                sentencePlan.isDraft());
     }
 }
