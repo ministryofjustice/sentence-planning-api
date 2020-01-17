@@ -164,7 +164,7 @@ public class SentencePlanService {
         var oasysSentencePlans = oasysAssessmentAPIClient.getSentencePlansForOffender(oasysOffenderId);
 
         var sentencePlanSummaries = Stream.concat(
-                newSentencePlans.stream().map(s -> new SentencePlanSummary(s.getUuid().toString(), s.getCreatedOn(), s.getCompletedDate(), false, s.getStartedDate() != null)),
+                newSentencePlans.stream().map(s -> new SentencePlanSummary(s.getUuid().toString(), s.getCreatedOn(), s.getCompletedDate(), false, s.isDraft())),
                 oasysSentencePlans.stream().map(s -> new SentencePlanSummary(Long.toString(s.getOasysSetId()), s.getCreatedDate(), s.getCompletedDate(), true, false))
         ).collect(Collectors.toList());
 

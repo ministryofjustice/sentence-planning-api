@@ -347,7 +347,7 @@ public class SentencePlanServiceTest {
     }
 
     @Test
-    public void getSentencePlansForOffenderShouldReturnDraftStatusTrueIfPlanHasStarted() {
+    public void getSentencePlansForOffenderShouldReturnDraftStatusFalseIfPlanHasStarted() {
 
         var offender = getOffenderEntity();
         var plan = getNewSentencePlan(sentencePlanUuid);
@@ -359,13 +359,13 @@ public class SentencePlanServiceTest {
         var result = service.getSentencePlansForOffender(12345L).get(0);
 
         assertThat(result.getPlanId()).isEqualTo("11111111-1111-1111-1111-111111111111");
-        assertThat(result.isDraft()).isTrue();
+        assertThat(result.isDraft()).isFalse();
         verify(sentencePlanRepository, times(1)).findByOffenderUuid(UUID.fromString("11111111-1111-1111-1111-111111111111"));
 
     }
 
     @Test
-    public void getSentencePlansForOffenderShouldReturnDraftStatusFalseIfPlanHasNotStarted() {
+    public void getSentencePlansForOffenderShouldReturnDraftStatusTrueIfPlanHasNotStarted() {
 
         var offender = getOffenderEntity();
         var plan = getNewSentencePlan(sentencePlanUuid);
@@ -377,7 +377,7 @@ public class SentencePlanServiceTest {
         var result = service.getSentencePlansForOffender(12345L).get(0);
 
         assertThat(result.getPlanId()).isEqualTo("11111111-1111-1111-1111-111111111111");
-        assertThat(result.isDraft()).isFalse();
+        assertThat(result.isDraft()).isTrue();
         verify(sentencePlanRepository, times(1)).findByOffenderUuid(UUID.fromString("11111111-1111-1111-1111-111111111111"));
 
     }
