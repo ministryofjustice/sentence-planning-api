@@ -22,7 +22,7 @@ import static org.mockito.Mockito.*;
 import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner.PRACTITIONER;
 import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner.SERVICE_USER;
 import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionStatus.NOT_STARTED;
-import static uk.gov.digital.justice.hmpps.sentenceplan.api.CommentType.LIASON_ARRANGEMENTS;
+import static uk.gov.digital.justice.hmpps.sentenceplan.api.CommentType.LIAISON_ARRANGEMENTS;
 import static uk.gov.digital.justice.hmpps.sentenceplan.api.CommentType.YOUR_SUMMARY;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -418,7 +418,7 @@ public class SentencePlanServiceTest {
         var comments = ArgumentCaptor.forClass(CommentEntity.class);
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(sentencePlan);
 
-        var comment1 = new AddCommentRequest("Comment 1", LIASON_ARRANGEMENTS);
+        var comment1 = new AddCommentRequest("Comment 1", LIAISON_ARRANGEMENTS);
         var comment2 = new AddCommentRequest("Comment 2", YOUR_SUMMARY);
         service.addSentencePlanComments(sentencePlanUuid, List.of(comment1));
         service.addSentencePlanComments(sentencePlanUuid, List.of(comment2));
@@ -426,7 +426,7 @@ public class SentencePlanServiceTest {
 
         var result = comments.getAllValues();
 
-        assertThat(result.get(0).getCommentType()).isEqualTo(LIASON_ARRANGEMENTS);
+        assertThat(result.get(0).getCommentType()).isEqualTo(LIAISON_ARRANGEMENTS);
         assertThat(result.get(0).getComment()).isEqualTo("Comment 1");
 
         assertThat(result.get(1).getCommentType()).isEqualTo(YOUR_SUMMARY);
