@@ -62,7 +62,7 @@ public class SentencePlanResourceTest {
 
         2 Comments:
         - YOUR_RESPONSIVITY
-        - LIASON_ARRANGEMENTS
+        - LIAISON_ARRANGEMENTS
 
         2 Objectives:
         - Objective 1 with 2 Actions
@@ -386,7 +386,7 @@ public class SentencePlanResourceTest {
 
         assertThat(comments).hasSize(2);
         var comment1 = comments.stream().filter(c->c.getCommentType().equals(CommentType.YOUR_RESPONSIVITY)).findAny();
-        var comment2 = comments.stream().filter(c->c.getCommentType().equals(CommentType.LIASON_ARRANGEMENTS)).findAny();
+        var comment2 = comments.stream().filter(c->c.getCommentType().equals(CommentType.LIAISON_ARRANGEMENTS)).findAny();
 
         assertThat(comment1.get().getComment()).isEqualTo("a comment");
         assertThat(comment2.get().getComment()).isEqualTo("another comment");
@@ -397,10 +397,10 @@ public class SentencePlanResourceTest {
     public void shouldGetCommentsAddingOverwrites() throws JsonProcessingException {
         var assessmentApi = createMockAssessmentDataForOffender(OASYS_OFFENDER_ID);
         createMockAuthService(OASYS_OFFENDER_ID, assessmentApi);
-        var newComment = new AddCommentRequest("Any Comment", CommentType.LIASON_ARRANGEMENTS);
+        var newComment = new AddCommentRequest("Any Comment", CommentType.LIAISON_ARRANGEMENTS);
         var requestBody = List.of(newComment);
 
-        var newComment1 = new AddCommentRequest("Any New Comment", CommentType.LIASON_ARRANGEMENTS);
+        var newComment1 = new AddCommentRequest("Any New Comment", CommentType.LIAISON_ARRANGEMENTS);
         var requestBody1 = List.of(newComment1);
 
         given()
@@ -434,7 +434,7 @@ public class SentencePlanResourceTest {
                 .body().jsonPath().getList(".", Comment.class);
 
         assertThat(comments).hasSize(2);
-        var comment = comments.stream().filter(c->c.getCommentType().equals(CommentType.LIASON_ARRANGEMENTS)).findAny();
+        var comment = comments.stream().filter(c->c.getCommentType().equals(CommentType.LIAISON_ARRANGEMENTS)).findAny();
         assertThat(comment.get().getComment()).isEqualTo("Any New Comment");
     }
 

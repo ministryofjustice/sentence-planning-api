@@ -39,7 +39,7 @@ VALUES ('033ef9aa-8bb9-4638-8abb-9a98394a959c', '2019-11-14 08:11:53.177108', 's
             "createdBy": "ANONYMOUS",
             "commentType": "YOUR_RESPONSIVITY"
         },
-        "LIASON_ARRANGEMENTS": {
+        "LIAISON_ARRANGEMENTS": {
             "comment": "another comment",
             "created": [
                 2019,
@@ -51,7 +51,7 @@ VALUES ('033ef9aa-8bb9-4638-8abb-9a98394a959c', '2019-11-14 08:11:53.177108', 's
                 0
             ],
             "createdBy": "ANONYMOUS",
-            "commentType": "LIASON_ARRANGEMENTS"
+            "commentType": "LIAISON_ARRANGEMENTS"
         }
     },
     "objectives": {
