@@ -4,16 +4,6 @@ INSERT INTO intervention_ref_data (uuid, short_description, description, active,
 INSERT INTO intervention_ref_data (uuid, short_description, description, active, external_reference) VALUES ('001cd5e6-c675-4202-b6cc-a4937bacecfc', 'Test Intevention 2', 'Test Intevention 2', true, 'INV2');
 INSERT INTO intervention_ref_data (uuid, short_description, description, active, external_reference) VALUES ('ca5f210f-fcc0-4342-b59b-3f963d73e587', 'Test Intevention 3', 'Test Intevention 3', true, 'INV3');
 
-INSERT INTO motivation_ref_data (uuid, motivation_text, friendly_text, created)
-VALUES ('38731914-701d-4b4e-abd3-1e0a6375f0b2', 'Pre-contemplation', 'In the dark', '2019-07-24'),
-('82c563d5-00de-4e17-af88-c0363c4d91cc', 'Contemplation', 'Thinking about it', '2019-07-24'),
-('55f90269-1d93-4a9a-921a-7bae73f3bf07', 'Preparation', 'Getting ready', '2019-07-24'),
-('13395347-f226-4cc3-abcf-9dbc224c0f50', 'Action', 'Doing it', '2019-07-24'),
-('42de6207-7a3a-4ffb-9b45-c3ee4ea514fa', 'Maintenance', 'Keeping going', '2019-07-24'),
-('76e7770b-2a66-40e4-88b8-ccd038501906', 'Relapse', 'Off track', '2019-07-24'),
-('2f1a5751-f6ee-450a-9b20-858500cb037e', 'Permanent exit', 'The new me', '2019-07-24');
-
-
 --Empty Plan
 INSERT INTO sentence_plan (uuid, created_on, created_by, started_date, completed_date, data, assessment_needs_last_imported_on, offender_uuid)
 VALUES ('234e4a8e-8287-4be5-86d0-0c4b30257f8a', '2019-11-13 14:38:47.779555', 'system', null, '2019-11-14 08:05:52.503931',

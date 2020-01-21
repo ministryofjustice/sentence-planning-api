@@ -93,7 +93,7 @@ public class SentencePlanRepositoryTest {
         var sentencePlan = new SentencePlanEntity(offender.get());
         repository.save(sentencePlan);
 
-        sentencePlan.addComment(new CommentEntity("a comment", CommentType.LIASON_ARRANGEMENTS, "a user"));
+        sentencePlan.addComment(new CommentEntity("a comment", CommentType.LIAISON_ARRANGEMENTS, "a user"));
         repository.save(sentencePlan);
 
         assertThat(repository.findRevisions(sentencePlan.getId())).hasSize(2);
