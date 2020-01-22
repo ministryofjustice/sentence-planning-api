@@ -1,8 +1,10 @@
 plugins {
-    id 'org.springframework.boot' version '2.1.5.RELEASE'
+    id 'org.springframework.boot' version '2.2.2.RELEASE'
     id 'java'
     id 'checkstyle'
     id "com.github.spotbugs" version "2.0.0"
+    id 'io.spring.dependency-management' version '1.0.8.RELEASE'
+    id 'org.owasp.dependencycheck' version '5.2.4'
 }
 
 apply plugin: 'io.spring.dependency-management'
@@ -40,6 +42,15 @@ jacocoTestReport {
         csv.enabled false
         html.enabled true
         html.destination file("${buildDir}/reports/jacocoHtml")
+    }
+}
+
+dependencyCheck {
+    failBuildOnCVSS = 5
+    suppressionFiles = ['dependency-check-suppress-spring.xml']
+    format = 'ALL'
+    analyzers {
+        assemblyEnabled = false
     }
 }
 
@@ -94,7 +105,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.0.0.RELEASE'
+    implementation 'org.springframework.security.oauth:spring-security-oauth2:2.4.0.RELEASE'
     implementation 'org.flywaydb:flyway-core'
     implementation 'io.springfox:springfox-swagger2:2.9.2'
     implementation 'io.springfox:springfox-swagger-ui:2.9.2'
@@ -108,6 +119,13 @@ dependencies {
     compile 'org.javassist:javassist:3.23.1-GA'
     compile 'com.sun.xml.bind:jaxb-impl:2.3.0'
     compile 'com.sun.xml.bind:jaxb-core:2.3.0'
+    implementation 'net.logstash.logback:logstash-logback-encoder:6.3'
+    implementation 'com.vladmihalcea:hibernate-types-52:2.8.0'
+    implementation 'io.jsonwebtoken:jjwt:0.9.1'
+    implementation 'org.hibernate:hibernate-envers:5.4.10.Final'
+    compile 'org.javassist:javassist:3.26.0-GA'
+    implementation 'com.sun.xml.bind:jaxb-impl:2.3.2'
+    implementation 'com.sun.xml.bind:jaxb-core:2.3.0.1'
     compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'org.postgresql:postgresql'
