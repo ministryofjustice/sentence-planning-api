@@ -244,7 +244,6 @@ public class SentencePlanServiceTest {
         var newSentencePlan = mock(SentencePlanEntity.class);
         when(newSentencePlan.isDraft()).thenReturn(true);
 
-        when(newSentencePlan.getObjective(objectiveUUID)).thenReturn(objective);
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(newSentencePlan);
 
         var exception = catchThrowable(() -> service.updateAction(sentencePlanUuid, objectiveUUID,UUID.randomUUID(), UUID.randomUUID(), "Any Desc", YearMonth.now(), UUID.randomUUID(), emptyList(), "Other Owner", ActionStatus.PARTIALLY_COMPLETED));
