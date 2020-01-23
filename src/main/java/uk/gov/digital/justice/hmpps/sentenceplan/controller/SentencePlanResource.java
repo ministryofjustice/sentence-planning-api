@@ -153,6 +153,27 @@ public class SentencePlanResource {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping(value = "/sentenceplans/{sentencePlanUUID}/objectives/{objectiveUUID}/actions/{actionUUID}", produces = "application/json")
+    @ApiOperation(value = "Add an Action to a Sentence Plan Objective")
+    @Authorised(accessLevel = AccessLevel.WRITE_SENTENCE_PLAN)
+    ResponseEntity updateAction(@ApiParam(value = "Sentence Plan ID", required = true, example = "11111111-1111-1111-1111-111111111111") @PathVariable UUID sentencePlanUUID,
+                                @ApiParam(value = "Objective ID", required = true, example = "11111111-1111-1111-1111-111111111111") @PathVariable UUID objectiveUUID,
+                                @ApiParam(value = "Action ID", required = true, example = "11111111-1111-1111-1111-111111111111") @PathVariable UUID actionUUID,
+                                @ApiParam(value = "Action details", required = true) @RequestBody @Valid AddSentencePlanAction action) {
+        sentencePlanService.updateAction(
+                sentencePlanUUID,
+                objectiveUUID,
+                actionUUID,
+                action.getInterventionUUID(),
+                action.getDescription(),
+                action.getTargetDate(),
+                action.getMotivationUUID(),
+                action.getOwner(),
+                action.getOwnerOther(),
+                action.getStatus());
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping(value = "/sentenceplans/{sentencePlanUUID}/objectives/{objectiveUUID}/actions/{actionUUID}", produces = "application/json")
     @ApiOperation(value = "Get an Action from a Sentence Plan Objective")
     @Authorised(accessLevel = AccessLevel.READ_SENTENCE_PLAN)
