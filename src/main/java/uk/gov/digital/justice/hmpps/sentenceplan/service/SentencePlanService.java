@@ -7,6 +7,7 @@ import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.RequestData;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.OASYSAssessmentAPIClient;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysSentencePlan;
+import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.BusinessRuleViolationException;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
@@ -93,7 +94,7 @@ public class SentencePlanService {
     public void updateAction(UUID sentencePlanUUID, UUID objectiveUUID, UUID actionUUID, UUID interventionUUID, String description, YearMonth targetDate, UUID motivationUUID, List<ActionOwner> owner, String ownerOther, ActionStatus status) {
         var sentencePlanEntity = getSentencePlanEntity(sentencePlanUUID);
         if(sentencePlanEntity.isDraft()){
-          throw new CurrentSentencePlanForOffenderExistsException("Cannot update Action, Sentence Plan is not a draft");
+          throw new BusinessRuleViolationException("Cannot update Action, Sentence Plan is not a draft");
         }
 
         var actionEntity = getActionEntity(sentencePlanUUID, objectiveUUID, actionUUID);

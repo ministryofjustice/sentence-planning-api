@@ -10,6 +10,7 @@ import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.RequestData;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.OASYSAssessmentAPIClient;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysSentencePlan;
+import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.BusinessRuleViolationException;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.CurrentSentencePlanForOffenderExistsException;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.*;
@@ -236,7 +237,7 @@ public class SentencePlanServiceTest {
 
     }
 
-    @Test(expected = CurrentSentencePlanForOffenderExistsException.class)
+    @Test
     public void shouldNotUpdateActionWhenNotDraft(){
         var objective = getObjectiveWithTwoActions(emptyList(), "Objective 1", "Action 1", "Action 2");
         var objectiveUUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
@@ -246,7 +247,10 @@ public class SentencePlanServiceTest {
         when(newSentencePlan.getObjective(objectiveUUID)).thenReturn(objective);
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(newSentencePlan);
 
-        service.updateAction(sentencePlanUuid, objectiveUUID,UUID.randomUUID(), UUID.randomUUID(), "Any Desc", YearMonth.now(), UUID.randomUUID(), emptyList(), "Other Owner", ActionStatus.PARTIALLY_COMPLETED);
+        var exception = catchThrowable(() -> service.updateAction(sentencePlanUuid, objectiveUUID,UUID.randomUUID(), UUID.randomUUID(), "Any Desc", YearMonth.now(), UUID.randomUUID(), emptyList(), "Other Owner", ActionStatus.PARTIALLY_COMPLETED));
+        assertThat(exception).isInstanceOf(BusinessRuleViolationException.class)
+                .hasMessageContaining("Cannot update Action, Sentence Plan is not a draft");
+
     }
 
     @Test
