@@ -89,6 +89,18 @@ public class SentencePlanService {
         log.info("Created Action for Sentence Plan {} Objective {}", sentencePlanUUID, objectiveUUID, value(EVENT, SENTENCE_PLAN_ACTION_CREATED));
     }
 
+    @Transactional
+    public void updateAction(UUID sentencePlanUUID, UUID objectiveUUID, UUID actionUUID, UUID interventionUUID, String description, YearMonth targetDate, UUID motivationUUID, List<ActionOwner> owner, String ownerOther, ActionStatus status) {
+        var sentencePlanEntity = getSentencePlanEntity(sentencePlanUUID);
+        if(sentencePlanEntity.isDraft()){
+          throw new CurrentSentencePlanForOffenderExistsException("Cannot update Action, Sentence Plan is not a draft");
+        }
+
+        var actionEntity = getActionEntity(sentencePlanUUID, objectiveUUID, actionUUID);
+        actionEntity.updateAction(interventionUUID, description, targetDate, motivationUUID, owner, ownerOther, status);
+        log.info("Updated Action {} for Sentence Plan {} Objective {}", actionUUID, sentencePlanUUID, objectiveUUID, value(EVENT, SENTENCE_PLAN_ACTION_UPDATED));
+    }
+
     public ActionEntity getAction(UUID sentencePlanUuid, UUID objectiveUUID, UUID actionId) {
         var actionEntity = getActionEntity(sentencePlanUuid, objectiveUUID, actionId);
         log.info("Retrieved Action {} for Sentence Plan {} Objective {}", sentencePlanUuid, objectiveUUID, actionId, value(EVENT, SENTENCE_PLAN_ACTION_RETRIEVED));

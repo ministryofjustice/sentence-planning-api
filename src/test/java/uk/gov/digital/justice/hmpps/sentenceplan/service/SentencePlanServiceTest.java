@@ -236,6 +236,19 @@ public class SentencePlanServiceTest {
 
     }
 
+    @Test(expected = CurrentSentencePlanForOffenderExistsException.class)
+    public void shouldNotUpdateActionWhenNotDraft(){
+        var objective = getObjectiveWithTwoActions(emptyList(), "Objective 1", "Action 1", "Action 2");
+        var objectiveUUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
+        var newSentencePlan = mock(SentencePlanEntity.class);
+        when(newSentencePlan.isDraft()).thenReturn(true);
+
+        when(newSentencePlan.getObjective(objectiveUUID)).thenReturn(objective);
+        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(newSentencePlan);
+
+        service.updateAction(sentencePlanUuid, objectiveUUID,UUID.randomUUID(), UUID.randomUUID(), "Any Desc", YearMonth.now(), UUID.randomUUID(), emptyList(), "Other Owner", ActionStatus.PARTIALLY_COMPLETED);
+    }
+
     @Test
     public void updateActionPriorityShouldNotChangeOrderWhenEmpty() {
         var objective = getObjectiveWithTwoActions(emptyList(), "Objective 1", "Action 1", "Action 2");

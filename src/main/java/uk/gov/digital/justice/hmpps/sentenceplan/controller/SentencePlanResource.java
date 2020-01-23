@@ -162,6 +162,27 @@ public class SentencePlanResource {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping(value = "/sentenceplans/{sentencePlanUUID}/objectives/{objectiveUUID}/actions/{actionUUID}", produces = "application/json")
+    @ApiOperation(value = "Add an Action to a Sentence Plan Objective")
+    @Authorised(accessLevel = AccessLevel.WRITE_SENTENCE_PLAN)
+    ResponseEntity updateAction(@ApiParam(value = "Sentence Plan ID", required = true, example = "11111111-1111-1111-1111-111111111111") @PathVariable UUID sentencePlanUUID,
+                                @ApiParam(value = "Objective ID", required = true, example = "11111111-1111-1111-1111-111111111111") @PathVariable UUID objectiveUUID,
+                                @ApiParam(value = "Action ID", required = true, example = "11111111-1111-1111-1111-111111111111") @PathVariable UUID actionUUID,
+                                @ApiParam(value = "Action details", required = true) @RequestBody @Valid AddSentencePlanAction action) {
+        sentencePlanService.updateAction(
+                sentencePlanUUID,
+                objectiveUUID,
+                actionUUID,
+                action.getInterventionUUID(),
+                action.getDescription(),
+                action.getTargetDate(),
+                action.getMotivationUUID(),
+                action.getOwner(),
+                action.getOwnerOther(),
+                action.getStatus());
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping(value = "/sentenceplans/{sentencePlanUUID}/objectives/{objectiveUUID}/actions/{actionUUID}", produces = "application/json")
     @ApiOperation(value = "Get an Action from a Sentence Plan Objective")
     @Authorised(accessLevel = AccessLevel.READ_SENTENCE_PLAN)
@@ -170,6 +191,14 @@ public class SentencePlanResource {
                                      @ApiParam(value = "Action ID", required = true) @PathVariable UUID actionUUID) {
         return ResponseEntity.ok(Action.from(sentencePlanService.getAction(sentencePlanUUID, objectiveUUID, actionUUID)));
 
+    }
+
+    @PostMapping(value = "/sentenceplans/{sentencePlanUUID}/objectives/{objectiveUUID}/actions/{actionId}/progress", produces = "application/json")
+    @ApiOperation(value = "Progress an Action")
+    @Authorised(accessLevel = AccessLevel.WRITE_SENTENCE_PLAN)
+    ResponseEntity progressAction(@ApiParam(value = "Sentence Plan ID", required = true) @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Objective ID", required = true) @PathVariable UUID objectiveUUID, @ApiParam(value = "Action ID") @PathVariable UUID actionId, @ApiParam(value = "A status and comment against the action", required = true) @RequestBody ProgressActionRequest request) {
+        sentencePlanService.progressAction(sentencePlanUUID, objectiveUUID, actionId, request.getStatus(), request.getTargetDate(), request.getMotivationUUID(), request.getComment(), request.getOwner(), request.getOwnerOther());
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping(value = "/sentenceplans/{sentencePlanUUID}/objectives/priority", produces = "application/json")
@@ -189,14 +218,6 @@ public class SentencePlanResource {
                                         @ApiParam(value = "A list of Action Ids and their order", required = true) @RequestBody List<UpdateActionPriorityRequest> request) {
         var actionPriorities = request.stream().collect(Collectors.toMap(UpdateActionPriorityRequest::getActionUUID, UpdateActionPriorityRequest::getPriority));
         sentencePlanService.updateActionPriorities(sentencePlanUUID, objectiveUUID, actionPriorities);
-        return ResponseEntity.ok().build();
-    }
-
-    @PostMapping(value = "/sentenceplans/{sentencePlanUUID}/objectives/{objectiveUUID}/actions/{actionId}/progress", produces = "application/json")
-    @ApiOperation(value = "Progress an Action")
-    @Authorised(accessLevel = AccessLevel.WRITE_SENTENCE_PLAN)
-    ResponseEntity progressAction(@ApiParam(value = "Sentence Plan ID", required = true) @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Objective ID", required = true) @PathVariable UUID objectiveUUID, @ApiParam(value = "Action ID") @PathVariable UUID actionId, @ApiParam(value = "A status and comment against the action", required = true) @RequestBody ProgressActionRequest request) {
-        sentencePlanService.progressAction(sentencePlanUUID, objectiveUUID, actionId, request.getStatus(), request.getTargetDate(), request.getMotivationUUID(), request.getComment(), request.getOwner(), request.getOwnerOther());
         return ResponseEntity.ok().build();
     }
 
