@@ -27,13 +27,15 @@ public class SentencePlanService {
     private final SentencePlanRepository sentencePlanRepository;
     private final OffenderService offenderService;
     private final AssessmentService assessmentService;
+    private final TimelineService timelineService;
     private final OASYSAssessmentAPIClient oasysAssessmentAPIClient;
     private final RequestData requestData;
 
-    public SentencePlanService(SentencePlanRepository sentencePlanRepository, OffenderService offenderService, AssessmentService assessmentService, OASYSAssessmentAPIClient oasysAssessmentAPIClient, RequestData requestData) {
+    public SentencePlanService(SentencePlanRepository sentencePlanRepository, OffenderService offenderService, AssessmentService assessmentService, TimelineService timelineService, OASYSAssessmentAPIClient oasysAssessmentAPIClient, RequestData requestData) {
         this.sentencePlanRepository = sentencePlanRepository;
         this.offenderService = offenderService;
         this.assessmentService = assessmentService;
+        this.timelineService = timelineService;
         this.oasysAssessmentAPIClient = oasysAssessmentAPIClient;
         this.requestData = requestData;
     }
@@ -49,6 +51,7 @@ public class SentencePlanService {
         var sentencePlan = new SentencePlanEntity(offender);
         assessmentService.addLatestAssessmentNeedsToPlan(sentencePlan);
         sentencePlanRepository.save(sentencePlan);
+        timelineService.createTimelineEntry(sentencePlan.getUuid(), SENTENCE_PLAN_CREATED, requestData.getUsername());
         log.info("Created Sentence Plan {}", sentencePlan.getUuid(), value(EVENT, SENTENCE_PLAN_CREATED));
         return sentencePlan;
     }
@@ -64,6 +67,7 @@ public class SentencePlanService {
         var sentencePlanEntity = getSentencePlanEntity(sentencePlanUUID);
         var objectiveEntity = new ObjectiveEntity(description, needs);
         sentencePlanEntity.addObjective(objectiveEntity);
+        timelineService.createTimelineEntry(sentencePlanUUID, SENTENCE_PLAN_OBJECTIVE_CREATED, requestData.getUsername(),null, description);
         log.info("Created Objective for Sentence Plan {}", sentencePlanUUID, value(EVENT, SENTENCE_PLAN_OBJECTIVE_CREATED));
         return objectiveEntity;
     }
@@ -71,6 +75,7 @@ public class SentencePlanService {
     @Transactional
     public void updateObjective(UUID sentencePlanUUID, UUID objectiveUUID, String description, List<UUID> needs) {
         var objectiveEntity = getObjectiveEntity(sentencePlanUUID, objectiveUUID);
+        timelineService.createTimelineEntry(sentencePlanUUID, SENTENCE_PLAN_OBJECTIVE_UPDATED, requestData.getUsername(),objectiveEntity.getDescription(), description);
         objectiveEntity.updateObjective(description, needs);
         log.info("Updated Objective {} for Sentence Plan {}", objectiveUUID, sentencePlanUUID, value(EVENT, SENTENCE_PLAN_OBJECTIVE_UPDATED));
     }
@@ -86,6 +91,7 @@ public class SentencePlanService {
         var objectiveEntity = getObjectiveEntity(sentencePlanUUID, objectiveUUID);
         var actionEntity = new ActionEntity(interventionUUID, description, targetDate, motivationUUID, owner, ownerOther, status);
         objectiveEntity.addAction(actionEntity);
+        timelineService.createTimelineEntry(sentencePlanUUID, SENTENCE_PLAN_ACTION_CREATED, requestData.getUsername(),null, description);
         log.info("Created Action for Sentence Plan {} Objective {}", sentencePlanUUID, objectiveUUID, value(EVENT, SENTENCE_PLAN_ACTION_CREATED));
     }
 
@@ -126,6 +132,7 @@ public class SentencePlanService {
     public void progressAction(UUID sentencePlanUUID, UUID objectiveUUID, UUID actionId, ActionStatus status, YearMonth targetDate, UUID motivationUUID, String comment, List<ActionOwner> owner, String ownerOther) {
         var actionEntity = getActionEntity(sentencePlanUUID, objectiveUUID, actionId);
         var progressEntity = new ProgressEntity(status, targetDate, motivationUUID, comment, owner, ownerOther, requestData.getUsername());
+        timelineService.createTimelineEntry(sentencePlanUUID, SENTENCE_PLAN_ACTION_PROGRESSED, requestData.getUsername(),actionEntity.getStatus().toString(), status.toString());
         actionEntity.addProgress(progressEntity);
         log.info("Progressed Action for Sentence Plan {} Objective {}", sentencePlanUUID, objectiveUUID, value(EVENT, SENTENCE_PLAN_ACTION_PROGRESSED));
     }
@@ -134,6 +141,7 @@ public class SentencePlanService {
     public void startSentencePlan(UUID sentencePlanUUID) {
         var sentencePlanEntity = getSentencePlanEntity(sentencePlanUUID);
         sentencePlanEntity.start();
+        timelineService.createTimelineEntry(sentencePlanUUID, SENTENCE_PLAN_STARTED, requestData.getUsername());
         log.info("Sentence Plan {} Started", sentencePlanUUID, value(EVENT, SENTENCE_PLAN_STARTED));
     }
 
@@ -147,7 +155,10 @@ public class SentencePlanService {
     @Transactional
     public void addSentencePlanComments(UUID sentencePlanUUID, List<AddCommentRequest> comments) {
         var sentencePlanEntity = getSentencePlanEntity(sentencePlanUUID);
-        comments.forEach(comment -> sentencePlanEntity.addComment(new CommentEntity(comment.getComment(), comment.getCommentType(), requestData.getUsername())));
+        for(AddCommentRequest comment : comments) {
+            sentencePlanEntity.addComment(new CommentEntity(comment.getComment(), comment.getCommentType(), requestData.getUsername()));
+            timelineService.createTimelineEntry(sentencePlanUUID, SENTENCE_PLAN_COMMENTS_CREATED, requestData.getUsername(), null, comment.getCommentType().toString());
+        }
         log.info("Added Comments to Sentence Plan {}", sentencePlanEntity.getUuid(), value(EVENT, SENTENCE_PLAN_COMMENTS_CREATED));
     }
 
