@@ -30,19 +30,15 @@ public class MotivationRefEntity implements Serializable {
     @Column(name = "MOTIVATION_TEXT")
     private String motivationText;
 
-    @Column(name = "FRIENDLY_TEXT")
-    private String friendlyText;
-
     @Column(name = "CREATED")
     private LocalDateTime created;
 
     @Column(name = "DELETED")
     private LocalDateTime deleted;
 
-    public MotivationRefEntity(String motivationText, String friendlyText) {
+    public MotivationRefEntity(String motivationText) {
         this.uuid = UUID.randomUUID();
         this.motivationText = motivationText;
-        this.friendlyText = friendlyText;
         this.created = LocalDateTime.now();
     }
 }

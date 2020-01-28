@@ -20,14 +20,10 @@ public class MotivationRef {
     private UUID UUID;
     @JsonProperty("motivationText")
     private String motivationText;
-    @JsonProperty("friendlyText")
-    private String friendlyText;
-
 
     public static MotivationRef from(MotivationRefEntity motivation) {
         return new MotivationRef(motivation.getUuid(),
-                motivation.getMotivationText(),
-                motivation.getFriendlyText());
+                motivation.getMotivationText());
     }
 
     public static List<MotivationRef> from(List<MotivationRefEntity> motivations) {
