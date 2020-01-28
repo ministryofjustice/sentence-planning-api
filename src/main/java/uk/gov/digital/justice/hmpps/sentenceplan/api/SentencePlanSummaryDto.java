@@ -14,14 +14,14 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @EqualsAndHashCode
 @ApiModel(description = "Sentence Plan Summary model")
-public class SentencePlanSummary {
+public class SentencePlanSummaryDto {
     private String planId;
     private LocalDate createdDate;
     private LocalDate completedDate;
     private boolean legacy;
     private boolean isDraft;
 
-    public SentencePlanSummary(String id, LocalDateTime createdDate, LocalDateTime completedDate, boolean legacy, boolean isDraft) {
+    public SentencePlanSummaryDto(String id, LocalDateTime createdDate, LocalDateTime completedDate, boolean legacy, boolean isDraft) {
         this.planId = id;
         this.createdDate = createdDate == null ? null : createdDate.toLocalDate();
         this.completedDate = completedDate == null ? null : completedDate.toLocalDate();

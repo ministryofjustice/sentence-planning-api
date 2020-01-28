@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Builder
-public class OasysSentencePlan {
+public class OasysSentencePlanDto {
     private Long oasysSetId;
     private LocalDate createdDate;
     private LocalDate completedDate;

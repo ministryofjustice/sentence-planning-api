@@ -13,7 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @ApiModel(description = "Intervention Reference Data")
-public class InterventionRef {
+public class InterventionRefDto {
 
     @JsonProperty("uuid")
     private UUID uuid;
@@ -22,8 +22,8 @@ public class InterventionRef {
     @JsonProperty("longDescription")
     private String longDescription;
 
-    public static InterventionRef from(InterventionRefEntity interventionRefEntity) {
-        return new InterventionRef(interventionRefEntity.getUuid(),
+    public static InterventionRefDto from(InterventionRefEntity interventionRefEntity) {
+        return new InterventionRefDto(interventionRefEntity.getUuid(),
                 interventionRefEntity.getShortDescription(),
                 interventionRefEntity.getDescription());
     }

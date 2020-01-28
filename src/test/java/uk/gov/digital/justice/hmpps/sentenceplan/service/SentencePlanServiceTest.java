@@ -9,7 +9,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.RequestData;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.OASYSAssessmentAPIClient;
-import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysSentencePlan;
+import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysSentencePlanDto;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.CurrentSentencePlanForOffenderExistsException;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.*;
@@ -222,21 +222,6 @@ public class SentencePlanServiceTest {
         assertThat(objective2.getPriority()).isEqualTo(2);  }
 
     @Test
-    public void shouldGetAllActionsForSentencePlanObjective() {
-
-        var objective = getObjectiveWithTwoActions(emptyList(), "Objective 1", "Action 1", "Action 2");
-        var objectiveUUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
-        var newSentencePlan = mock(SentencePlanEntity.class);
-        when(newSentencePlan.getObjective(objectiveUUID)).thenReturn(objective);
-        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(newSentencePlan);
-
-        var actions = service.getActions(sentencePlanUuid, objectiveUUID);
-        assertThat(actions).hasSize(2);
-        assertThat(actions).extracting("description").containsOnly("Action 1", "Action 2");
-
-    }
-
-    @Test
     public void updateActionPriorityShouldNotChangeOrderWhenEmpty() {
         var objective = getObjectiveWithTwoActions(emptyList(), "Objective 1", "Action 1", "Action 2");
         var objectiveUUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
@@ -294,7 +279,7 @@ public class SentencePlanServiceTest {
     public void getSentencePlansForOffenderShouldReturnOASysPlans() {
 
         var offender = getOffenderEntity();
-        var legacyPlan =  OasysSentencePlan.builder()
+        var legacyPlan =  OasysSentencePlanDto.builder()
                 .completedDate(LocalDate.of(2019,1,1))
                 .createdDate(LocalDate.of(2018,1,1))
                 .oasysSetId(123456L).build();
@@ -315,12 +300,12 @@ public class SentencePlanServiceTest {
     @Test
     public void getLegacySentencePlanShouldReturnPlanForId() {
 
-        var legacyPlan1 =  OasysSentencePlan.builder()
+        var legacyPlan1 =  OasysSentencePlanDto.builder()
                 .completedDate(LocalDate.of(2019,1,1))
                 .createdDate(LocalDate.of(2018,1,1))
                 .oasysSetId(1L).build();
 
-        var legacyPlan2 =  OasysSentencePlan.builder()
+        var legacyPlan2 =  OasysSentencePlanDto.builder()
                 .completedDate(LocalDate.of(2018,1,1))
                 .createdDate(LocalDate.of(2017,1,1))
                 .oasysSetId(2L).build();
@@ -391,7 +376,7 @@ public class SentencePlanServiceTest {
     public void getSentencePlansForOffenderShouldOrderPlansByCreatedDate() {
 
         var offender = getOffenderEntity();
-        var legacyPlan =  OasysSentencePlan.builder()
+        var legacyPlan =  OasysSentencePlanDto.builder()
                 .completedDate(LocalDate.of(2019,1,1))
                 .createdDate(LocalDate.of(2018,1,1))
                 .oasysSetId(123456L).build();

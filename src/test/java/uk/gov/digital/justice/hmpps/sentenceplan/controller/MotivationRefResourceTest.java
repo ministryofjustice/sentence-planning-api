@@ -16,7 +16,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.MotivationRef;
+import uk.gov.digital.justice.hmpps.sentenceplan.api.MotivationRefDto;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
 
 import java.util.UUID;
@@ -69,7 +69,7 @@ public class MotivationRefResourceTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .as(MotivationRef[].class);
+                .as(MotivationRefDto[].class);
 
         assertThat(result).hasSize(1);
         var motivationRef = result[0];

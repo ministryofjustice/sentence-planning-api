@@ -18,15 +18,15 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @ApiModel(description = "The main Sentence Plan Model")
-public class SentencePlan {
+public class SentencePlanDto {
     @JsonProperty("id")
     private UUID uuid;
     @JsonProperty("objectives")
-    private List<Objective> objectives;
+    private List<ObjectiveDto> objectives;
     @JsonProperty("needs")
-    private List<Need> needs;
+    private List<NeedDto> needs;
     @JsonProperty("comments")
-    private List<Comment> comments;
+    private List<CommentDto> comments;
     @JsonProperty("childSafeguardingIndicated")
     private Boolean childSafeguardingIndicated;
     @JsonProperty("offender")
@@ -36,16 +36,16 @@ public class SentencePlan {
     @JsonProperty("draft")
     private boolean draft;
 
-    public static SentencePlan from(SentencePlanEntity sentencePlan) {
+    public static SentencePlanDto from(SentencePlanEntity sentencePlan) {
 
         var data = Optional.ofNullable(sentencePlan.getData()).orElseGet(SentencePlanPropertiesEntity::new);
 
         var offenderEntity = Optional.ofNullable(sentencePlan.getOffender()).orElseGet(OffenderEntity::new);
 
-        return new SentencePlan(sentencePlan.getUuid(),
-                                Objective.from(data.getObjectives().values()),
-                                Need.from(sentencePlan.getNeeds()),
-                                Comment.from(data.getComments().values()),
+        return new SentencePlanDto(sentencePlan.getUuid(),
+                                ObjectiveDto.from(data.getObjectives().values()),
+                                NeedDto.from(sentencePlan.getNeeds()),
+                                CommentDto.from(data.getComments().values()),
                                 data.getChildSafeguardingIndicated(),
                                 Offender.from(offenderEntity),
                                 sentencePlan.getCreatedOn(),

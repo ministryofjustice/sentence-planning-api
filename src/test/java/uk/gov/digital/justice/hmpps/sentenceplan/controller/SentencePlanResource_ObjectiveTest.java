@@ -97,7 +97,7 @@ public class SentencePlanResource_ObjectiveTest {
                     .statusCode(200)
                     .extract()
                     .body()
-                    .as(Objective.class);
+                    .as(ObjectiveDto.class);
 
         var result = given()
                 .when()
@@ -108,7 +108,7 @@ public class SentencePlanResource_ObjectiveTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .as(SentencePlan.class);
+                .as(SentencePlanDto.class);
 
         assertThat(result.getObjectives()).hasSize(1);
         assertThat(objective.getNeeds()).containsExactlyInAnyOrderElementsOf(needs);
@@ -127,7 +127,7 @@ public class SentencePlanResource_ObjectiveTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .as(Objective.class);
+                .as(ObjectiveDto.class);
 
         assertThat(result.getDescription()).isEqualTo("Objective 1");
         assertThat(result.getNeeds()).containsExactlyInAnyOrder(
@@ -145,7 +145,7 @@ public class SentencePlanResource_ObjectiveTest {
                 .then()
                 .statusCode(200)
                 .extract()
-                .body().jsonPath().getList(".", Objective.class);
+                .body().jsonPath().getList(".", ObjectiveDto.class);
 
         assertThat(result).hasSize(2);
         var objective = result.get(0);
@@ -207,7 +207,7 @@ public class SentencePlanResource_ObjectiveTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .as(Objective.class);
+                .as(ObjectiveDto.class);
 
         assertThat(updatedObjective.getDescription()).isEqualTo("new objective description");
         assertThat(updatedObjective.getNeeds()).containsExactlyInAnyOrder(
@@ -246,7 +246,7 @@ public class SentencePlanResource_ObjectiveTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .jsonPath().getList("objectives", Objective.class);
+                .jsonPath().getList("objectives", ObjectiveDto.class);
 
         var objective1 = result.stream().filter(o->o.getId().equals(UUID.fromString("59023444-afda-4603-9284-c803d18ee4bb"))).findAny();
         var objective2 = result.stream().filter(o->o.getId().equals(UUID.fromString("a63a8eac-4daf-4801-b32b-e3d20c249ad4"))).findAny();
