@@ -20,6 +20,7 @@ public class MotivationRefDto {
     private UUID UUID;
     @JsonProperty("motivationText")
     private String motivationText;
+
     public static MotivationRefDto from(MotivationRefEntity motivation) {
         return new MotivationRefDto(motivation.getUuid(),
                 motivation.getMotivationText());
