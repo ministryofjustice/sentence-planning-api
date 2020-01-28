@@ -54,8 +54,8 @@ public class SentencePlanServiceTest {
 
     @Before
     public void setup() {
-        motivations = List.of(new MotivationRefEntity("motivation 1", "motivation 1"),
-                new MotivationRefEntity("motivation 1", "motivation 1"));
+        motivations = List.of(new MotivationRefEntity("motivation 1"),
+                new MotivationRefEntity("motivation 1"));
         service = new SentencePlanService(sentencePlanRepository, offenderService, assessmentService, oasysAssessmentAPIClient, requestData);
         when(requestData.getUsername()).thenReturn("a user");
     }

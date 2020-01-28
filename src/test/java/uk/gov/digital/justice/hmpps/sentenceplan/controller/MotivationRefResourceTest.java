@@ -76,8 +76,6 @@ public class MotivationRefResourceTest {
 
         assertThat(motivationRef.getUUID()).isEqualTo(UUID.fromString("11111111-1111-1111-1111-111111111111"));
         assertThat(motivationRef.getMotivationText()).isEqualTo("MotivationRef");
-        assertThat(motivationRef.getFriendlyText()).isEqualTo("Friendly");
-
     }
 
 }

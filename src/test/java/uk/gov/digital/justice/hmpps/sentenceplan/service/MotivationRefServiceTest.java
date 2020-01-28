@@ -46,7 +46,7 @@ public class MotivationRefServiceTest {
     @Test
     public void shouldReturnIfNotExists() {
 
-        when(motivationRefDataRespository.findAllByDeletedIsNull()).thenReturn(List.of(new MotivationRefEntity("MotivationRef", "Friendly")));
+        when(motivationRefDataRespository.findAllByDeletedIsNull()).thenReturn(List.of(new MotivationRefEntity("MotivationRef")));
 
         var motivationRefs = motivationRefService.getActiveMotivations();
 
@@ -57,7 +57,7 @@ public class MotivationRefServiceTest {
 
         var motivationRef = motivationRefs.get(0);
         assertThat(motivationRef.getMotivationText()).isEqualTo("MotivationRef");
-        assertThat(motivationRef.getFriendlyText()).isEqualTo("Friendly");
+
     }
 
 }
