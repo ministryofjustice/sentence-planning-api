@@ -14,7 +14,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @ApiModel(description = "Add a new Sentence Plan Objective")
-public class AddSentencePlanObjective {
+public class AddSentencePlanObjectiveRequest {
 
     @ApiModelProperty(required = true, value = "Description of the Objective")
     @JsonProperty("description")

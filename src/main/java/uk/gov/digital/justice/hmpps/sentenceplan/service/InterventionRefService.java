@@ -2,11 +2,13 @@ package uk.gov.digital.justice.hmpps.sentenceplan.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import uk.gov.digital.justice.hmpps.sentenceplan.api.InterventionRefDto;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.OASYSAssessmentAPIClient;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.InterventionRefEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.InterventionRespository;
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static net.logstash.logback.argument.StructuredArguments.value;
 import static uk.gov.digital.justice.hmpps.sentenceplan.application.LogEvent.EVENT;
@@ -24,12 +26,14 @@ public class InterventionRefService {
         this.oasysAssessmentAPIClient = oasysAssessmentAPIClient;
     }
 
-    public List<InterventionRefEntity> getActiveInterventions() {
-        return interventionRespository.findAllByActiveIsTrue();
+    public List<InterventionRefDto> getActiveInterventions() {
+        return interventionRespository.findAllByActiveIsTrue().stream()
+                .map(InterventionRefDto::from).collect(Collectors.toList());
     }
 
-    public List<InterventionRefEntity> getAllInterventions() {
-        return interventionRespository.findAll();
+    public List<InterventionRefDto> getAllInterventions() {
+        return interventionRespository.findAll().stream()
+                .map(InterventionRefDto::from).collect(Collectors.toList());
     }
 
     @Transactional

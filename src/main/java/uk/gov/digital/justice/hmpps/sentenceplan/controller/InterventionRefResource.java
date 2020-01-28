@@ -2,14 +2,12 @@ package uk.gov.digital.justice.hmpps.sentenceplan.controller;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.InterventionRef;
+import uk.gov.digital.justice.hmpps.sentenceplan.api.InterventionRefDto;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.InterventionRefService;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Api(tags = {"Intervention Data API"})
 @RestController
@@ -25,22 +23,18 @@ public class InterventionRefResource {
 
     @GetMapping(value = "/interventions", produces = "application/json")
     @ApiOperation(value = "Gets all active Interventions as ref data for use in dropdowns or lists",
-            response = InterventionRef.class, responseContainer="List",
             notes = "Get all active Interventions")
-    ResponseEntity<List<InterventionRef>> getActiveInterventions() {
+    ResponseEntity<List<InterventionRefDto>> getActiveInterventions() {
         return ResponseEntity.ok(
-                interventionRefService.getActiveInterventions().stream()
-                        .map(InterventionRef::from).collect(Collectors.toList()));
+                interventionRefService.getActiveInterventions());
     }
 
     @GetMapping(value = "/interventions/all", produces = "application/json")
     @ApiOperation(value = "Gets all (including inactive) Interventions as ref data for use in dropdowns or lists",
-            response = InterventionRef.class, responseContainer="List",
             notes = "Get all Interventions")
-    ResponseEntity<List<InterventionRef>> getAllInterventions() {
+    ResponseEntity<List<InterventionRefDto>> getAllInterventions() {
         return ResponseEntity.ok(
-                interventionRefService.getAllInterventions().stream()
-                        .map(InterventionRef::from).collect(Collectors.toList()));
+                interventionRefService.getAllInterventions());
     }
 
 

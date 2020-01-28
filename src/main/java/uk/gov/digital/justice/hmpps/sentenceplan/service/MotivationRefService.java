@@ -2,6 +2,7 @@ package uk.gov.digital.justice.hmpps.sentenceplan.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import uk.gov.digital.justice.hmpps.sentenceplan.api.MotivationRefDto;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.MotivationRefEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.MotivationRefDataRespository;
 
@@ -17,9 +18,8 @@ private final MotivationRefDataRespository motivationRefDataRespository;
         this.motivationRefDataRespository = motivationRefDataRespository;
     }
 
-    public List<MotivationRefEntity> getActiveMotivations() {
-
-        return motivationRefDataRespository.findAllByDeletedIsNull();
+    public List<MotivationRefDto> getActiveMotivations() {
+        return MotivationRefDto.from(motivationRefDataRespository.findAllByDeletedIsNull());
     }
 
 }

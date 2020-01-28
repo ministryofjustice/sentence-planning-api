@@ -35,7 +35,6 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 import static org.springframework.test.web.client.ExpectedCount.between;
-import static org.springframework.test.web.client.ExpectedCount.max;
 import static org.springframework.test.web.client.MockRestServiceServer.bindTo;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
@@ -115,7 +114,7 @@ public class SentencePlanResourceTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .as(SentencePlan.class);
+                .as(SentencePlanDto.class);
 
         assertThat(result.getUuid()).isEqualTo(UUID.fromString(SENTENCE_PLAN_ID));
     }
@@ -130,7 +129,7 @@ public class SentencePlanResourceTest {
                 .andExpect(method(GET))
                 .andRespond(withSuccess(
                         mapper.writeValueAsString(List.of(
-                            new OasysSentencePlan(12345L, LocalDate.of(2010, 1,1), null, Collections.emptyList())
+                            new OasysSentencePlanDto(12345L, LocalDate.of(2010, 1,1), null, Collections.emptyList())
                         )), MediaType.APPLICATION_JSON));
 
         var result = given()
@@ -142,7 +141,7 @@ public class SentencePlanResourceTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .jsonPath().getList(".", SentencePlanSummary.class);
+                .jsonPath().getList(".", SentencePlanSummaryDto.class);
 
         assertThat(result.get(0).getPlanId()).isEqualTo(SENTENCE_PLAN_ID);
         assertThat(result.get(0).getCreatedDate()).isEqualTo(LocalDate.of(2019,11,14));
@@ -162,7 +161,7 @@ public class SentencePlanResourceTest {
                 .andExpect(method(GET))
                 .andRespond(withSuccess(
                         mapper.writeValueAsString(List.of(
-                                new OasysSentencePlan(12345L, LocalDate.of(2010, 1,1), null, Collections.emptyList())
+                                new OasysSentencePlanDto(12345L, LocalDate.of(2010, 1,1), null, Collections.emptyList())
                         )), MediaType.APPLICATION_JSON));
 
         var result = given()
@@ -174,7 +173,7 @@ public class SentencePlanResourceTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .as(OasysSentencePlan.class);
+                .as(OasysSentencePlanDto.class);
 
         assertThat(result.getOasysSetId()).isEqualTo(12345L);
     }
@@ -236,7 +235,7 @@ public class SentencePlanResourceTest {
                 .statusCode(201)
                 .extract()
                 .body()
-                .as(SentencePlan.class);
+                .as(SentencePlanDto.class);
 
         assertThat(result.isDraft()).isTrue();
         assertThat(result.getObjectives().size()).isEqualTo(0);
@@ -261,7 +260,7 @@ public class SentencePlanResourceTest {
                 .statusCode(201)
                 .extract()
                 .body()
-                .as(SentencePlan.class);
+                .as(SentencePlanDto.class);
 
         var errorResult = given()
                 .when()
@@ -361,7 +360,7 @@ public class SentencePlanResourceTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .as(SentencePlan.class);
+                .as(SentencePlanDto.class);
 
         assertThat(plan.getUuid()).isEqualTo(UUID.fromString(SENTENCE_PLAN_ID));
         assertThat(plan.getComments()).hasSize(3); //two added in before-test.sql
@@ -382,7 +381,7 @@ public class SentencePlanResourceTest {
                 .then()
                 .statusCode(200)
                 .extract()
-                .body().jsonPath().getList(".", Comment.class);
+                .body().jsonPath().getList(".", CommentDto.class);
 
         assertThat(comments).hasSize(2);
         var comment1 = comments.stream().filter(c->c.getCommentType().equals(CommentType.YOUR_RESPONSIVITY)).findAny();
@@ -431,7 +430,7 @@ public class SentencePlanResourceTest {
                 .then()
                 .statusCode(200)
                 .extract()
-                .body().jsonPath().getList(".", Comment.class);
+                .body().jsonPath().getList(".", CommentDto.class);
 
         assertThat(comments).hasSize(2);
         var comment = comments.stream().filter(c->c.getCommentType().equals(CommentType.LIAISON_ARRANGEMENTS)).findAny();
@@ -456,7 +455,7 @@ public class SentencePlanResourceTest {
                 .statusCode(201)
                 .extract()
                 .body()
-                .as(SentencePlan.class);
+                .as(SentencePlanDto.class);
 
 
         var revisions = given()
@@ -467,7 +466,7 @@ public class SentencePlanResourceTest {
                 .then()
                 .statusCode(200)
                 .extract()
-                .jsonPath().getList(".", SentencePlanSummary.class);
+                .jsonPath().getList(".", SentencePlanSummaryDto.class);
 
         //value is 1 after creation
         assertThat(revisions).hasSize(1);
@@ -495,7 +494,7 @@ public class SentencePlanResourceTest {
                 .then()
                 .statusCode(200)
                 .extract()
-                .jsonPath().getList(".", SentencePlanSummary.class);
+                .jsonPath().getList(".", SentencePlanSummaryDto.class);
 
         assertThat(afterUpdateRevisions).hasSize(2);
 

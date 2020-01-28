@@ -88,7 +88,7 @@ public class SentencePlanResource_NeedTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .jsonPath().getList(".", Need.class);
+                .jsonPath().getList(".", NeedDto.class);
 
         assertThat(result).hasSize(2);
     }
@@ -106,7 +106,7 @@ public class SentencePlanResource_NeedTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .jsonPath().getList(".", Need.class);
+                .jsonPath().getList(".", NeedDto.class);
 
         assertThat(result).hasSize(0);
     }
@@ -147,7 +147,7 @@ public class SentencePlanResource_NeedTest {
                 .statusCode(201)
                 .extract()
                 .body()
-                .as(SentencePlan.class);
+                .as(SentencePlanDto.class);
 
         assessmentApi.verify();
         assertThat(sentencePlan.getNeeds()).extracting("name").containsOnly("Accommodation", "Alcohol");

@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Getter
 @ApiModel(description = "A comment/text field on a Sentence Plan. A Comment is defined by it's commentType")
-public class Comment {
+public class CommentDto {
 
     @JsonProperty("comment")
     private String comment;
@@ -30,11 +30,11 @@ public class Comment {
     private String createdBy;
 
 
-    public static Comment from(CommentEntity commentEntity) {
-        return new Comment(commentEntity.getComment(), commentEntity.getCommentType(), commentEntity.getCreated(), commentEntity.getCreatedBy());
+    public static CommentDto from(CommentEntity commentEntity) {
+        return new CommentDto(commentEntity.getComment(), commentEntity.getCommentType(), commentEntity.getCreated(), commentEntity.getCreatedBy());
     }
 
-    public static List<Comment> from(Collection<CommentEntity> commentEntities) {
-        return commentEntities.stream().map(Comment::from).collect(Collectors.toList());
+    public static List<CommentDto> from(Collection<CommentEntity> commentEntities) {
+        return commentEntities.stream().map(CommentDto::from).collect(Collectors.toList());
     }
 }

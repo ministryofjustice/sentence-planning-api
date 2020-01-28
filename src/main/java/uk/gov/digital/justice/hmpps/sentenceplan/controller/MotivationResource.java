@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.MotivationRefDto;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.MotivationRefService;
 
-import java.util.List;
+import java.util.Collection;
 
 @Api(tags = {"Motivation Data API"})
 @RestController
@@ -24,10 +24,9 @@ public class MotivationResource {
 
     @GetMapping(value = "/motivation", produces = "application/json")
     @ApiOperation(value = "Gets all active Motivations as ref data for use in dropdowns or lists",
-            response = MotivationRefDto.class, responseContainer="List",
             notes = "Get all active Motivations")
-    ResponseEntity<List<MotivationRefDto>> getActiveMotivations() {
-        return ResponseEntity.ok(MotivationRefDto.from(motivationRefService.getActiveMotivations()));
+    ResponseEntity<Collection<MotivationRefDto>> getActiveMotivations() {
+        return ResponseEntity.ok(motivationRefService.getActiveMotivations());
     }
 
 }

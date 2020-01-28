@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Getter
 @ApiModel(description = "Objective on a Sentence Plan")
-public class Objective {
+public class ObjectiveDto {
 
     @JsonProperty("id")
     private UUID id;
@@ -25,19 +25,19 @@ public class Objective {
     @JsonProperty("needs")
     private List<UUID> needs;
     @JsonProperty("actions")
-    private List<Action> actions;
+    private List<ActionDto> actions;
     @JsonProperty("priority")
     private Integer priority;
     @JsonProperty("meetsChildSafeguarding")
     private boolean meetsChildSafeguarding;
 
 
-    public static Objective from(ObjectiveEntity objective) {
-        var actions = Action.from(objective.getActions().values());
-        return new Objective(objective.getId(), objective.getDescription(), objective.getNeeds(), actions, objective.getPriority(), objective.isMeetsChildSafeguarding());
+    public static ObjectiveDto from(ObjectiveEntity objective) {
+        var actions = ActionDto.from(objective.getActions().values());
+        return new ObjectiveDto(objective.getId(), objective.getDescription(), objective.getNeeds(), actions, objective.getPriority(), objective.isMeetsChildSafeguarding());
     }
 
-    public static List<Objective> from(Collection<ObjectiveEntity> objectives) {
-        return objectives.stream().map(Objective::from).collect(Collectors.toList());
+    public static List<ObjectiveDto> from(Collection<ObjectiveEntity> objectives) {
+        return objectives.stream().map(ObjectiveDto::from).collect(Collectors.toList());
     }
 }

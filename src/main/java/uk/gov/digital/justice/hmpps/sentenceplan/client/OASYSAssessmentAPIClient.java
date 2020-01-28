@@ -12,7 +12,7 @@ import uk.gov.digital.justice.hmpps.sentenceplan.application.LogEvent;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysAssessment;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysOffender;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysRefElement;
-import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysSentencePlan;
+import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysSentencePlanDto;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.exception.OasysClientException;
 import uk.gov.digital.justice.hmpps.sentenceplan.security.AccessLevel;
 import java.util.Collections;
@@ -64,11 +64,11 @@ public class OASYSAssessmentAPIClient {
         }
     }
 
-    public List<OasysSentencePlan> getSentencePlansForOffender(long oasysOffenderId) {
+    public List<OasysSentencePlanDto> getSentencePlansForOffender(long oasysOffenderId) {
         try {
             return restTemplate.exchange(
                     assessmentApiBasePath + "/offenders/oasysOffenderId/{oasysOffenderId}/fullSentencePlans",
-                    HttpMethod.GET,null, new ParameterizedTypeReference<List<OasysSentencePlan>>(){}, oasysOffenderId).getBody();
+                    HttpMethod.GET,null, new ParameterizedTypeReference<List<OasysSentencePlanDto>>(){}, oasysOffenderId).getBody();
         }
         catch(HttpClientErrorException e) {
             if(e.getRawStatusCode() == 404) {

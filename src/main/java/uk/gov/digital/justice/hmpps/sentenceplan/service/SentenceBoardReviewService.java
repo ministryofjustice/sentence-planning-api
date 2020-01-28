@@ -2,6 +2,8 @@ package uk.gov.digital.justice.hmpps.sentenceplan.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import uk.gov.digital.justice.hmpps.sentenceplan.api.SentenceBoardReviewDto;
+import uk.gov.digital.justice.hmpps.sentenceplan.api.SentenceBoardReviewSummaryDto;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.SentenceBoardReviewEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentenceBoardReviewRepository;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
@@ -35,16 +37,16 @@ private final SentencePlanService sentencePlanService;
         log.info("Created Sentence Board Review {} for Sentence Plan {}", sentenceBoardReviewEntity.getUuid(), sentencePlanUUID, value(EVENT, SENTENCE_BOARD_REVIEW_CREATED));
     }
 
-    public List<SentenceBoardReviewEntity> getSentenceBoardReviewsBySentencePlanUUID(UUID sentencePlanUUID) {
+    public List<SentenceBoardReviewSummaryDto> getSentenceBoardReviewsBySentencePlanUUID(UUID sentencePlanUUID) {
         var boardReviews = sentenceBoardReviewRepository.findAllBySentencePlanUUID(sentencePlanUUID);
         log.info("Retrieved {} Sentence Board Reviews for Sentence Plan {}", boardReviews.size(), sentencePlanUUID, value(EVENT, SENTENCE_BOARD_REVIEWS_RETRIEVED));
-        return boardReviews;
+        return SentenceBoardReviewSummaryDto.from(boardReviews);
     }
 
-    public SentenceBoardReviewEntity getSentenceBoardReviewBySentencePlanUUID(UUID sentencePlanUUID, UUID sentenceBoardReviewUUID) {
+    public SentenceBoardReviewDto getSentenceBoardReviewBySentencePlanUUID(UUID sentencePlanUUID, UUID sentenceBoardReviewUUID) {
         var boardReview = getSentenceBoardReviewEntity(sentenceBoardReviewUUID);
         log.info("Retrieved {} Sentence Board Review {} for Sentence Plan {}", boardReview.getUuid(), sentencePlanUUID, value(EVENT, SENTENCE_BOARD_REVIEW_RETRIEVED));
-        return boardReview;
+        return SentenceBoardReviewDto.from(boardReview);
     }
 
     private SentenceBoardReviewEntity getSentenceBoardReviewEntity(UUID sentenceBoardReviewUUID) {
