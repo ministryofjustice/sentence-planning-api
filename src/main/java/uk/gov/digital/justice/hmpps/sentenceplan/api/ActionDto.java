@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.ActionEntity;
 
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
@@ -37,6 +38,8 @@ public class ActionDto {
     private Integer priority;
     @JsonProperty("updated")
     private LocalDateTime updated;
+    @JsonProperty("targetDate")
+    private YearMonth targetDate;
     @JsonProperty("progress")
     private List<ActionProgress> progress;
 
@@ -50,6 +53,7 @@ public class ActionDto {
                 action.getMotivationUUID(),
                 action.getPriority(),
                 action.getUpdated(),
+                action.getTargetDate(),
                 action.getProgress().stream().map(ActionProgress::from).collect(Collectors.toList()));
     }
 
