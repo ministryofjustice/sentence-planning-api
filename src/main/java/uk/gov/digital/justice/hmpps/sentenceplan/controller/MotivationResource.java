@@ -5,7 +5,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.MotivationRef;
+import uk.gov.digital.justice.hmpps.sentenceplan.api.MotivationRefDto;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.MotivationRefService;
 
 import java.util.List;
@@ -24,10 +24,10 @@ public class MotivationResource {
 
     @GetMapping(value = "/motivation", produces = "application/json")
     @ApiOperation(value = "Gets all active Motivations as ref data for use in dropdowns or lists",
-            response = MotivationRef.class, responseContainer="List",
+            response = MotivationRefDto.class, responseContainer="List",
             notes = "Get all active Motivations")
-    ResponseEntity<List<MotivationRef>> getActiveMotivations() {
-        return ResponseEntity.ok(MotivationRef.from(motivationRefService.getActiveMotivations()));
+    ResponseEntity<List<MotivationRefDto>> getActiveMotivations() {
+        return ResponseEntity.ok(MotivationRefDto.from(motivationRefService.getActiveMotivations()));
     }
 
 }
