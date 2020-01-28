@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Getter
 @ApiModel(description = "Action on a Sentence Plan Objective")
-public class Action {
+public class ActionDto {
 
     @JsonProperty("id")
     private UUID id;
@@ -40,8 +40,8 @@ public class Action {
     @JsonProperty("progress")
     private List<ActionProgress> progress;
 
-    public static Action from(ActionEntity action) {
-        return new Action(action.getId(),
+    public static ActionDto from(ActionEntity action) {
+        return new ActionDto(action.getId(),
                 action.getOwner(),
                 action.getOwnerOther(),
                 action.getDescription(),
@@ -53,7 +53,7 @@ public class Action {
                 action.getProgress().stream().map(ActionProgress::from).collect(Collectors.toList()));
     }
 
-    public static List<Action> from(Collection<ActionEntity> actions) {
-        return actions.stream().map(Action::from).collect(Collectors.toList());
+    public static List<ActionDto> from(Collection<ActionEntity> actions) {
+        return actions.stream().map(ActionDto::from).collect(Collectors.toList());
     }
 }

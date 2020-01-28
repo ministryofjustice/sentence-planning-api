@@ -18,7 +18,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.digital.justice.hmpps.sentenceplan.api.InterventionRef;
+import uk.gov.digital.justice.hmpps.sentenceplan.api.InterventionRefDto;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysRefElement;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.InterventionRespository;
 
@@ -79,7 +79,7 @@ public class InterventionRefResourceTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .as(InterventionRef[].class);
+                .as(InterventionRefDto[].class);
 
         assertThat(result).hasSize(3);
 
@@ -107,7 +107,7 @@ public class InterventionRefResourceTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .as(InterventionRef[].class);
+                .as(InterventionRefDto[].class);
 
         assertThat(result).hasSize(4);
 
@@ -140,7 +140,7 @@ public class InterventionRefResourceTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .as(InterventionRef[].class);
+                .as(InterventionRefDto[].class);
 
         assertThat(result).hasSize(0);
 
@@ -158,7 +158,7 @@ public class InterventionRefResourceTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .as(InterventionRef[].class);
+                .as(InterventionRefDto[].class);
 
         assertThat(result).hasSize(0);
 
@@ -184,7 +184,7 @@ public class InterventionRefResourceTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .as(InterventionRef[].class);
+                .as(InterventionRefDto[].class);
 
         assertThat(result).hasSize(3);
 
@@ -213,7 +213,7 @@ public class InterventionRefResourceTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .as(InterventionRef[].class);
+                .as(InterventionRefDto[].class);
 
         assertThat(result).hasSize(3);
 
@@ -247,7 +247,7 @@ public class InterventionRefResourceTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .as(InterventionRef[].class);
+                .as(InterventionRefDto[].class);
 
         assertThat(result).hasSize(3);
 

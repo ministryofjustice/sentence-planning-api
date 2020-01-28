@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Getter
 @ApiModel(description = "Motivation Reference Data")
-public class MotivationRef {
+public class MotivationRefDto {
     @JsonProperty("uuid")
     private UUID UUID;
     @JsonProperty("motivationText")
@@ -24,13 +24,13 @@ public class MotivationRef {
     private String friendlyText;
 
 
-    public static MotivationRef from(MotivationRefEntity motivation) {
-        return new MotivationRef(motivation.getUuid(),
+    public static MotivationRefDto from(MotivationRefEntity motivation) {
+        return new MotivationRefDto(motivation.getUuid(),
                 motivation.getMotivationText(),
                 motivation.getFriendlyText());
     }
 
-    public static List<MotivationRef> from(List<MotivationRefEntity> motivations) {
-        return motivations.stream().map(MotivationRef::from).collect(Collectors.toList());
+    public static List<MotivationRefDto> from(List<MotivationRefEntity> motivations) {
+        return motivations.stream().map(MotivationRefDto::from).collect(Collectors.toList());
     }
 }

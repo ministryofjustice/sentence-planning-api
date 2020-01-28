@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Getter
 @ApiModel(description = "A need")
-public class Need {
+public class NeedDto {
     @JsonProperty("id")
     private UUID id;
     @JsonProperty("name")
@@ -31,8 +31,8 @@ public class Need {
     @JsonProperty("active")
     private Boolean active;
 
-    public static Need from(NeedEntity need) {
-        return new Need(need.getUuid(),
+    public static NeedDto from(NeedEntity need) {
+        return new NeedDto(need.getUuid(),
                 need.getDescription(),
                 need.getOverThreshold(),
                 need.getHarmRisk(),
@@ -41,7 +41,7 @@ public class Need {
                 need.getActive());
     }
 
-    public static List<Need> from(List<NeedEntity> needs) {
-        return needs.stream().map(Need::from).collect(Collectors.toList());
+    public static List<NeedDto> from(List<NeedEntity> needs) {
+        return needs.stream().map(NeedDto::from).collect(Collectors.toList());
     }
 }

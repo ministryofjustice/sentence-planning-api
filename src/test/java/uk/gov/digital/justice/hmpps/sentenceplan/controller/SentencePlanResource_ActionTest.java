@@ -111,7 +111,7 @@ public class SentencePlanResource_ActionTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .as(Objective.class);
+                .as(ObjectiveDto.class);
 
         assertThat(result.getActions()).hasSize(1);
         var action = result.getActions().stream().filter(a->a.getDescription().endsWith("new action description")).findAny().get();
@@ -134,7 +134,7 @@ public class SentencePlanResource_ActionTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .as(Action.class);
+                .as(ActionDto.class);
 
         assertThat(result.getDescription()).isEqualTo("Action 1");
         assertThat(result.getIntervention()).isNull();
@@ -190,7 +190,7 @@ public class SentencePlanResource_ActionTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .as(Action.class);
+                .as(ActionDto.class);
 
         assertThat(progressedAction.getProgress()).hasSize(1);
         var actionProgress = progressedAction.getProgress().stream().filter(p -> p.getComment().equals("new test comment" )).findAny();

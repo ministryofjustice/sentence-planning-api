@@ -85,7 +85,7 @@ public class SentenceBoardReviewResourceTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .jsonPath().getList(".", SentenceBoardReviewSummary.class);
+                .jsonPath().getList(".", SentenceBoardReviewSummaryDto.class);
 
         assertThat(result.get(0).getId().toString()).isEqualTo(SBR_ID);
         assertThat(result.get(0).getDateOfBoard()).isEqualTo(LocalDate.of(2019,11,14));
@@ -104,7 +104,7 @@ public class SentenceBoardReviewResourceTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .as(SentenceBoardReview.class);
+                .as(SentenceBoardReviewDto.class);
 
         assertThat(result.getId().toString()).isEqualTo(SBR_ID);
         assertThat(result.getDateOfBoard()).isEqualTo(LocalDate.of(2019,11,14));
@@ -133,7 +133,7 @@ public class SentenceBoardReviewResourceTest {
                 .statusCode(200)
                 .extract()
                 .body()
-                .jsonPath().getList(".", SentenceBoardReviewSummary.class);
+                .jsonPath().getList(".", SentenceBoardReviewSummaryDto.class);
 
         assertThat(response.size()).isEqualTo(2);
     }

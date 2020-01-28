@@ -16,18 +16,18 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @Getter
 @ApiModel(description = "Sentence Board Review Summary")
-public class SentenceBoardReviewSummary {
+public class SentenceBoardReviewSummaryDto {
 
     @JsonProperty("id")
     private UUID id;
     @JsonProperty("dateOfBoard")
     private LocalDate dateOfBoard;
 
-    public static SentenceBoardReviewSummary from(SentenceBoardReviewEntity review) {
-        return new SentenceBoardReviewSummary(review.getUuid(), review.getDateOfBoard());
+    public static SentenceBoardReviewSummaryDto from(SentenceBoardReviewEntity review) {
+        return new SentenceBoardReviewSummaryDto(review.getUuid(), review.getDateOfBoard());
     }
 
-    public static List<SentenceBoardReviewSummary> from(Collection<SentenceBoardReviewEntity> reviews) {
-        return reviews.stream().map(SentenceBoardReviewSummary::from).collect(Collectors.toList());
+    public static List<SentenceBoardReviewSummaryDto> from(Collection<SentenceBoardReviewEntity> reviews) {
+        return reviews.stream().map(SentenceBoardReviewSummaryDto::from).collect(Collectors.toList());
     }
 }
