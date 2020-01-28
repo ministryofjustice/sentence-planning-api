@@ -13,7 +13,6 @@ import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepo
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.CurrentSentencePlanForOffenderExistsException;
 
 import javax.transaction.Transactional;
-import java.time.YearMonth;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -60,18 +59,18 @@ public class SentencePlanService {
     }
 
     @Transactional
-    public ObjectiveDto addObjective(UUID sentencePlanUUID, String description, List<UUID> needs) {
+    public ObjectiveDto addObjective(UUID sentencePlanUUID, AddSentencePlanObjectiveRequest objectiveRequest) {
         var sentencePlanEntity = getSentencePlanEntity(sentencePlanUUID);
-        var objectiveEntity = new ObjectiveEntity(description, needs);
+        var objectiveEntity = new ObjectiveEntity(objectiveRequest.getDescription(), objectiveRequest.getNeeds(), objectiveRequest.isMeetsChildSafeguarding());
         sentencePlanEntity.addObjective(objectiveEntity);
         log.info("Created Objective for Sentence Plan {}", sentencePlanUUID, value(EVENT, SENTENCE_PLAN_OBJECTIVE_CREATED));
         return ObjectiveDto.from(objectiveEntity);
     }
 
     @Transactional
-    public void updateObjective(UUID sentencePlanUUID, UUID objectiveUUID, String description, List<UUID> needs) {
+    public void updateObjective(UUID sentencePlanUUID, UUID objectiveUUID, AddSentencePlanObjectiveRequest objectiveRequest) {
         var objectiveEntity = getObjectiveEntity(sentencePlanUUID, objectiveUUID);
-        objectiveEntity.updateObjective(description, needs);
+        objectiveEntity.updateObjective(objectiveRequest.getDescription(), objectiveRequest.getNeeds(), objectiveRequest.isMeetsChildSafeguarding());
         log.info("Updated Objective {} for Sentence Plan {}", objectiveUUID, sentencePlanUUID, value(EVENT, SENTENCE_PLAN_OBJECTIVE_UPDATED));
     }
 
@@ -82,9 +81,9 @@ public class SentencePlanService {
     }
 
     @Transactional
-    public void addAction(UUID sentencePlanUUID, UUID objectiveUUID, UUID interventionUUID, String description, YearMonth targetDate, UUID motivationUUID, List<ActionOwner> owner, String ownerOther, ActionStatus status) {
+    public void addAction(UUID sentencePlanUUID, UUID objectiveUUID, AddSentencePlanActionRequest actionRequest) {
         var objectiveEntity = getObjectiveEntity(sentencePlanUUID, objectiveUUID);
-        var actionEntity = new ActionEntity(interventionUUID, description, targetDate, motivationUUID, owner, ownerOther, status);
+        var actionEntity = new ActionEntity(actionRequest.getInterventionUUID(), actionRequest.getDescription(), actionRequest.getTargetDate(), actionRequest.getMotivationUUID(), actionRequest.getOwner(), actionRequest.getOwnerOther(), actionRequest.getStatus());
         objectiveEntity.addAction(actionEntity);
         log.info("Created Action for Sentence Plan {} Objective {}", sentencePlanUUID, objectiveUUID, value(EVENT, SENTENCE_PLAN_ACTION_CREATED));
     }
@@ -104,23 +103,25 @@ public class SentencePlanService {
     }
 
     @Transactional
-    public void updateObjectivePriorities(UUID sentencePlanUuid,  Map<UUID, Integer> newPriorities) {
+    public void updateObjectivePriorities(UUID sentencePlanUuid,  List<UpdateObjectivePriorityRequest> request) {
+        var objectivePriorities = request.stream().collect(Collectors.toMap(UpdateObjectivePriorityRequest::getObjectiveUUID, UpdateObjectivePriorityRequest::getPriority));
         var planObjectives = getSentencePlanEntity(sentencePlanUuid).getObjectives();
-        planObjectives.forEach((key, value) -> value.setPriority(Optional.ofNullable(newPriorities.get(value.getId())).orElse(value.getPriority())));
+        planObjectives.forEach((key, value) -> value.setPriority(Optional.ofNullable(objectivePriorities.get(value.getId())).orElse(value.getPriority())));
         log.info("Updated Objective priority for Sentence Plan {}", sentencePlanUuid, value(EVENT, SENTENCE_PLAN_OBJECTIVE_PRIORITY_UPDATED));
     }
 
     @Transactional
-    public void updateActionPriorities(UUID sentencePlanUuid, UUID objectiveUUID, Map<UUID, Integer> newPriorities) {
+    public void updateActionPriorities(UUID sentencePlanUuid, UUID objectiveUUID, List<UpdateActionPriorityRequest> request) {
+        var actionPriorities = request.stream().collect(Collectors.toMap(UpdateActionPriorityRequest::getActionUUID, UpdateActionPriorityRequest::getPriority));
         var planActions = getObjectiveEntity(sentencePlanUuid,objectiveUUID).getActions();
-        planActions.forEach((key, value) -> value.setPriority(Optional.ofNullable(newPriorities.get(value.getId())).orElse(value.getPriority())));
+        planActions.forEach((key, value) -> value.setPriority(Optional.ofNullable(actionPriorities.get(value.getId())).orElse(value.getPriority())));
         log.info("Updated Action priority for Sentence Plan {} Objective {}", sentencePlanUuid, objectiveUUID, value(EVENT, SENTENCE_PLAN_ACTION_PRIORITY_UPDATED));
     }
 
     @Transactional
-    public void progressAction(UUID sentencePlanUUID, UUID objectiveUUID, UUID actionId, ActionStatus status, YearMonth targetDate, UUID motivationUUID, String comment, List<ActionOwner> owner, String ownerOther) {
+    public void progressAction(UUID sentencePlanUUID, UUID objectiveUUID, UUID actionId, ProgressActionRequest request) {
         var actionEntity = getActionEntity(sentencePlanUUID, objectiveUUID, actionId);
-        var progressEntity = new ProgressEntity(status, targetDate, motivationUUID, comment, owner, ownerOther, requestData.getUsername());
+        var progressEntity = new ProgressEntity(request.getStatus(), request.getTargetDate(), request.getMotivationUUID(), request.getComment(), request.getOwner(), request.getOwnerOther(), requestData.getUsername());
         actionEntity.addProgress(progressEntity);
         log.info("Progressed Action for Sentence Plan {} Objective {}", sentencePlanUUID, objectiveUUID, value(EVENT, SENTENCE_PLAN_ACTION_PROGRESSED));
     }

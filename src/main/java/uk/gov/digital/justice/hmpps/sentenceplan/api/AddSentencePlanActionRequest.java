@@ -16,7 +16,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @ApiModel(description = "Add a new Sentence Plan Action")
-public class AddSentencePlanAction {
+public class AddSentencePlanActionRequest {
 
     @ApiModelProperty(required = true, value = "The intervention ID, if applicable")
     @JsonProperty("interventionUUID")

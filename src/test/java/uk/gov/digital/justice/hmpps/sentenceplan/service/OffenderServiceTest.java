@@ -113,7 +113,7 @@ public class OffenderServiceTest {
 
         var needs = List.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
         var sentencePlanProperty = new SentencePlanPropertiesEntity();
-        var objective = new ObjectiveEntity("Objective 1", needs);
+        var objective = new ObjectiveEntity("Objective 1", needs, true);
         var action = new ActionEntity(null,"Action 1", YearMonth.of(2019,8), UUID.fromString("11111111-1111-1111-1111-111111111111"), List.of(SERVICE_USER), null, ActionStatus.NOT_STARTED);
         var offender = new OffenderEntity(1L, "two", "3");
         objective.addAction(action);

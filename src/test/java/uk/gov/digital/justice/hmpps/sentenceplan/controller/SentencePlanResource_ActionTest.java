@@ -84,7 +84,7 @@ public class SentencePlanResource_ActionTest {
     @Test
     public void shouldCreateActionOnExistingPlan() {
         createMockAuthService(OFFENDER_EMPTY);
-        var requestBody = new AddSentencePlanAction(
+        var requestBody = new AddSentencePlanActionRequest(
                 null,
                 "new action description",
                 YearMonth.of(2019,11),

@@ -29,13 +29,13 @@ public class ObjectiveEntity implements Serializable {
 
     private LocalDateTime created = LocalDateTime.now();
 
-    public ObjectiveEntity(String description, List<UUID> needs) {
+    public ObjectiveEntity(String description, List<UUID> needs, boolean meetsChildSafeguarding) {
         this.id = UUID.randomUUID();
-        update(description, needs);
+        update(description, needs, meetsChildSafeguarding);
     }
 
-    public void updateObjective(String description, List<UUID> needs) {
-        update(description, needs);
+    public void updateObjective(String description, List<UUID> needs, boolean meetsChildSafeguarding) {
+        update(description, needs, meetsChildSafeguarding );
     }
 
     public void addAction(ActionEntity actionEntity) {
@@ -50,8 +50,9 @@ public class ObjectiveEntity implements Serializable {
         return actions.get(actionUUID);
     }
 
-    private void update(String description, List<UUID> needs) {
+    private void update(String description, List<UUID> needs, boolean meetsChildSafeguarding) {
         this.description = description;
         this.needs = needs;
+        this.meetsChildSafeguarding = meetsChildSafeguarding;
     }
 }
