@@ -157,8 +157,8 @@ public class SentencePlanEntityTest {
         var offender = mock(OffenderEntity.class);
         var sentencePlan = new SentencePlanEntity(offender);
 
-        var objective1 = new ObjectiveEntity("Objective 1", Collections.emptyList());
-        var objective2 = new ObjectiveEntity("Objective 2", Collections.emptyList());
+        var objective1 = new ObjectiveEntity("Objective 1", Collections.emptyList(), true);
+        var objective2 = new ObjectiveEntity("Objective 2", Collections.emptyList(), true);
 
         sentencePlan.addObjective(objective1);
         sentencePlan.addObjective(objective2);

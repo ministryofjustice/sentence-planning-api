@@ -111,7 +111,8 @@ public class SentencePlanServiceTest {
         var newSentencePlan = mock(SentencePlanEntity.class);
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(newSentencePlan);
         var needs = List.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
-        var objective = service.addObjective(sentencePlanUuid, "Objective 1", needs);
+        AddSentencePlanObjectiveRequest request = new AddSentencePlanObjectiveRequest("Objective 1", needs, true);
+        var objective = service.addObjective(sentencePlanUuid, request);
 
         verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
         verify(newSentencePlan,times(1)).addObjective(any());
@@ -119,6 +120,7 @@ public class SentencePlanServiceTest {
         assertThat(objective.getActions()).isEmpty();
         assertThat(objective.getDescription()).isEqualTo("Objective 1");
         assertThat(objective.getNeeds()).containsExactlyElementsOf(needs);
+        assertThat(objective.isMeetsChildSafeguarding()).isEqualTo(true);
 
     }
 
@@ -134,7 +136,9 @@ public class SentencePlanServiceTest {
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(newSentencePlan);
 
         var motivationUuid = motivations.get(0).getUuid();
-        service.addAction(sentencePlanUuid,objectiveUUID, null, "Action 1", YearMonth.of(2019, 10), motivationUuid,  List.of(SERVICE_USER), null, NOT_STARTED);
+
+        AddSentencePlanActionRequest request = new AddSentencePlanActionRequest(null, "Action 1", YearMonth.of(2019, 10), motivationUuid,  List.of(SERVICE_USER), null, NOT_STARTED);
+        service.addAction(sentencePlanUuid,objectiveUUID, request);
 
         verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
         verify(objective,times(1)).addAction(action.capture());
@@ -175,7 +179,7 @@ public class SentencePlanServiceTest {
         assertThat(objective1.getPriority()).isEqualTo(1);
         assertThat(objective2.getPriority()).isEqualTo(2);
 
-        service.updateObjectivePriorities(sentencePlanUuid, emptyMap());
+        service.updateObjectivePriorities(sentencePlanUuid, emptyList());
 
         assertThat(objective1.getPriority()).isEqualTo(1);
         assertThat(objective2.getPriority()).isEqualTo(2);
@@ -195,7 +199,7 @@ public class SentencePlanServiceTest {
         assertThat(objective1.getPriority()).isEqualTo(1);
         assertThat(objective2.getPriority()).isEqualTo(2);
 
-        var updatedPriorities = Map.of(objective1UUID, 2, objective2UUID, 1) ;
+        var updatedPriorities = List.of(new UpdateObjectivePriorityRequest(objective1UUID, 2), new UpdateObjectivePriorityRequest(objective2UUID, 1)) ;
         service.updateObjectivePriorities(sentencePlanUuid, updatedPriorities);
 
         assertThat(objective1.getPriority()).isEqualTo(2);
@@ -215,7 +219,7 @@ public class SentencePlanServiceTest {
         assertThat(objective1.getPriority()).isEqualTo(1);
         assertThat(objective2.getPriority()).isEqualTo(2);
 
-        var updatedPriorities = Map.of(UUID.fromString("11111111-1111-1111-1111-111111111111"), 3) ;
+        var updatedPriorities = List.of(new UpdateObjectivePriorityRequest(objective1UUID, 3)) ;
         service.updateObjectivePriorities(sentencePlanUuid, updatedPriorities);
 
         assertThat(objective1.getPriority()).isEqualTo(3);
@@ -232,7 +236,7 @@ public class SentencePlanServiceTest {
         assertThat(objective.getAction(UUID.fromString("11111111-1111-1111-1111-111111111111")).getPriority()).isEqualTo(1);
         assertThat(objective.getAction(UUID.fromString("22222222-2222-2222-2222-222222222222")).getPriority()).isEqualTo(2);
 
-        service.updateActionPriorities(sentencePlanUuid, objectiveUUID,emptyMap());
+        service.updateActionPriorities(sentencePlanUuid, objectiveUUID,emptyList());
 
         assertThat(objective.getAction(UUID.fromString("11111111-1111-1111-1111-111111111111")).getPriority()).isEqualTo(1);
         assertThat(objective.getAction(UUID.fromString("22222222-2222-2222-2222-222222222222")).getPriority()).isEqualTo(2);
@@ -250,7 +254,8 @@ public class SentencePlanServiceTest {
         assertThat(objective.getAction(UUID.fromString("11111111-1111-1111-1111-111111111111")).getPriority()).isEqualTo(1);
         assertThat(objective.getAction(UUID.fromString("22222222-2222-2222-2222-222222222222")).getPriority()).isEqualTo(2);
 
-        var updatedPriorities = Map.of(UUID.fromString("11111111-1111-1111-1111-111111111111"), 2, UUID.fromString("22222222-2222-2222-2222-222222222222"), 1) ;
+        var updatedPriorities = List.of(new UpdateActionPriorityRequest(UUID.fromString("11111111-1111-1111-1111-111111111111"), 2), new UpdateActionPriorityRequest(UUID.fromString("22222222-2222-2222-2222-222222222222"), 1)) ;
+
         service.updateActionPriorities(sentencePlanUuid, objectiveUUID,updatedPriorities);
 
         assertThat(objective.getAction(UUID.fromString("11111111-1111-1111-1111-111111111111")).getPriority()).isEqualTo(2);
@@ -268,7 +273,7 @@ public class SentencePlanServiceTest {
         assertThat(objective.getAction(UUID.fromString("11111111-1111-1111-1111-111111111111")).getPriority()).isEqualTo(1);
         assertThat(objective.getAction(UUID.fromString("22222222-2222-2222-2222-222222222222")).getPriority()).isEqualTo(2);
 
-        var updatedPriorities = Map.of(UUID.fromString("22222222-2222-2222-2222-222222222222"), 3) ;
+        var updatedPriorities = List.of(new UpdateActionPriorityRequest(UUID.fromString("22222222-2222-2222-2222-222222222222"), 3)) ;
         service.updateActionPriorities(sentencePlanUuid, objectiveUUID,updatedPriorities);
 
         assertThat(objective.getAction(UUID.fromString("11111111-1111-1111-1111-111111111111")).getPriority()).isEqualTo(1);
@@ -445,7 +450,7 @@ public class SentencePlanServiceTest {
 
         var needs = List.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
         var sentencePlanProperty = new SentencePlanPropertiesEntity();
-        var objective = new ObjectiveEntity("Objective 1", needs);
+        var objective = new ObjectiveEntity("Objective 1", needs, false);
         var action = new ActionEntity(UUID.fromString("11111111-1111-1111-1111-111111111111"),null,"Action 1", YearMonth.of(2019,8),
                 UUID.fromString("11111111-1111-1111-1111-111111111111"), List.of(SERVICE_USER), null, NOT_STARTED, 1, emptyList(),
                 LocalDateTime.of(2019,6,6, 2,0),null);
@@ -465,7 +470,7 @@ public class SentencePlanServiceTest {
     }
 
     private ObjectiveEntity getObjectiveWithTwoActions(List<UUID> needs, String objectiveDescription, String action1Description, String action2Description) {
-        var objective = new ObjectiveEntity(objectiveDescription, needs);
+        var objective = new ObjectiveEntity(objectiveDescription, needs, false);
         var action1 = new ActionEntity(UUID.fromString("11111111-1111-1111-1111-111111111111"),null,action1Description, YearMonth.of(2019,8),
                 UUID.fromString("11111111-1111-1111-1111-111111111111"), List.of(SERVICE_USER), null, NOT_STARTED, 1, emptyList(),
                 LocalDateTime.of(2019,6,6, 2, 0),null);

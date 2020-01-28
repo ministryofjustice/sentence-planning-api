@@ -83,7 +83,7 @@ public class SentencePlanResource_ObjectiveTest {
         createMockAuthService(789123L, assessmentApi);
         var needs = List.of(UUID.fromString("9acddbd3-af5e-4b41-a710-018064700eb5"),
                 UUID.fromString("51c293ec-b2c4-491c-ade5-34375e1cd495"));
-        var requestBody = new AddSentencePlanObjective(
+        var requestBody = new AddSentencePlanObjectiveRequest(
                 "new objective description",
                 needs, false);
 
@@ -184,7 +184,7 @@ public class SentencePlanResource_ObjectiveTest {
         var needs = List.of(UUID.fromString("9acddbd3-af5e-4b41-a710-018064700eb5"),
                 UUID.fromString("51c293ec-b2c4-491c-ade5-34375e1cd495"));
 
-        var requestBody = new AddSentencePlanObjective(
+        var requestBody = new AddSentencePlanObjectiveRequest(
                 "new objective description",
                 needs,
                 false);
@@ -261,7 +261,7 @@ public class SentencePlanResource_ObjectiveTest {
         var needs = List.of(UUID.fromString("9acddbd3-af5e-4b41-a710-018064700eb5"),
                 UUID.fromString("51c293ec-b2c4-491c-ade5-34375e1cd495"));
 
-        var requestBody = new AddSentencePlanObjective(
+        var requestBody = new AddSentencePlanObjectiveRequest(
                 "new objective description",
                 needs,
                 false);
