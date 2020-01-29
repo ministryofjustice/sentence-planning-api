@@ -1,5 +1,6 @@
 package uk.gov.digital.justice.hmpps.sentenceplan.service;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,6 +26,7 @@ import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner.SERVICE_
 import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionStatus.NOT_STARTED;
 import static uk.gov.digital.justice.hmpps.sentenceplan.api.CommentType.LIAISON_ARRANGEMENTS;
 import static uk.gov.digital.justice.hmpps.sentenceplan.api.CommentType.YOUR_SUMMARY;
+import static uk.gov.digital.justice.hmpps.sentenceplan.application.LogEvent.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SentencePlanServiceTest {
@@ -37,6 +39,9 @@ public class SentencePlanServiceTest {
 
     @Mock
     private AssessmentService assessmentService;
+
+    @Mock
+    private TimelineService timelineService;
 
     @Mock
     private OASYSAssessmentAPIClient oasysAssessmentAPIClient;
@@ -56,7 +61,7 @@ public class SentencePlanServiceTest {
     public void setup() {
         motivations = List.of(new MotivationRefEntity("motivation 1"),
                 new MotivationRefEntity("motivation 1"));
-        service = new SentencePlanService(sentencePlanRepository, offenderService, assessmentService, oasysAssessmentAPIClient, requestData);
+        service = new SentencePlanService(sentencePlanRepository, offenderService, assessmentService, timelineService, oasysAssessmentAPIClient, requestData);
         when(requestData.getUsername()).thenReturn("a user");
     }
 
@@ -73,6 +78,7 @@ public class SentencePlanServiceTest {
 
         verify(offenderService,times(1)).getOffenderByType(oasysOffenderId);
         verify(sentencePlanRepository,times(1)).save(any());
+        verify(timelineService,times(1)).createTimelineEntry(any(UUID.class), eq(SENTENCE_PLAN_CREATED));
     }
 
     @Test
@@ -87,6 +93,7 @@ public class SentencePlanServiceTest {
 
         verify(offenderService,times(1)).getOffenderByType(oasysOffenderId);
         verify(sentencePlanRepository,never()).save(any());
+        verifyZeroInteractions(timelineService);
     }
 
     @Test
@@ -116,6 +123,7 @@ public class SentencePlanServiceTest {
 
         verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
         verify(newSentencePlan,times(1)).addObjective(any());
+        verify(timelineService, times(1)).createTimelineEntry(eq(sentencePlanUuid), eq(SENTENCE_PLAN_OBJECTIVE_CREATED), any(ObjectiveEntity.class));
 
         assertThat(objective.getActions()).isEmpty();
         assertThat(objective.getDescription()).isEqualTo("Objective 1");
@@ -142,6 +150,7 @@ public class SentencePlanServiceTest {
 
         verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
         verify(objective,times(1)).addAction(action.capture());
+        verify(timelineService, times(1)).createTimelineEntry(eq(sentencePlanUuid), eq(SENTENCE_PLAN_ACTION_CREATED), any(ObjectiveEntity.class));
 
         assertThat(action.getValue().getProgress()).isEmpty();
         assertThat(action.getValue().getDescription()).isEqualTo("Action 1");
@@ -418,6 +427,7 @@ public class SentencePlanServiceTest {
         service.addSentencePlanComments(sentencePlanUuid, List.of(comment1));
         service.addSentencePlanComments(sentencePlanUuid, List.of(comment2));
         verify(sentencePlan,times(2)).addComment(comments.capture());
+        verify(timelineService,times(2)).createTimelineEntry(eq(sentencePlanUuid), eq(SENTENCE_PLAN_COMMENTS_CREATED), comments.capture());
 
         var result = comments.getAllValues();
 

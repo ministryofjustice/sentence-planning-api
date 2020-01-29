@@ -26,13 +26,15 @@ public class SentencePlanService {
     private final SentencePlanRepository sentencePlanRepository;
     private final OffenderService offenderService;
     private final AssessmentService assessmentService;
+    private final TimelineService timelineService;
     private final OASYSAssessmentAPIClient oasysAssessmentAPIClient;
     private final RequestData requestData;
 
-    public SentencePlanService(SentencePlanRepository sentencePlanRepository, OffenderService offenderService, AssessmentService assessmentService, OASYSAssessmentAPIClient oasysAssessmentAPIClient, RequestData requestData) {
+    public SentencePlanService(SentencePlanRepository sentencePlanRepository, OffenderService offenderService, AssessmentService assessmentService, TimelineService timelineService, OASYSAssessmentAPIClient oasysAssessmentAPIClient, RequestData requestData) {
         this.sentencePlanRepository = sentencePlanRepository;
         this.offenderService = offenderService;
         this.assessmentService = assessmentService;
+        this.timelineService = timelineService;
         this.oasysAssessmentAPIClient = oasysAssessmentAPIClient;
         this.requestData = requestData;
     }
@@ -40,14 +42,13 @@ public class SentencePlanService {
     @Transactional
     public SentencePlanDto createSentencePlan(Long offenderId) {
         var offender = offenderService.getOffenderByType(offenderId);
-
         if (getCurrentSentencePlan(offender.getUuid()).isPresent()) {
             throw new CurrentSentencePlanForOffenderExistsException("Offender already has a current sentence plan");
         }
-
         var sentencePlanEntity = new SentencePlanEntity(offender);
         assessmentService.addLatestAssessmentNeedsToPlan(sentencePlanEntity);
         sentencePlanRepository.save(sentencePlanEntity);
+        timelineService.createTimelineEntry(sentencePlanEntity.getUuid(), SENTENCE_PLAN_CREATED);
         log.info("Created Sentence Plan {}", sentencePlanEntity.getUuid(), value(EVENT, SENTENCE_PLAN_CREATED));
         return SentencePlanDto.from(sentencePlanEntity);
     }
@@ -63,6 +64,7 @@ public class SentencePlanService {
         var sentencePlanEntity = getSentencePlanEntity(sentencePlanUUID);
         var objectiveEntity = new ObjectiveEntity(objectiveRequest.getDescription(), objectiveRequest.getNeeds(), objectiveRequest.isMeetsChildSafeguarding());
         sentencePlanEntity.addObjective(objectiveEntity);
+        timelineService.createTimelineEntry(sentencePlanUUID, SENTENCE_PLAN_OBJECTIVE_CREATED, objectiveEntity);
         log.info("Created Objective for Sentence Plan {}", sentencePlanUUID, value(EVENT, SENTENCE_PLAN_OBJECTIVE_CREATED));
         return ObjectiveDto.from(objectiveEntity);
     }
@@ -71,6 +73,7 @@ public class SentencePlanService {
     public void updateObjective(UUID sentencePlanUUID, UUID objectiveUUID, AddSentencePlanObjectiveRequest objectiveRequest) {
         var objectiveEntity = getObjectiveEntity(sentencePlanUUID, objectiveUUID);
         objectiveEntity.updateObjective(objectiveRequest.getDescription(), objectiveRequest.getNeeds(), objectiveRequest.isMeetsChildSafeguarding());
+        timelineService.createTimelineEntry(sentencePlanUUID, SENTENCE_PLAN_OBJECTIVE_UPDATED, objectiveEntity);
         log.info("Updated Objective {} for Sentence Plan {}", objectiveUUID, sentencePlanUUID, value(EVENT, SENTENCE_PLAN_OBJECTIVE_UPDATED));
     }
 
@@ -85,12 +88,14 @@ public class SentencePlanService {
         var objectiveEntity = getObjectiveEntity(sentencePlanUUID, objectiveUUID);
         var actionEntity = new ActionEntity(actionRequest.getInterventionUUID(), actionRequest.getDescription(), actionRequest.getTargetDate(), actionRequest.getMotivationUUID(), actionRequest.getOwner(), actionRequest.getOwnerOther(), actionRequest.getStatus());
         objectiveEntity.addAction(actionEntity);
+        timelineService.createTimelineEntry(sentencePlanUUID, SENTENCE_PLAN_ACTION_CREATED, objectiveEntity);
         log.info("Created Action for Sentence Plan {} Objective {}", sentencePlanUUID, objectiveUUID, value(EVENT, SENTENCE_PLAN_ACTION_CREATED));
     }
 
-    public ActionDto getAction(UUID sentencePlanUuid, UUID objectiveUUID, UUID actionId) {
-        var actionEntity = getActionEntity(sentencePlanUuid, objectiveUUID, actionId);
-        log.info("Retrieved Action {} for Sentence Plan {} Objective {}", sentencePlanUuid, objectiveUUID, actionId, value(EVENT, SENTENCE_PLAN_ACTION_RETRIEVED));
+    public ActionDto getAction(UUID sentencePlanUUID, UUID objectiveUUID, UUID actionId) {
+        var objectiveEntity = getObjectiveEntity(sentencePlanUUID, objectiveUUID);
+        var actionEntity = getActionEntity(objectiveEntity, actionId);
+        log.info("Retrieved Action {} for Sentence Plan {} Objective {}", sentencePlanUUID, objectiveUUID, actionId, value(EVENT, SENTENCE_PLAN_ACTION_RETRIEVED));
         return ActionDto.from(actionEntity);
     }
 
@@ -120,9 +125,11 @@ public class SentencePlanService {
 
     @Transactional
     public void progressAction(UUID sentencePlanUUID, UUID objectiveUUID, UUID actionId, ProgressActionRequest request) {
-        var actionEntity = getActionEntity(sentencePlanUUID, objectiveUUID, actionId);
+        var objectiveEntity = getObjectiveEntity(sentencePlanUUID, objectiveUUID);
+        var actionEntity = getActionEntity(objectiveEntity, actionId);
         var progressEntity = new ProgressEntity(request.getStatus(), request.getTargetDate(), request.getMotivationUUID(), request.getComment(), request.getOwner(), request.getOwnerOther(), requestData.getUsername());
         actionEntity.addProgress(progressEntity);
+        timelineService.createTimelineEntry(sentencePlanUUID, SENTENCE_PLAN_ACTION_CREATED, objectiveEntity);
         log.info("Progressed Action for Sentence Plan {} Objective {}", sentencePlanUUID, objectiveUUID, value(EVENT, SENTENCE_PLAN_ACTION_PROGRESSED));
     }
 
@@ -130,6 +137,7 @@ public class SentencePlanService {
     public void startSentencePlan(UUID sentencePlanUUID) {
         var sentencePlanEntity = getSentencePlanEntity(sentencePlanUUID);
         sentencePlanEntity.start();
+        timelineService.createTimelineEntry(sentencePlanUUID, SENTENCE_PLAN_STARTED);
         log.info("Sentence Plan {} Started", sentencePlanUUID, value(EVENT, SENTENCE_PLAN_STARTED));
     }
 
@@ -143,7 +151,11 @@ public class SentencePlanService {
     @Transactional
     public void addSentencePlanComments(UUID sentencePlanUUID, List<AddCommentRequest> comments) {
         var sentencePlanEntity = getSentencePlanEntity(sentencePlanUUID);
-        comments.forEach(comment -> sentencePlanEntity.addComment(new CommentEntity(comment.getComment(), comment.getCommentType(), requestData.getUsername())));
+        for(AddCommentRequest comment : comments) {
+            var commentEntity = new CommentEntity(comment.getComment(), comment.getCommentType(), requestData.getUsername());
+            sentencePlanEntity.addComment(commentEntity);
+            timelineService.createTimelineEntry(sentencePlanUUID, SENTENCE_PLAN_COMMENTS_CREATED, commentEntity);
+        }
         log.info("Added Comments to Sentence Plan {}", sentencePlanEntity.getUuid(), value(EVENT, SENTENCE_PLAN_COMMENTS_CREATED));
     }
 
@@ -202,9 +214,8 @@ public class SentencePlanService {
         return objective;
     }
 
-    private ActionEntity getActionEntity(UUID sentencePlanUUID, UUID objectiveUUID, UUID actionUuid) {
-        var objective = getObjectiveEntity(sentencePlanUUID, objectiveUUID);
-        var action = objective.getAction(actionUuid);
+    private ActionEntity getActionEntity(ObjectiveEntity objectiveEntity, UUID actionUuid) {
+        var action = objectiveEntity.getAction(actionUuid);
 
         if(action == null) {
             throw new EntityNotFoundException("Action not found!");
