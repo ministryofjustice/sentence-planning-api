@@ -41,6 +41,7 @@ commands:
             helm upgrade sentence-planning-api ~/git/helm_deploy/sentence-planning-api/. \
               --install --wait --reset-values --timeout 5m --history-max 10 \
               --namespace=${KUBE_ENV_NAMESPACE} \
+              --description="${APP_VERSION} - ${CIRCLE_BUILD_URL}" \
               --values ~/git/helm_deploy/values-<< parameters.env >>.yaml \
               --values - \
               --set image.tag="${APP_VERSION}"
@@ -69,7 +70,7 @@ orbs:
   aws-cli: circleci/aws-cli@0.1.18
   kubernetes: circleci/kubernetes@0.10.1
   helm: circleci/helm@0.2.3
-
+  owasp: entur/owasp@0.0.6
 jobs:
   build:
     executor: builder
@@ -156,6 +157,17 @@ jobs:
 
 workflows:
   version: 2
+  scheduled:
+    triggers:
+      - schedule:
+          cron: "0 7 * * 1-5"
+          filters:
+            branches:
+              only:
+                - master
+    jobs:
+      - owasp/gradle_owasp_dependency_check:
+          executor: builder
   build-test-and-deploy:
     jobs:
       - build:
