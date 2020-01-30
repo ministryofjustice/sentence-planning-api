@@ -4,8 +4,10 @@ CREATE TABLE IF NOT EXISTS timeline
 (
     ID                     BIGSERIAL   PRIMARY KEY,
     UUID                   UUID        NOT NULL,
-    SENTENCE_PLAN_UUID     UUID,
-    PAYLOAD                JSONB,
+    SENTENCE_PLAN_UUID     UUID        NOT NULL,
+    ENTITY_KEY             TEXT        NOT NULL,
+    COMMENT                JSONB,
+    OBJECTIVE              JSONB,
     EVENT_TIMESTAMP        TIMESTAMP   NOT NULL,
     TYPE                   TEXT        NOT NULL,
     USER_ID                TEXT        NOT NULL,
