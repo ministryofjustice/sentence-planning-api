@@ -235,21 +235,6 @@ public class SentencePlanServiceTest {
         assertThat(objective2.getPriority()).isEqualTo(2);  }
 
     @Test
-    public void shouldGetAllActionsForSentencePlanObjective() {
-
-        var objective = getObjectiveWithTwoActions(emptyList(), "Objective 1", "Action 1", "Action 2");
-        var objectiveUUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
-        var newSentencePlan = mock(SentencePlanEntity.class);
-        when(newSentencePlan.getObjective(objectiveUUID)).thenReturn(objective);
-        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(newSentencePlan);
-
-        var actions = service.getActions(sentencePlanUuid, objectiveUUID);
-        assertThat(actions).hasSize(2);
-        assertThat(actions).extracting("description").containsOnly("Action 1", "Action 2");
-
-    }
-
-    @Test
     public void shouldNotUpdateActionWhenNotDraft(){
         var objective = getObjectiveWithTwoActions(emptyList(), "Objective 1", "Action 1", "Action 2");
         var objectiveUUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
@@ -257,8 +242,8 @@ public class SentencePlanServiceTest {
         when(newSentencePlan.isDraft()).thenReturn(true);
 
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(newSentencePlan);
-
-        var exception = catchThrowable(() -> service.updateAction(sentencePlanUuid, objectiveUUID,UUID.randomUUID(), UUID.randomUUID(), "Any Desc", YearMonth.now(), UUID.randomUUID(), emptyList(), "Other Owner", ActionStatus.PARTIALLY_COMPLETED));
+        AddSentencePlanActionRequest request = new AddSentencePlanActionRequest(UUID.randomUUID(), "Any Desc", YearMonth.now(), UUID.randomUUID(), emptyList(), "Other Owner", ActionStatus.PARTIALLY_COMPLETED);
+        var exception = catchThrowable(() -> service.updateAction(sentencePlanUuid, objectiveUUID,UUID.randomUUID(), request));
         assertThat(exception).isInstanceOf(BusinessRuleViolationException.class)
                 .hasMessageContaining("Cannot update Action, Sentence Plan is not a draft");
 
