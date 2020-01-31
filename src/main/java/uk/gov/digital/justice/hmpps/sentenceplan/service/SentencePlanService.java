@@ -50,7 +50,7 @@ public class SentencePlanService {
         var sentencePlanEntity = new SentencePlanEntity(offender);
         assessmentService.addLatestAssessmentNeedsToPlan(sentencePlanEntity);
         sentencePlanRepository.save(sentencePlanEntity);
-        timelineService.createTimelineEntry(sentencePlanEntity.getUuid(), SENTENCE_PLAN_CREATED);
+        //timelineService.createTimelineEntry(sentencePlanEntity.getUuid(), SENTENCE_PLAN_CREATED);
         log.info("Created Sentence Plan {}", sentencePlanEntity.getUuid(), value(EVENT, SENTENCE_PLAN_CREATED));
         return SentencePlanDto.from(sentencePlanEntity);
     }
@@ -152,7 +152,7 @@ public class SentencePlanService {
     public void startSentencePlan(UUID sentencePlanUUID) {
         var sentencePlanEntity = getSentencePlanEntity(sentencePlanUUID);
         sentencePlanEntity.start();
-        timelineService.createTimelineEntry(sentencePlanUUID, SENTENCE_PLAN_STARTED);
+        //timelineService.createTimelineEntry(sentencePlanUUID, SENTENCE_PLAN_STARTED);
         log.info("Sentence Plan {} Started", sentencePlanUUID, value(EVENT, SENTENCE_PLAN_STARTED));
     }
 

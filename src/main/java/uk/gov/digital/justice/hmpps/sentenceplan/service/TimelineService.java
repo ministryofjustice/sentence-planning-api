@@ -55,11 +55,12 @@ public class TimelineService {
         timelineRepository.save(timelineEntity);
     }
 
-    @Transactional
-    public void createTimelineEntry(UUID sentencePlanUUID, LogEvent type) {
-        var timelineEntity = new TimelineEntity(sentencePlanUUID, type, sentencePlanUUID.toString(), requestData.getUsername(), null,null);
-        timelineRepository.save(timelineEntity);
-    }
+    // For when we want SP created and started events
+    //@Transactional
+    //public void createTimelineEntry(UUID sentencePlanUUID, LogEvent type) {
+    //    var timelineEntity = new TimelineEntity(sentencePlanUUID, type, sentencePlanUUID.toString(), requestData.getUsername(), null,null);
+    //    timelineRepository.save(timelineEntity);
+    //}
 
     @Transactional
     public List<TimelineDto> getTimelineEntries(UUID sentencePlanUUID, String entityKey){

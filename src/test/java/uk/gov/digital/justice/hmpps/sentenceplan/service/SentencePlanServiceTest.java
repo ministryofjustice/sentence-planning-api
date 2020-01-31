@@ -78,7 +78,7 @@ public class SentencePlanServiceTest {
 
         verify(offenderService,times(1)).getOffenderByType(oasysOffenderId);
         verify(sentencePlanRepository,times(1)).save(any());
-        verify(timelineService,times(1)).createTimelineEntry(any(UUID.class), eq(SENTENCE_PLAN_CREATED));
+        //verify(timelineService,times(1)).createTimelineEntry(any(UUID.class), eq(SENTENCE_PLAN_CREATED));
     }
 
     @Test
