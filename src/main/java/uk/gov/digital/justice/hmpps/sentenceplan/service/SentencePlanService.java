@@ -8,14 +8,13 @@ import uk.gov.digital.justice.hmpps.sentenceplan.application.RequestData;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.OASYSAssessmentAPIClient;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysSentencePlanDto;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.BusinessRuleViolationException;
-import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysSentencePlan;
-import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.BusinessRuleViolationException;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.CurrentSentencePlanForOffenderExistsException;
 
 import javax.transaction.Transactional;
+import java.time.YearMonth;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -102,15 +101,10 @@ public class SentencePlanService {
           throw new BusinessRuleViolationException("Cannot update Action, Sentence Plan is not a draft");
         }
 
-        var actionEntity = getActionEntity(sentencePlanUUID, objectiveUUID, actionUUID);
+        var objectiveEntity = getObjectiveEntity(sentencePlanUUID, objectiveUUID);
+        var actionEntity = getActionEntity(objectiveEntity, actionUUID);
         actionEntity.updateAction(interventionUUID, description, targetDate, motivationUUID, owner, ownerOther, status);
         log.info("Updated Action {} for Sentence Plan {} Objective {}", actionUUID, sentencePlanUUID, objectiveUUID, value(EVENT, SENTENCE_PLAN_ACTION_UPDATED));
-    }
-
-    public ActionEntity getAction(UUID sentencePlanUuid, UUID objectiveUUID, UUID actionId) {
-        var actionEntity = getActionEntity(sentencePlanUuid, objectiveUUID, actionId);
-        log.info("Retrieved Action {} for Sentence Plan {} Objective {}", sentencePlanUuid, objectiveUUID, actionId, value(EVENT, SENTENCE_PLAN_ACTION_RETRIEVED));
-        return actionEntity;
     }
 
     public List<ActionEntity> getActions(UUID sentencePlanUuid, UUID objectiveUuid) {

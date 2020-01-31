@@ -11,8 +11,6 @@ import uk.gov.digital.justice.hmpps.sentenceplan.application.RequestData;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.OASYSAssessmentAPIClient;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysSentencePlanDto;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.BusinessRuleViolationException;
-import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysSentencePlan;
-import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.BusinessRuleViolationException;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.CurrentSentencePlanForOffenderExistsException;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.*;
@@ -282,23 +280,6 @@ public class SentencePlanServiceTest {
         assertThat(objective.getAction(UUID.fromString("11111111-1111-1111-1111-111111111111")).getPriority()).isEqualTo(1);
         assertThat(objective.getAction(UUID.fromString("22222222-2222-2222-2222-222222222222")).getPriority()).isEqualTo(2);
     }
-
-    @Test
-    public void shouldNotUpdateActionWhenNotDraft(){
-        var objective = getObjectiveWithTwoActions(emptyList(), "Objective 1", "Action 1", "Action 2");
-        var objectiveUUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
-        var newSentencePlan = mock(SentencePlanEntity.class);
-        when(newSentencePlan.isDraft()).thenReturn(true);
-
-        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(newSentencePlan);
-        AddSentencePlanActionRequest request = new AddSentencePlanActionRequest(UUID.randomUUID(), "Any Desc", YearMonth.now(), UUID.randomUUID(), emptyList(), "Other Owner", ActionStatus.PARTIALLY_COMPLETED);
-
-        var exception = catchThrowable(() -> service.updateAction(sentencePlanUuid, objectiveUUID,UUID.randomUUID(), request));
-        assertThat(exception).isInstanceOf(BusinessRuleViolationException.class)
-                .hasMessageContaining("Cannot update Action, Sentence Plan is not a draft");
-
-    }
-
 
     @Test
     public void updateActionPriorityShouldChangePriority() {
