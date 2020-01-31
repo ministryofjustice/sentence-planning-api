@@ -95,23 +95,6 @@ public class SentencePlanService {
     }
 
     @Transactional
-    public void updateAction(UUID sentencePlanUUID, UUID objectiveUUID, UUID actionUUID, UUID interventionUUID, String description, YearMonth targetDate, UUID motivationUUID, List<ActionOwner> owner, String ownerOther, ActionStatus status) {
-        var sentencePlanEntity = getSentencePlanEntity(sentencePlanUUID);
-        if(sentencePlanEntity.isDraft()){
-          throw new BusinessRuleViolationException("Cannot update Action, Sentence Plan is not a draft");
-        }
-
-        var objectiveEntity = getObjectiveEntity(sentencePlanUUID, objectiveUUID);
-        var actionEntity = getActionEntity(objectiveEntity, actionUUID);
-        actionEntity.updateAction(interventionUUID, description, targetDate, motivationUUID, owner, ownerOther, status);
-        log.info("Updated Action {} for Sentence Plan {} Objective {}", actionUUID, sentencePlanUUID, objectiveUUID, value(EVENT, SENTENCE_PLAN_ACTION_UPDATED));
-    }
-
-    public List<ActionEntity> getActions(UUID sentencePlanUuid, UUID objectiveUuid) {
-        return new ArrayList<>(getObjectiveEntity(sentencePlanUuid, objectiveUuid).getActions().values());
-    }
-
-    @Transactional
     public void updateAction(UUID sentencePlanUUID, UUID objectiveUUID, UUID actionUUID, AddSentencePlanActionRequest actionRequest) {
         var sentencePlanEntity = getSentencePlanEntity(sentencePlanUUID);
         if(sentencePlanEntity.isDraft()){
