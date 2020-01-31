@@ -29,9 +29,15 @@ public class TimelineResource {
 
     @GetMapping(value = "/timeline/sentenceplans/{sentencePlanUUID}/entity/{entityKey}", produces = "application/json")
     @ApiOperation(value = "Gets all timeline data for part of a sentence plan.")
-    ResponseEntity<Collection<TimelineDto>> getActiveMotivations(@ApiParam(value = "Sentence Plan ID", required = true, example = "11111111-1111-1111-1111-111111111111") @PathVariable UUID sentencePlanUUID,
+    ResponseEntity<Collection<TimelineDto>> getTimelineForEntity(@ApiParam(value = "Sentence Plan ID", required = true, example = "11111111-1111-1111-1111-111111111111") @PathVariable UUID sentencePlanUUID,
                                                                  @ApiParam(value = "Entity Id", required = true, example = "COMMENT_TYPE") @PathVariable String entityKey) {
         return ResponseEntity.ok(timelineService.getTimelineEntries(sentencePlanUUID, entityKey));
+    }
+
+    @GetMapping(value = "/timeline/sentenceplans/{sentencePlanUUID}", produces = "application/json")
+    @ApiOperation(value = "Gets all timeline data for part of a sentence plan.")
+    ResponseEntity<Collection<TimelineDto>> getTimeline(@ApiParam(value = "Sentence Plan ID", required = true, example = "11111111-1111-1111-1111-111111111111") @PathVariable UUID sentencePlanUUID) {
+        return ResponseEntity.ok(timelineService.getTimelineEntries(sentencePlanUUID));
     }
 
 }

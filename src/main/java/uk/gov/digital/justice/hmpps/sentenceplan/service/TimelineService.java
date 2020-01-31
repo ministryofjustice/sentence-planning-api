@@ -67,5 +67,11 @@ public class TimelineService {
         return TimelineDto.from(entries, objectMapper);
     }
 
+    @Transactional
+    public List<TimelineDto> getTimelineEntries(UUID sentencePlanUUID){
+        var entries = timelineRepository.findBySentencePlanUUID(sentencePlanUUID);
+        return TimelineDto.from(entries, objectMapper);
+    }
+
 
 }

@@ -13,4 +13,7 @@ public interface TimelineRepository extends CrudRepository<TimelineEntity, Long>
 
     List<TimelineEntity> findBySentencePlanUUIDAndEntityKey(UUID sentencePlanUUID, String entityKey);
 
+    List<TimelineEntity> findBySentencePlanUUID(UUID sentencePlanUUID);
+
+
 }

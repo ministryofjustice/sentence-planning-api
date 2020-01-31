@@ -11,7 +11,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
@@ -25,15 +24,12 @@ import uk.gov.digital.justice.hmpps.sentenceplan.application.RequestData;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
 
-import java.time.LocalDate;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
 import static org.springframework.test.web.client.ExpectedCount.between;
@@ -81,7 +77,7 @@ public class TimelineResourceTest {
     }
 
     @Test
-    public void shouldGetTimelineSpNotFound() throws JsonProcessingException {
+    public void shouldGetTimelineEntitySpNotFound() throws JsonProcessingException {
         var assessmentApi = createMockAssessmentDataForOffender(123456L);
         createMockAuthService(OASYS_OFFENDER_ID, assessmentApi);
         var comment = new AddCommentRequest("Test Comment", CommentType.THEIR_SUMMARY);
@@ -104,6 +100,28 @@ public class TimelineResourceTest {
 
     @Test
     public void shouldGetTimelineEntityNotFound() throws JsonProcessingException {
+        var assessmentApi = createMockAssessmentDataForOffender(123456L);
+        createMockAuthService(OASYS_OFFENDER_ID, assessmentApi);
+        var comment = new AddCommentRequest("Test Comment", CommentType.THEIR_SUMMARY);
+        var requestBody = List.of(comment);
+
+
+        var timeline = given()
+                .when()
+                .header("Accept", "application/json")
+                .header(RequestData.USERNAME_HEADER, USER)
+                .get("/timeline/sentenceplans/{0}", NOT_FOUND_SENTENCE_PLAN_ID)
+                .then()
+                .statusCode(200)
+                .extract()
+                .body()
+                .jsonPath().getList(".", TimelineDto.class);
+
+        assertThat(timeline).hasSize(0);
+    }
+
+    @Test
+    public void shouldGetTimelineEntityEntityNotFound() throws JsonProcessingException {
         var assessmentApi = createMockAssessmentDataForOffender(123456L);
         createMockAuthService(OASYS_OFFENDER_ID, assessmentApi);
         var comment = new AddCommentRequest("Test Comment", CommentType.THEIR_SUMMARY);
@@ -171,6 +189,7 @@ public class TimelineResourceTest {
         assertThat(comment1.getComment().getComment()).isEqualTo(comment.getComment());
         assertThat(comment1.getComment().getCommentType()).isEqualTo(comment.getCommentType());
         assertThat(comment1.getUserName()).isEqualTo(USER);
+        assertThat(comment1.getTimelineType()).isEqualTo("COMMENT");
     }
 
     @Test
@@ -213,6 +232,59 @@ public class TimelineResourceTest {
         assertThat(objective.getObjective().isMeetsChildSafeguarding()).isEqualTo(requestBody.isMeetsChildSafeguarding());
         assertThat(objective.getObjective().getNeeds()).hasSize(2);
         assertThat(objective.getUserName()).isEqualTo(USER);
+        assertThat(objective.getTimelineType()).isEqualTo("OBJECTIVE");
+
+    }
+
+    @Test
+    public void shouldAddCommentsAndObjectivesTimeline() throws JsonProcessingException {
+        var assessmentApi = createMockAssessmentDataForOffender(123456L);
+        createMockAuthService(OASYS_OFFENDER_ID, assessmentApi);
+        var comment = new AddCommentRequest("Test Comment", CommentType.THEIR_SUMMARY);
+        var requestBody = List.of(comment);
+
+        var result = given()
+                .when()
+                .body(requestBody)
+                .header("Content-Type", "application/json")
+                .header(RequestData.USERNAME_HEADER, USER)
+                .put("/sentenceplans/{0}/comments", SENTENCE_PLAN_ID)
+                .then()
+                .statusCode(200)
+                .extract().statusCode();
+
+        assertThat(result).isEqualTo(200);
+
+        var needs = List.of(UUID.fromString("9acddbd3-af5e-4b41-a710-018064700eb5"),
+                UUID.fromString("51c293ec-b2c4-491c-ade5-34375e1cd495"));
+        var requestBody1 = new AddSentencePlanObjectiveRequest(
+                "new objective description",
+                needs, false);
+
+        var result1 = given()
+                .when()
+                .body(requestBody1)
+                .header("Content-Type", "application/json")
+                .header(RequestData.USERNAME_HEADER, USER)
+                .post("/sentenceplans/{0}/objectives", SENTENCE_PLAN_ID)
+                .then()
+                .statusCode(200)
+                .extract().statusCode();
+
+        assertThat(result1).isEqualTo(200);
+
+        var timeline = given()
+                .when()
+                .header("Accept", "application/json")
+                .header(RequestData.USERNAME_HEADER, USER)
+                .get("/timeline/sentenceplans/{0}/", SENTENCE_PLAN_ID)
+                .then()
+                .statusCode(200)
+                .extract()
+                .body()
+                .jsonPath().getList(".", TimelineDto.class);
+
+        assertThat(timeline).hasSize(2);
 
     }
 

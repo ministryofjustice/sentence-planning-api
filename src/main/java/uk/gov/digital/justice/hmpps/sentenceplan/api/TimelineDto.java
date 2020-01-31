@@ -23,8 +23,11 @@ public class TimelineDto {
     @JsonProperty("userName")
     private String userName;
 
-    @JsonProperty("type")
+    @JsonProperty("eventType")
     private String type;
+
+    @JsonProperty("timelineType")
+    private String timelineType;
 
     @JsonProperty("comment")
     private CommentDto comment;
@@ -50,7 +53,7 @@ public class TimelineDto {
         }
 
 
-        return new TimelineDto(timelineEntity.getUserId(), timelineEntity.getType().toString(), commentDto, objectiveDto, timelineEntity.getEventTimestamp());
+        return new TimelineDto(timelineEntity.getUserId(), timelineEntity.getType().toString(), commentDto != null ? "COMMENT" : "OBJECTIVE", commentDto, objectiveDto, timelineEntity.getEventTimestamp());
     }
 
     public static List<TimelineDto> from(Collection<TimelineEntity> timelineEntities, ObjectMapper objectMapper) {
