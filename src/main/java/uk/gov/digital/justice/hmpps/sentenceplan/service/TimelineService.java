@@ -5,6 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import uk.gov.digital.justice.hmpps.sentenceplan.api.CommentDto;
+import uk.gov.digital.justice.hmpps.sentenceplan.api.ObjectiveDto;
+import uk.gov.digital.justice.hmpps.sentenceplan.api.TimelineDto;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.LogEvent;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.RequestData;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.TimelineRepository;
@@ -29,33 +32,39 @@ public class TimelineService {
     }
 
     @Transactional
-    public void createTimelineEntry(UUID sentencePlanUUID, LogEvent type, ObjectiveEntity to) {
+    public void createTimelineEntry(UUID sentencePlanUUID, LogEvent type, ObjectiveEntity objectiveEntity) {
         String objective;
         try {
-            objective = objectMapper.writeValueAsString(to);
+            objective = objectMapper.writeValueAsString(ObjectiveDto.from(objectiveEntity));
         } catch (JsonProcessingException e) {
             throw new EntityCreationException("Cant parse Objective to String");
         }
-        var timelineEntity = new TimelineEntity(sentencePlanUUID, type, requestData.getUsername(), objective);
+        var timelineEntity = new TimelineEntity(sentencePlanUUID, type, objectiveEntity.getId().toString(), requestData.getUsername(), null, objective);
         timelineRepository.save(timelineEntity);
     }
 
     @Transactional
-    public void createTimelineEntry(UUID sentencePlanUUID, LogEvent type, CommentEntity to) {
-        String objective;
+    public void createTimelineEntry(UUID sentencePlanUUID, LogEvent type, CommentEntity commentEntity) {
+        String comment;
         try {
-            objective = objectMapper.writeValueAsString(to);
+            comment = objectMapper.writeValueAsString(CommentDto.from(commentEntity));
         } catch (JsonProcessingException e) {
             throw new EntityCreationException("Cant parse Comment to String");
         }
-        var timelineEntity = new TimelineEntity(sentencePlanUUID, type, requestData.getUsername(), objective);
+        var timelineEntity = new TimelineEntity(sentencePlanUUID, type, commentEntity.getCommentType().toString(), requestData.getUsername(), comment, null);
         timelineRepository.save(timelineEntity);
     }
 
     @Transactional
     public void createTimelineEntry(UUID sentencePlanUUID, LogEvent type) {
-        var timelineEntity = new TimelineEntity(sentencePlanUUID, type, requestData.getUsername(), null);
+        var timelineEntity = new TimelineEntity(sentencePlanUUID, type, sentencePlanUUID.toString(), requestData.getUsername(), null,null);
         timelineRepository.save(timelineEntity);
+    }
+
+    @Transactional
+    public List<TimelineDto> getTimelineEntries(UUID sentencePlanUUID, String entityKey){
+        var entries = timelineRepository.findBySentencePlanUUIDAndEntityKey(sentencePlanUUID, entityKey);
+        return TimelineDto.from(entries, objectMapper);
     }
 
 
