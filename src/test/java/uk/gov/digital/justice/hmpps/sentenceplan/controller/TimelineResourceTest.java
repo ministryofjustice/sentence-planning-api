@@ -81,7 +81,7 @@ public class TimelineResourceTest {
     }
 
     @Test
-    public void shouldGetCommentsTimelineNotFound() throws JsonProcessingException {
+    public void shouldGetTimelineSpNotFound() throws JsonProcessingException {
         var assessmentApi = createMockAssessmentDataForOffender(123456L);
         createMockAuthService(OASYS_OFFENDER_ID, assessmentApi);
         var comment = new AddCommentRequest("Test Comment", CommentType.THEIR_SUMMARY);
@@ -103,7 +103,7 @@ public class TimelineResourceTest {
     }
 
     @Test
-    public void shouldGetCommentsTimelineEntityNotFound() throws JsonProcessingException {
+    public void shouldGetTimelineEntityNotFound() throws JsonProcessingException {
         var assessmentApi = createMockAssessmentDataForOffender(123456L);
         createMockAuthService(OASYS_OFFENDER_ID, assessmentApi);
         var comment = new AddCommentRequest("Test Comment", CommentType.THEIR_SUMMARY);
@@ -170,7 +170,49 @@ public class TimelineResourceTest {
 
         assertThat(comment1.getComment().getComment()).isEqualTo(comment.getComment());
         assertThat(comment1.getComment().getCommentType()).isEqualTo(comment.getCommentType());
-        assertThat(comment1.getComment().getCreatedBy()).isEqualTo(USER);
+        assertThat(comment1.getUserName()).isEqualTo(USER);
+    }
+
+    @Test
+    public void shouldAddObjectiveTimeline() throws JsonProcessingException {
+        var assessmentApi = createMockAssessmentDataForOffender(123456L);
+        createMockAuthService(OASYS_OFFENDER_ID, assessmentApi);
+        var needs = List.of(UUID.fromString("9acddbd3-af5e-4b41-a710-018064700eb5"),
+                UUID.fromString("51c293ec-b2c4-491c-ade5-34375e1cd495"));
+        var requestBody = new AddSentencePlanObjectiveRequest(
+                "new objective description",
+                needs, false);
+
+        ObjectiveDto result = given()
+                .when()
+                .body(requestBody)
+                .header("Content-Type", "application/json")
+                .header(RequestData.USERNAME_HEADER, USER)
+                .post("/sentenceplans/{0}/objectives", SENTENCE_PLAN_ID)
+                .then()
+                .statusCode(200)
+                .extract()
+                .body().as(ObjectiveDto.class);
+
+
+        var timeline = given()
+                .when()
+                .header("Accept", "application/json")
+                .header(RequestData.USERNAME_HEADER, USER)
+                .get("/timeline/sentenceplans/{0}/entity/{1}", SENTENCE_PLAN_ID, result.getId())
+                .then()
+                .statusCode(200)
+                .extract()
+                .body()
+                .jsonPath().getList(".", TimelineDto.class);
+
+        assertThat(timeline).hasSize(1);
+        var objective = timeline.stream().findFirst().get();
+
+        assertThat(objective.getObjective().getDescription()).isEqualTo(requestBody.getDescription());
+        assertThat(objective.getObjective().isMeetsChildSafeguarding()).isEqualTo(requestBody.isMeetsChildSafeguarding());
+        assertThat(objective.getObjective().getNeeds()).hasSize(2);
+        assertThat(objective.getUserName()).isEqualTo(USER);
 
     }
 
