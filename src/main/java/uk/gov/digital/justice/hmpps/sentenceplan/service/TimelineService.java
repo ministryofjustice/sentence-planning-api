@@ -39,7 +39,7 @@ public class TimelineService {
         } catch (JsonProcessingException e) {
             throw new EntityCreationException("Cant parse Objective to String");
         }
-        var timelineEntity = new TimelineEntity(sentencePlanUUID, type, requestData.getUsername(), objectiveEntity.getId().toString(), null, objective);
+        var timelineEntity = new TimelineEntity(sentencePlanUUID, type, objectiveEntity.getId().toString(), requestData.getUsername(), null, objective);
         timelineRepository.save(timelineEntity);
     }
 
@@ -51,7 +51,7 @@ public class TimelineService {
         } catch (JsonProcessingException e) {
             throw new EntityCreationException("Cant parse Comment to String");
         }
-        var timelineEntity = new TimelineEntity(sentencePlanUUID, type, requestData.getUsername(), commentEntity.getCommentType().toString(), comment, null);
+        var timelineEntity = new TimelineEntity(sentencePlanUUID, type, commentEntity.getCommentType().toString(), requestData.getUsername(), comment, null);
         timelineRepository.save(timelineEntity);
     }
 
