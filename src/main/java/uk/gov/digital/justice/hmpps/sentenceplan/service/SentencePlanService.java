@@ -7,12 +7,14 @@ import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.RequestData;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.OASYSAssessmentAPIClient;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysSentencePlanDto;
+import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.BusinessRuleViolationException;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.CurrentSentencePlanForOffenderExistsException;
 
 import javax.transaction.Transactional;
+import java.time.YearMonth;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -90,6 +92,18 @@ public class SentencePlanService {
         objectiveEntity.addAction(actionEntity);
         timelineService.createTimelineEntry(sentencePlanUUID, SENTENCE_PLAN_ACTION_CREATED, objectiveEntity);
         log.info("Created Action for Sentence Plan {} Objective {}", sentencePlanUUID, objectiveUUID, value(EVENT, SENTENCE_PLAN_ACTION_CREATED));
+    }
+
+    @Transactional
+    public void updateAction(UUID sentencePlanUUID, UUID objectiveUUID, UUID actionUUID, AddSentencePlanActionRequest actionRequest) {
+        var sentencePlanEntity = getSentencePlanEntity(sentencePlanUUID);
+        if(!sentencePlanEntity.isDraft()){
+          throw new BusinessRuleViolationException("Cannot update Action, Sentence Plan is not a draft");
+        }
+        var objectiveEntity = getObjectiveEntity(sentencePlanUUID, objectiveUUID);
+        var actionEntity = getActionEntity(objectiveEntity, actionUUID);
+        actionEntity.updateAction(actionRequest.getInterventionUUID(), actionRequest.getDescription(), actionRequest.getTargetDate(), actionRequest.getMotivationUUID(), actionRequest.getOwner(), actionRequest.getOwnerOther(), actionRequest.getStatus());
+        log.info("Updated Action {} for Sentence Plan {} Objective {}", actionUUID, sentencePlanUUID, objectiveUUID, value(EVENT, SENTENCE_PLAN_ACTION_UPDATED));
     }
 
     public ActionDto getAction(UUID sentencePlanUUID, UUID objectiveUUID, UUID actionId) {

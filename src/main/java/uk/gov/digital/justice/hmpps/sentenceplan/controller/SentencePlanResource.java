@@ -17,7 +17,6 @@ import uk.gov.digital.justice.hmpps.sentenceplan.service.SentencePlanService;
 
 import javax.validation.Valid;
 import java.util.Collection;
-import java.util.stream.Collectors;
 import java.util.List;
 import java.util.UUID;
 
@@ -150,6 +149,21 @@ public class SentencePlanResource {
                  sentencePlanUUID,
                  objectiveUUID,
                  actionRequest);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping(value = "/sentenceplans/{sentencePlanUUID}/objectives/{objectiveUUID}/actions/{actionUUID}", produces = "application/json")
+    @ApiOperation(value = "Updates an Action on a Sentence Plan Objective")
+    @Authorised(accessLevel = AccessLevel.WRITE_SENTENCE_PLAN)
+    ResponseEntity updateAction(@ApiParam(value = "Sentence Plan ID", required = true, example = "11111111-1111-1111-1111-111111111111") @PathVariable UUID sentencePlanUUID,
+                                @ApiParam(value = "Objective ID", required = true, example = "11111111-1111-1111-1111-111111111111") @PathVariable UUID objectiveUUID,
+                                @ApiParam(value = "Action ID", required = true, example = "11111111-1111-1111-1111-111111111111") @PathVariable UUID actionUUID,
+                                @ApiParam(value = "Action details", required = true) @RequestBody @Valid AddSentencePlanActionRequest action) {
+        sentencePlanService.updateAction(
+                sentencePlanUUID,
+                objectiveUUID,
+                actionUUID,
+                action);
         return ResponseEntity.ok().build();
     }
 
