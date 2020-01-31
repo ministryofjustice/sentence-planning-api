@@ -14,7 +14,6 @@ import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepo
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.CurrentSentencePlanForOffenderExistsException;
 
 import javax.transaction.Transactional;
-import java.time.YearMonth;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -103,6 +102,7 @@ public class SentencePlanService {
         var objectiveEntity = getObjectiveEntity(sentencePlanUUID, objectiveUUID);
         var actionEntity = getActionEntity(objectiveEntity, actionUUID);
         actionEntity.updateAction(actionRequest.getInterventionUUID(), actionRequest.getDescription(), actionRequest.getTargetDate(), actionRequest.getMotivationUUID(), actionRequest.getOwner(), actionRequest.getOwnerOther(), actionRequest.getStatus());
+        timelineService.createTimelineEntry(sentencePlanUUID, SENTENCE_PLAN_ACTION_UPDATED, objectiveEntity);
         log.info("Updated Action {} for Sentence Plan {} Objective {}", actionUUID, sentencePlanUUID, objectiveUUID, value(EVENT, SENTENCE_PLAN_ACTION_UPDATED));
     }
 
@@ -159,6 +159,7 @@ public class SentencePlanService {
     public void endSentencePlan(UUID sentencePlanUUID) {
         var sentencePlanEntity = getSentencePlanEntity(sentencePlanUUID);
         sentencePlanEntity.end();
+        timelineService.createTimelineEntry(sentencePlanUUID, SENTENCE_PLAN_ENDED);
         log.info("Sentence Plan {} Ended", sentencePlanUUID, value(EVENT, SENTENCE_PLAN_ENDED));
     }
 
