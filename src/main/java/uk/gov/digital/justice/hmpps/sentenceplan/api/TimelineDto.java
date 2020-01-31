@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityCreationException;
 
+import java.sql.Time;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
@@ -52,13 +53,24 @@ public class TimelineDto {
             throw new EntityCreationException("Cannot construct TimelineDto");
         }
 
-
-        return new TimelineDto(timelineEntity.getUserId(), timelineEntity.getType().toString(), commentDto != null ? "COMMENT" : "OBJECTIVE", commentDto, objectiveDto, timelineEntity.getEventTimestamp());
+        return new TimelineDto(timelineEntity.getUserId(), timelineEntity.getType().toString(), calculateType(timelineEntity).name(), commentDto, objectiveDto, timelineEntity.getEventTimestamp());
     }
 
     public static List<TimelineDto> from(Collection<TimelineEntity> timelineEntities, ObjectMapper objectMapper) {
         return timelineEntities.stream().map(t -> TimelineDto.from(t, objectMapper)).collect(Collectors.toList());
     }
 
+    private static TimelineType calculateType(TimelineEntity timelineEntity){
+        if(timelineEntity.getObjective() == null && timelineEntity.getComment() == null) {
+            return TimelineType.PLAN;
+        }
+        if(timelineEntity.getComment() != null) {
+            return TimelineType.COMMENT;
+        }
+        if(timelineEntity.getObjective() != null) {
+            return TimelineType.OBJECTIVE;
+        }
+        return TimelineType.PLAN;
+    }
 
 }
