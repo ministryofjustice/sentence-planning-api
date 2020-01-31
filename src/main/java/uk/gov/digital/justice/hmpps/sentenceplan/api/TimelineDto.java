@@ -61,9 +61,6 @@ public class TimelineDto {
     }
 
     private static TimelineType calculateType(TimelineEntity timelineEntity){
-        if(timelineEntity.getObjective() == null && timelineEntity.getComment() == null) {
-            return TimelineType.PLAN;
-        }
         if(timelineEntity.getComment() != null) {
             return TimelineType.COMMENT;
         }
