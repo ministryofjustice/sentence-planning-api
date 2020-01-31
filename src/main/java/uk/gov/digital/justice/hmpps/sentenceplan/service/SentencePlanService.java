@@ -97,7 +97,7 @@ public class SentencePlanService {
     @Transactional
     public void updateAction(UUID sentencePlanUUID, UUID objectiveUUID, UUID actionUUID, AddSentencePlanActionRequest actionRequest) {
         var sentencePlanEntity = getSentencePlanEntity(sentencePlanUUID);
-        if(sentencePlanEntity.isDraft()){
+        if(!sentencePlanEntity.isDraft()){
           throw new BusinessRuleViolationException("Cannot update Action, Sentence Plan is not a draft");
         }
         var objectiveEntity = getObjectiveEntity(sentencePlanUUID, objectiveUUID);

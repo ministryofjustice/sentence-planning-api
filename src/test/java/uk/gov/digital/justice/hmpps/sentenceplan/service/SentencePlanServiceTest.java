@@ -239,7 +239,7 @@ public class SentencePlanServiceTest {
         var objective = getObjectiveWithTwoActions(emptyList(), "Objective 1", "Action 1", "Action 2");
         var objectiveUUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
         var newSentencePlan = mock(SentencePlanEntity.class);
-        when(newSentencePlan.isDraft()).thenReturn(true);
+        when(newSentencePlan.isDraft()).thenReturn(false);
 
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(newSentencePlan);
         AddSentencePlanActionRequest request = new AddSentencePlanActionRequest(UUID.randomUUID(), "Any Desc", YearMonth.now(), UUID.randomUUID(), emptyList(), "Other Owner", ActionStatus.PARTIALLY_COMPLETED);

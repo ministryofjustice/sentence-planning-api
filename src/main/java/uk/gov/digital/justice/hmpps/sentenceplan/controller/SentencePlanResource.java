@@ -153,7 +153,7 @@ public class SentencePlanResource {
     }
 
     @PostMapping(value = "/sentenceplans/{sentencePlanUUID}/objectives/{objectiveUUID}/actions/{actionUUID}", produces = "application/json")
-    @ApiOperation(value = "Add an Action to a Sentence Plan Objective")
+    @ApiOperation(value = "Updates an Action on a Sentence Plan Objective")
     @Authorised(accessLevel = AccessLevel.WRITE_SENTENCE_PLAN)
     ResponseEntity updateAction(@ApiParam(value = "Sentence Plan ID", required = true, example = "11111111-1111-1111-1111-111111111111") @PathVariable UUID sentencePlanUUID,
                                 @ApiParam(value = "Objective ID", required = true, example = "11111111-1111-1111-1111-111111111111") @PathVariable UUID objectiveUUID,
