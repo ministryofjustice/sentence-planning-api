@@ -14,5 +14,8 @@ public interface SentenceBoardReviewRepository extends CrudRepository<SentenceBo
     @Query(value = "select * from sentence_board_review where sentence_plan_uuid = ?1", nativeQuery = true)
     List<SentenceBoardReviewEntity> findAllBySentencePlanUUID(UUID sentencePlanUUID);
 
+    @Query(value = "select * from sentence_board_review where oasys_offender_id = ?1", nativeQuery = true)
+    List<SentenceBoardReviewEntity> findAllByOffenderId(Long offenderId);
+
     SentenceBoardReviewEntity findByUuid(UUID sentenceBoardReviewUUID);
 }

@@ -38,12 +38,17 @@ public class SentenceBoardReviewEntity implements Serializable {
     @JoinColumn(name = "SENTENCE_PLAN_UUID", referencedColumnName = "UUID")
     private SentencePlanEntity sentencePlan;
 
+    @ManyToOne
+    @JoinColumn(name = "OASYS_OFFENDER_ID", referencedColumnName = "OASYS_OFFENDER_ID")
+    private OffenderEntity offenderEntity;
+
     public SentenceBoardReviewEntity(String comments, String attendees, LocalDate dateOfBoard, SentencePlanEntity sentencePlan) {
         this.uuid = UUID.randomUUID();
         this.comments = comments;
         this.attendees = attendees;
         this.dateOfBoard = dateOfBoard;
         this.sentencePlan = sentencePlan;
+        this.offenderEntity = sentencePlan.getOffender();
     }
 
 }

@@ -43,10 +43,16 @@ private final SentencePlanService sentencePlanService;
         return SentenceBoardReviewSummaryDto.from(boardReviews);
     }
 
-    public SentenceBoardReviewDto getSentenceBoardReviewBySentencePlanUUID(UUID sentencePlanUUID, UUID sentenceBoardReviewUUID) {
+    public SentenceBoardReviewDto getSentenceBoardReviewBySBRUUID(UUID sentenceBoardReviewUUID) {
         var boardReview = getSentenceBoardReviewEntity(sentenceBoardReviewUUID);
-        log.info("Retrieved {} Sentence Board Review {} for Sentence Plan {}", boardReview.getUuid(), sentencePlanUUID, value(EVENT, SENTENCE_BOARD_REVIEW_RETRIEVED));
+        log.info("Retrieved {} Sentence Board Review {} for Sentence Plan {}", boardReview.getUuid(), value(EVENT, SENTENCE_BOARD_REVIEW_RETRIEVED));
         return SentenceBoardReviewDto.from(boardReview);
+    }
+
+    public List<SentenceBoardReviewSummaryDto> getSentenceBoardReviewsByOffenderId(Long oasysOffenderId) {
+        var boardReviews = sentenceBoardReviewRepository.findAllByOffenderId(oasysOffenderId);
+        log.info("Retrieved {} Sentence Board Reviews for Offender {}", boardReviews.size(), oasysOffenderId, value(EVENT, SENTENCE_BOARD_REVIEWS_RETRIEVED_OFFENDER));
+        return SentenceBoardReviewSummaryDto.from(boardReviews);
     }
 
     private SentenceBoardReviewEntity getSentenceBoardReviewEntity(UUID sentenceBoardReviewUUID) {
