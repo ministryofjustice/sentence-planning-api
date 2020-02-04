@@ -72,7 +72,7 @@ public class SentenceBoardReviewResourceTest {
     }
 
     @Test
-    public void shouldGetSentenceBoardReviewSummaries() {
+    public void shouldGetSentenceBoardReviewSummariesSentencePlan() {
 
         createMockAuthService();
 
@@ -93,13 +93,34 @@ public class SentenceBoardReviewResourceTest {
     }
 
     @Test
+    public void shouldGetSentenceBoardReviewSummariesOffender() {
+
+        createMockAuthService();
+
+        var result = given()
+                .when()
+                .header("Accept", "application/json")
+                .header(RequestData.USERNAME_HEADER, USER)
+                .get("/offenders/{offenderId}/reviews", 123456L)
+                .then()
+                .statusCode(200)
+                .extract()
+                .body()
+                .jsonPath().getList(".", SentenceBoardReviewSummaryDto.class);
+
+        assertThat(result.get(0).getId().toString()).isEqualTo(SBR_ID);
+        assertThat(result.get(0).getDateOfBoard()).isEqualTo(LocalDate.of(2019,11,14));
+
+    }
+
+    @Test
     public void shouldGetSentenceBoardReview() {
         createMockAuthService();
         var result = given()
                 .when()
                 .header("Accept", "application/json")
                 .header(RequestData.USERNAME_HEADER, USER)
-                .get("/sentenceplans/{sentencePlanUUID}/reviews/{sentenceBoardReviewUUID}", SENTENCE_PLAN_ID, SBR_ID)
+                .get("/offenders/{offenderId}/reviews/{sentenceBoardReviewUUID}", 123456L, SBR_ID)
                 .then()
                 .statusCode(200)
                 .extract()
