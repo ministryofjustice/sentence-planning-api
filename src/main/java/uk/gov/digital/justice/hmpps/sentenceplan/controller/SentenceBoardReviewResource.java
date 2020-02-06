@@ -43,15 +43,23 @@ public class SentenceBoardReviewResource {
     @GetMapping(value = "/sentenceplans/{sentencePlanUUID}/reviews", produces = "application/json")
     @ApiOperation(value = "Gets all Sentence Plan Board Reviews")
     @Authorised(accessLevel = AccessLevel.READ_SENTENCE_PLAN)
-    ResponseEntity<Collection<SentenceBoardReviewSummaryDto>> getAllReviews(@ApiParam(value = "Sentence Plan ID", required = true, example = "11111111-1111-1111-1111-111111111111") @PathVariable UUID sentencePlanUUID) {
+    ResponseEntity<Collection<SentenceBoardReviewSummaryDto>> getAllReviewsByPlan(@ApiParam(value = "Sentence Plan ID", required = true, example = "11111111-1111-1111-1111-111111111111") @PathVariable UUID sentencePlanUUID) {
         return ResponseEntity.ok(sentenceBoardReviewService.getSentenceBoardReviewsBySentencePlanUUID(
                 sentencePlanUUID));
     }
 
-    @GetMapping(value = "/sentenceplans/{sentencePlanUUID}/reviews/{sentenceBoardReviewUUID}", produces = "application/json")
+    @GetMapping(value = "/offenders/{offenderId}/reviews", produces = "application/json")
+    @ApiOperation(value = "Gets all Sentence Plan Board Reviews")
+    @Authorised(accessLevel = AccessLevel.READ_SENTENCE_PLAN)
+    ResponseEntity<Collection<SentenceBoardReviewSummaryDto>> getAllReviewsByOffender(@ApiParam(value = "OASys Offender ID", required = true, example = "123456") @PathVariable("offenderId") Long oasysOffenderId) {
+        return ResponseEntity.ok(sentenceBoardReviewService.getSentenceBoardReviewsByOffenderId(
+                oasysOffenderId));
+    }
+
+    @GetMapping(value = "/offenders/{offenderId}/reviews/{sentenceBoardReviewUUID}", produces = "application/json")
     @ApiOperation(value = "Get a Sentence Board Review for a Sentence Plan")
     @Authorised(accessLevel = AccessLevel.READ_SENTENCE_PLAN)
-    ResponseEntity<SentenceBoardReviewDto> getReview(@ApiParam(value = "Sentence Plan ID", required = true, example = "11111111-1111-1111-1111-111111111111") @PathVariable UUID sentencePlanUUID, @ApiParam(value = "Sentence Board Review ID", required = true) @PathVariable UUID sentenceBoardReviewUUID) {
-        return ResponseEntity.ok(sentenceBoardReviewService.getSentenceBoardReviewBySentencePlanUUID(sentencePlanUUID, sentenceBoardReviewUUID));
+    ResponseEntity<SentenceBoardReviewDto> getReview(@ApiParam(value = "OASys Offender ID", required = true, example = "123456") @PathVariable("offenderId") Long oasysOffenderId, @ApiParam(value = "Sentence Board Review ID", required = true) @PathVariable UUID sentenceBoardReviewUUID) {
+        return ResponseEntity.ok(sentenceBoardReviewService.getSentenceBoardReviewBySBRUUID(sentenceBoardReviewUUID));
     }
 }

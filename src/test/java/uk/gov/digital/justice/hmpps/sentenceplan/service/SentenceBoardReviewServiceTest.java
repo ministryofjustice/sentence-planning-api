@@ -67,7 +67,7 @@ public class SentenceBoardReviewServiceTest {
     public void shouldGetSentenceBoardReview() {
         when(sentenceBoardReviewRepository.findByUuid(sentenceBoardReviewUuid)).thenReturn(new SentenceBoardReviewEntity());
 
-        service.getSentenceBoardReviewBySentencePlanUUID(sentencePlanUuid, sentenceBoardReviewUuid);
+        service.getSentenceBoardReviewBySBRUUID(sentenceBoardReviewUuid);
 
         verify(sentenceBoardReviewRepository,times(1)).findByUuid(sentenceBoardReviewUuid);
     }
@@ -76,7 +76,7 @@ public class SentenceBoardReviewServiceTest {
     public void shouldGetSentenceBoardReviewNotFound() {
         when(sentenceBoardReviewRepository.findByUuid(sentenceBoardReviewUuid)).thenReturn(null);
 
-        var exception = catchThrowable(() -> service.getSentenceBoardReviewBySentencePlanUUID(sentencePlanUuid, sentenceBoardReviewUuid));
+        var exception = catchThrowable(() -> service.getSentenceBoardReviewBySBRUUID(sentenceBoardReviewUuid));
         assertThat(exception).isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining("Sentence Board Review " + sentenceBoardReviewUuid + " not found");
     }
