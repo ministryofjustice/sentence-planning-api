@@ -5,6 +5,7 @@ plugins {
     id "com.github.spotbugs" version "2.0.0"
     id 'io.spring.dependency-management' version '1.0.8.RELEASE'
     id 'org.owasp.dependencycheck' version '5.2.4'
+    id 'com.github.ben-manes.versions' version '0.26.0'
 }
 
 apply plugin: 'io.spring.dependency-management'
@@ -20,9 +21,8 @@ configurations {
     runtimeClasspath {
         extendsFrom developmentOnly
     }
-    compileOnly {
-        extendsFrom annotationProcessor
-    }
+    agentDeps
+    agentDeps.transitive = false
 }
 
 spotbugs {
@@ -119,18 +119,31 @@ dependencies {
     compile 'org.javassist:javassist:3.23.1-GA'
     compile 'com.sun.xml.bind:jaxb-impl:2.3.0'
     compile 'com.sun.xml.bind:jaxb-core:2.3.0'
+
     implementation 'net.logstash.logback:logstash-logback-encoder:6.3'
+    implementation 'com.microsoft.azure:applicationinsights-spring-boot-starter:2.6.0-BETA'
+    implementation 'com.microsoft.azure:applicationinsights-logging-logback:2.6.0-BETA'
+    agentDeps 'com.microsoft.azure:applicationinsights-agent:2.6.0-BETA'
+    implementation configurations.agentDeps
+
     implementation 'com.vladmihalcea:hibernate-types-52:2.8.0'
     implementation 'io.jsonwebtoken:jjwt:0.9.1'
     implementation 'org.hibernate:hibernate-envers:5.4.10.Final'
     compile 'org.javassist:javassist:3.26.0-GA'
     implementation 'com.sun.xml.bind:jaxb-impl:2.3.2'
     implementation 'com.sun.xml.bind:jaxb-core:2.3.0.1'
-    compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'org.postgresql:postgresql'
-    annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok:1.18.10'
+    compileOnly 'org.projectlombok:lombok:1.18.10'
     testImplementation 'io.rest-assured:rest-assured:3.3.0'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation('org.assertj:assertj-core')
 }
+
+task copyAgent(type: Copy) {
+    from configurations.agentDeps
+    into "$buildDir/libs"
+}
+
+assemble.dependsOn copyAgent
