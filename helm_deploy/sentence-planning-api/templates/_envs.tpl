@@ -58,4 +58,10 @@ env:
         name: sentence-planning-api
         key: API_CLIENT_CREDENTIALS_SECRET
 
+  - name: APPINSIGHTS_INSTRUMENTATIONKEY
+    valueFrom:
+      secretKeyRef:
+        name: {{ template "app.name" . }}
+        key: APPINSIGHTS_INSTRUMENTATIONKEY
+
 {{- end -}}
