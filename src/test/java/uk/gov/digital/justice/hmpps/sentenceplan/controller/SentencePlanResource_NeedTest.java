@@ -39,7 +39,7 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 @RunWith(SpringRunner.class)
-@ActiveProfiles("test")
+@ActiveProfiles("test,disableauthorisation")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Sql(scripts = "classpath:need/before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
 @Sql(scripts = "classpath:need/after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
@@ -78,7 +78,6 @@ public class SentencePlanResource_NeedTest {
     @Test
     public void shouldGetNeedsWhenSentencePlanExists() throws JsonProcessingException {
         var assessmentApi = setupMockRestServiceServer(123456L);
-        createMockAuthService(123456L, assessmentApi);
         var result = given()
                 .when()
                 .header("Accept", "application/json")
@@ -96,7 +95,6 @@ public class SentencePlanResource_NeedTest {
     @Test
     public void shouldGetEmptyArrayWhenNoNeedsExist() throws JsonProcessingException {
         var assessmentApi = setupMockRestServiceServerNoNeeds();
-        createMockAuthService(789123L, assessmentApi);
         var result = given()
                 .when()
                 .header("Accept", "application/json")
@@ -132,8 +130,6 @@ public class SentencePlanResource_NeedTest {
     public void shouldSetNeedsWhenCreatingNewPlan() throws JsonProcessingException {
 
         var assessmentApi = setupMockRestServiceServer(123L);
-        createMockAuthService(123L, assessmentApi);
-
         assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123/summary"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(123L, "Gary", "Smith", "", "", new OasysIdentifiers("12345678", "123"))), MediaType.APPLICATION_JSON));
@@ -172,12 +168,6 @@ public class SentencePlanResource_NeedTest {
                 .andExpect(method(GET))
                 .andRespond(withSuccess(mapper.writeValueAsString(new OasysAssessment(789123L, "ACTIVE", null, true)), MediaType.APPLICATION_JSON));
         return assessmentApi;
-    }
-
-    private void createMockAuthService(Long offenderId, MockRestServiceServer assessmentApi) {
-        assessmentApi.expect(between(1,2), requestTo("http://localhost:8081/authentication/user/" + USER + "/offender/" + offenderId))
-                .andExpect(method(GET))
-                .andRespond(withSuccess());
     }
 
 

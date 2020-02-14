@@ -12,6 +12,8 @@ import uk.gov.digital.justice.hmpps.sentenceplan.application.LogEvent;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.exception.OasysClientException;
 import uk.gov.digital.justice.hmpps.sentenceplan.security.AccessLevel;
+import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -94,8 +96,14 @@ public class OASYSAssessmentAPIClient {
                     OasysAuthorisationDto.class, username, oasysOffenderId, SENTENCE_PLAN, sessionId);
              return response.getBody();
         }
-        catch(RuntimeException e) {
-            log.warn("Failed to authorise User {}", username, value(EVENT, LogEvent.USER_AUTHORISATION_FAILURE));
+        catch(HttpClientErrorException e) {
+            if(e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                log.warn("Failed to authorise User {} offender {} not found", oasysOffenderId, value(EVENT, OASYS_OFFENDER_NOT_FOUND));
+                throw new EntityNotFoundException(String.format("OASys offender %s not found", oasysOffenderId));
+            }
+            else {
+                log.error("Failed to authorise User {} for offender {}", oasysOffenderId, value(EVENT, OASYS_ASSESSMENT_CLIENT_FAILURE));
+            }
             throw new OasysClientException("Failed to call OASys authorisation service");
         }
     }

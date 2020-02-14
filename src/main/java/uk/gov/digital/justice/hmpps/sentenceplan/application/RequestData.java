@@ -17,7 +17,7 @@ public class RequestData implements HandlerInterceptor {
     public static final String CORRELATION_ID_HEADER = "X-Correlation-Id";
     public static final String USERNAME_HEADER = "X-Auth-Username";
     private static final String ANONYMOUS = "anonymous";
-    private static final String SESSION_ID_HEADER = "X-Session-Id";
+    public static final String SESSION_ID_HEADER = "X-Session-Id";
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {

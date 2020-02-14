@@ -41,7 +41,7 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 @RunWith(SpringRunner.class)
-@ActiveProfiles("test")
+@ActiveProfiles("test,disableauthorisation")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Sql(scripts = "classpath:objective/before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
 @Sql(scripts = "classpath:objective/after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
@@ -80,7 +80,6 @@ public class SentencePlanResource_ObjectiveTest {
     @Test
     public void shouldCreateObjectiveOnExistingPlan() throws JsonProcessingException {
         var assessmentApi = createMockAssessmentDataForOffender(789123L);
-        createMockAuthService(789123L, assessmentApi);
         var needs = List.of(UUID.fromString("9acddbd3-af5e-4b41-a710-018064700eb5"),
                 UUID.fromString("51c293ec-b2c4-491c-ade5-34375e1cd495"));
         var requestBody = new AddSentencePlanObjectiveRequest(
@@ -117,7 +116,6 @@ public class SentencePlanResource_ObjectiveTest {
 
     @Test
     public void shouldGetSingleObjectiveWhenSentencePlanExists() {
-        createMockAuthService(123456L, bindTo(oauthRestTemplate).ignoreExpectOrder(true).build());
         var result = given()
                 .when()
                 .header("Accept", "application/json")
@@ -136,7 +134,6 @@ public class SentencePlanResource_ObjectiveTest {
 
     @Test
     public void shouldGetAllObjectivesWhenSentencePlanExists() {
-        createMockAuthService(123456L, bindTo(oauthRestTemplate).ignoreExpectOrder(true).build());
         var result = given()
                 .when()
                 .header("Accept", "application/json")
@@ -179,8 +176,6 @@ public class SentencePlanResource_ObjectiveTest {
     @Test
     public void shouldUpdateObjectiveOnExistingPlan() throws JsonProcessingException {
         var assessmentApi = createMockAssessmentDataForOffender(123456L);
-        createMockAuthService(123456L, assessmentApi);
-
         var needs = List.of(UUID.fromString("9acddbd3-af5e-4b41-a710-018064700eb5"),
                 UUID.fromString("51c293ec-b2c4-491c-ade5-34375e1cd495"));
 
@@ -220,8 +215,6 @@ public class SentencePlanResource_ObjectiveTest {
     public void shouldUpdateObjectivePriority() throws JsonProcessingException {
 
         var assessmentApi = createMockAssessmentDataForOffender(123456L);
-        createMockAuthService(123456L, assessmentApi);
-
         var requestBody = List.of(
                 new  UpdateObjectivePriorityRequest(UUID.fromString("59023444-afda-4603-9284-c803d18ee4bb"), 1),
                 new  UpdateObjectivePriorityRequest(UUID.fromString("a63a8eac-4daf-4801-b32b-e3d20c249ad4"), 2)
@@ -256,8 +249,6 @@ public class SentencePlanResource_ObjectiveTest {
 
     @Test
     public void shouldNotUpdateInvalidObjective() {
-        createMockAuthService(123456L, bindTo(oauthRestTemplate).ignoreExpectOrder(true).build());
-
         var needs = List.of(UUID.fromString("9acddbd3-af5e-4b41-a710-018064700eb5"),
                 UUID.fromString("51c293ec-b2c4-491c-ade5-34375e1cd495"));
 
@@ -289,10 +280,5 @@ public class SentencePlanResource_ObjectiveTest {
         return assessmentApi;
     }
 
-    private void createMockAuthService(Long offenderId, MockRestServiceServer assessmentApi) {
-        assessmentApi.expect(between(1,2), requestTo("http://localhost:8081/authentication/user/" + USER + "/offender/" + offenderId))
-                .andExpect(method(GET))
-                .andRespond(withSuccess());
-    }
 
 }

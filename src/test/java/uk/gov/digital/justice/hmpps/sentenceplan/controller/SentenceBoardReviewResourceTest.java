@@ -34,7 +34,7 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 @RunWith(SpringRunner.class)
-@ActiveProfiles("test")
+@ActiveProfiles("test,disableauthorisation")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Sql(scripts = "classpath:sentencePlan/before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
 @Sql(scripts = "classpath:sentencePlan/after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
@@ -73,9 +73,6 @@ public class SentenceBoardReviewResourceTest {
 
     @Test
     public void shouldGetSentenceBoardReviewSummariesSentencePlan() {
-
-        createMockAuthService();
-
         var result = given()
                 .when()
                 .header("Accept", "application/json")
@@ -94,9 +91,6 @@ public class SentenceBoardReviewResourceTest {
 
     @Test
     public void shouldGetSentenceBoardReviewSummariesOffender() {
-
-        createMockAuthService();
-
         var result = given()
                 .when()
                 .header("Accept", "application/json")
@@ -115,7 +109,6 @@ public class SentenceBoardReviewResourceTest {
 
     @Test
     public void shouldGetSentenceBoardReview() {
-        createMockAuthService();
         var result = given()
                 .when()
                 .header("Accept", "application/json")
@@ -135,7 +128,6 @@ public class SentenceBoardReviewResourceTest {
 
     @Test
     public void shouldCreateSentenceBoardReview() {
-        createMockAuthService();
                 given()
                 .when()
                         .header(RequestData.USERNAME_HEADER, USER)
@@ -159,9 +151,4 @@ public class SentenceBoardReviewResourceTest {
         assertThat(response.size()).isEqualTo(2);
     }
 
-    private void createMockAuthService() {
-        bindTo(oauthRestTemplate).ignoreExpectOrder(true).build().expect(between(1,2), requestTo("http://localhost:8081/authentication/user/" + USER + "/offender/" + 123456L))
-                .andExpect(method(GET))
-                .andRespond(withSuccess());
-    }
 }

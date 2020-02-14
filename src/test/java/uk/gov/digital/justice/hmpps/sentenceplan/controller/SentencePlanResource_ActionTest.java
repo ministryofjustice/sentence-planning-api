@@ -40,7 +40,7 @@ import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner.SERVICE_
 import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionStatus.IN_PROGRESS;
 
 @RunWith(SpringRunner.class)
-@ActiveProfiles("test")
+@ActiveProfiles("test,disableauthorisation")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Sql(scripts = "classpath:action/before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
 @Sql(scripts = "classpath:action/after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
@@ -83,7 +83,6 @@ public class SentencePlanResource_ActionTest {
 
     @Test
     public void shouldCreateActionOnExistingPlan() {
-        createMockAuthService(OFFENDER_EMPTY);
         var requestBody = new AddSentencePlanActionRequest(
                 null,
                 "new action description",
@@ -124,7 +123,6 @@ public class SentencePlanResource_ActionTest {
 
     @Test
     public void shouldGetSingleActionWhenSentencePlanExists() {
-        createMockAuthService(OFFENDER_FULL);
         var result = given()
                 .when()
                 .header("Accept", "application/json")
@@ -147,7 +145,6 @@ public class SentencePlanResource_ActionTest {
 
     @Test
     public void shouldReturnNotFoundForNonexistentPlan() {
-        createMockAuthService(OFFENDER_FULL);
         var result = given()
                 .when()
                 .header(RequestData.USERNAME_HEADER, USER)
@@ -166,7 +163,6 @@ public class SentencePlanResource_ActionTest {
 
     @Test
     public void shouldProgressAction() {
-        createMockAuthService(OFFENDER_FULL);
         var requestBody = new ProgressActionRequest(ActionStatus.PARTIALLY_COMPLETED, YearMonth.of(2019,12),MOTIVATION_UUID,List.of(), null,"new test comment" );
 
         var result = given()
@@ -201,7 +197,6 @@ public class SentencePlanResource_ActionTest {
 
     @Test
     public void shouldNotProgressInvalidAction() {
-        createMockAuthService(OFFENDER_FULL);
         var requestBody = new ProgressActionRequest(ActionStatus.PARTIALLY_COMPLETED, YearMonth.of(2019,12),MOTIVATION_UUID, List.of(), null,"new test comment" );
 
         var result = given()
@@ -216,17 +211,4 @@ public class SentencePlanResource_ActionTest {
 
         assertThat(result).isEqualTo(404);
     }
-
-    private void createMockAuthService(Long offenderId, MockRestServiceServer assessmentApi) {
-        assessmentApi.expect(between(1,2), requestTo("http://localhost:8081/authentication/user/" + USER + "/offender/" + offenderId))
-                .andExpect(method(GET))
-                .andRespond(withSuccess());
-    }
-
-    private void createMockAuthService(Long offenderId) {
-        bindTo(oauthRestTemplate).ignoreExpectOrder(true).build().expect(between(1,2), requestTo("http://localhost:8081/authentication/user/" + USER + "/offender/" + offenderId))
-                .andExpect(method(GET))
-                .andRespond(withSuccess());
-    }
-
 }
