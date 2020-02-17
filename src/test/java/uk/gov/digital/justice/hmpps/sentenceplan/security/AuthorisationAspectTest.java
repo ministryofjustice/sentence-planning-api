@@ -9,6 +9,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.RequestData;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.OASYSAssessmentAPIClient;
+import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysAuthorisationDto;
+import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysOffenderPermissionLevel;
+import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysOffenderPermissionResource;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.OffenderEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.OffenderService;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
@@ -16,7 +19,10 @@ import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFou
 import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
+import static uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysOffenderPermissionLevel.*;
+import static uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysOffenderPermissionResource.SENTENCE_PLAN;
 import static uk.gov.digital.justice.hmpps.sentenceplan.security.AccessLevel.READ_SENTENCE_PLAN;
+import static uk.gov.digital.justice.hmpps.sentenceplan.security.AccessLevel.WRITE_SENTENCE_PLAN;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuthorisationAspectTest {
@@ -45,16 +51,20 @@ public class AuthorisationAspectTest {
     @Before
     public void setup() {
         when(requestData.getUsername()).thenReturn("USER");
+
         aspect = new AuthorisationAspect(oasysAssessmentAPIClient, requestData, offenderService);
 
     }
 
     @Test
     public void shouldProceedIfUserIsAuthorisedWithSentencePlanUuid() throws Throwable {
+        var authorisationDto = new OasysAuthorisationDto("USER", offender.getOasysOffenderId(), READ_ONLY, SENTENCE_PLAN);
         var args = new Object[1];
         args[0] = sentencePlanUuid;
+
+        when(requestData.getSessionId()).thenReturn("123456");
         when(offenderService.getSentencePlanOffender(sentencePlanUuid)).thenReturn(offender);
-        when(oasysAssessmentAPIClient.authoriseUserAccess("USER", offender.getOasysOffenderId(), READ_SENTENCE_PLAN)).thenReturn(true);
+        when(oasysAssessmentAPIClient.authoriseUserAccess("USER", offender.getOasysOffenderId(), 123456L)).thenReturn(authorisationDto);
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
         when(annotation.accessLevel()).thenReturn(READ_SENTENCE_PLAN);
 
@@ -66,10 +76,13 @@ public class AuthorisationAspectTest {
 
     @Test
     public void shouldNotProceedIfUserIsUnauthorisedWithSentencePlanUuid() throws Throwable {
+        var authorisationDto = new OasysAuthorisationDto("USER", offender.getOasysOffenderId(), UNAUTHORISED, SENTENCE_PLAN);
         var args = new Object[1];
         args[0] = sentencePlanUuid;
+
+        when(requestData.getSessionId()).thenReturn("123456");
         when(offenderService.getSentencePlanOffender(sentencePlanUuid)).thenReturn(offender);
-        when(oasysAssessmentAPIClient.authoriseUserAccess("USER", offender.getOasysOffenderId(), READ_SENTENCE_PLAN)).thenReturn(false);
+        when(oasysAssessmentAPIClient.authoriseUserAccess("USER", offender.getOasysOffenderId(), 123456L)).thenReturn(authorisationDto);
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
         when(annotation.accessLevel()).thenReturn(READ_SENTENCE_PLAN);
 
@@ -83,10 +96,12 @@ public class AuthorisationAspectTest {
 
     @Test
     public void shouldProceedIfUserIsAuthorisedWithOffenderId() throws Throwable {
+        var authorisationDto = new OasysAuthorisationDto("USER", offender.getOasysOffenderId(), READ_ONLY, SENTENCE_PLAN);
         var args = new Object[1];
         args[0] = offender.getOasysOffenderId();
 
-        when(oasysAssessmentAPIClient.authoriseUserAccess("USER", offender.getOasysOffenderId(), READ_SENTENCE_PLAN)).thenReturn(true);
+        when(requestData.getSessionId()).thenReturn("123456");
+        when(oasysAssessmentAPIClient.authoriseUserAccess("USER", offender.getOasysOffenderId(), 123456L)).thenReturn(authorisationDto);
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
         when(proceedingJoinPoint.getSignature().getName()).thenReturn("methodName");
         when(annotation.accessLevel()).thenReturn(READ_SENTENCE_PLAN);
@@ -99,10 +114,12 @@ public class AuthorisationAspectTest {
 
     @Test
     public void shouldNotProceedIfUserIsUnauthorisedWithOffenderId() throws Throwable {
+        var authorisationDto = new OasysAuthorisationDto("USER", offender.getOasysOffenderId(), UNAUTHORISED, SENTENCE_PLAN);
         var args = new Object[1];
         args[0] = offender.getOasysOffenderId();
 
-        when(oasysAssessmentAPIClient.authoriseUserAccess("USER", offender.getOasysOffenderId(), READ_SENTENCE_PLAN)).thenReturn(false);
+        when(requestData.getSessionId()).thenReturn("123456");
+        when(oasysAssessmentAPIClient.authoriseUserAccess("USER", offender.getOasysOffenderId(), 123456L)).thenReturn(authorisationDto);
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
         when(proceedingJoinPoint.getSignature().getName()).thenReturn("methodName");
         when(annotation.accessLevel()).thenReturn(READ_SENTENCE_PLAN);
@@ -111,6 +128,42 @@ public class AuthorisationAspectTest {
                 .isInstanceOf(AuthorisationException.class)
         .hasMessageContaining("User USER is not authorised to access the requested resource");
 
+        verify(proceedingJoinPoint, never()).proceed();
+        verify(offenderService, never()).getSentencePlanOffender(sentencePlanUuid);
+    }
+
+    @Test
+    public void shouldProceedIfUserIsWriteAuthorisedWithOffenderIdW() throws Throwable {
+        var authorisationDto = new OasysAuthorisationDto("USER", offender.getOasysOffenderId(), WRITE, SENTENCE_PLAN);
+        var args = new Object[1];
+        args[0] = offender.getOasysOffenderId();
+
+        when(requestData.getSessionId()).thenReturn("123456");
+        when(oasysAssessmentAPIClient.authoriseUserAccess("USER", offender.getOasysOffenderId(), 123456L)).thenReturn(authorisationDto);
+        when(proceedingJoinPoint.getArgs()).thenReturn(args);
+        when(proceedingJoinPoint.getSignature().getName()).thenReturn("methodName");
+        when(annotation.accessLevel()).thenReturn(WRITE_SENTENCE_PLAN);
+
+        aspect.validateUserAccess(proceedingJoinPoint,annotation);
+
+        verify(proceedingJoinPoint, times(1)).proceed();
+        verify(offenderService, never()).getSentencePlanOffender(sentencePlanUuid);
+    }
+
+    @Test
+    public void shouldNotProceedWhenAccessLevelIsWriteAndUserHasReadAccess() throws Throwable {
+        var authorisationDto = new OasysAuthorisationDto("USER", offender.getOasysOffenderId(), READ_ONLY, SENTENCE_PLAN);
+        var args = new Object[1];
+        args[0] = offender.getOasysOffenderId();
+
+        when(requestData.getSessionId()).thenReturn("123456");
+        when(oasysAssessmentAPIClient.authoriseUserAccess("USER", offender.getOasysOffenderId(), 123456L)).thenReturn(authorisationDto);
+        when(proceedingJoinPoint.getArgs()).thenReturn(args);
+        when(proceedingJoinPoint.getSignature().getName()).thenReturn("methodName");
+        when(annotation.accessLevel()).thenReturn(WRITE_SENTENCE_PLAN);
+
+        assertThatThrownBy(() -> aspect.validateUserAccess(proceedingJoinPoint,annotation))
+                .isInstanceOf(AuthorisationException.class);
         verify(proceedingJoinPoint, never()).proceed();
         verify(offenderService, never()).getSentencePlanOffender(sentencePlanUuid);
     }

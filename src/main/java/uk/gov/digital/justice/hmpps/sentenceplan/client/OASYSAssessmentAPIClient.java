@@ -9,17 +9,17 @@ import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.LogEvent;
-import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysAssessment;
-import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysOffender;
-import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysRefElement;
-import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysSentencePlanDto;
+import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.exception.OasysClientException;
 import uk.gov.digital.justice.hmpps.sentenceplan.security.AccessLevel;
+import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import static net.logstash.logback.argument.StructuredArguments.value;
 import static uk.gov.digital.justice.hmpps.sentenceplan.application.LogEvent.*;
+import static uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysOffenderPermissionResource.SENTENCE_PLAN;
 
 
 @Component
@@ -55,7 +55,7 @@ public class OASYSAssessmentAPIClient {
                    OasysAssessment.class, oasysOffenderId).getBody());
         }
         catch(HttpClientErrorException e) {
-            if(e.getRawStatusCode() == 404) {
+            if(e.getStatusCode() == HttpStatus.NOT_FOUND) {
                 log.info("Assessment for offender {} not found", oasysOffenderId, value(EVENT, LogEvent.OASYS_ASSESSMENT_NOT_FOUND));
                 return Optional.empty();
             }
@@ -71,7 +71,7 @@ public class OASYSAssessmentAPIClient {
                     HttpMethod.GET,null, new ParameterizedTypeReference<List<OasysSentencePlanDto>>(){}, oasysOffenderId).getBody();
         }
         catch(HttpClientErrorException e) {
-            if(e.getRawStatusCode() == 404) {
+            if(e.getStatusCode() == HttpStatus.NOT_FOUND) {
                 log.info("Sentence Plans for offender {} not found", oasysOffenderId, value(EVENT, LogEvent.OASYS_ASSESSMENT_NOT_FOUND));
                 return Collections.emptyList();
             }
@@ -90,15 +90,21 @@ public class OASYSAssessmentAPIClient {
         }
     }
 
-    public boolean authoriseUserAccess(String username, Long oasysOffenderId, AccessLevel accessLevel) {
+    public OasysAuthorisationDto authoriseUserAccess(String username, Long oasysOffenderId, Long sessionId) {
         try {
-             var response = restTemplate.getForEntity(assessmentApiBasePath + "/authentication/user/{oasysUserId}/offender/{offenderId}",
-                    String.class, username , oasysOffenderId);
-             return response.getStatusCode().equals(HttpStatus.OK);
+             var response = restTemplate.getForEntity(assessmentApiBasePath + "/authentication/user/{oasysUserId}/offender/{offenderId}/{resource}?sessionId={sessionId}",
+                    OasysAuthorisationDto.class, username, oasysOffenderId, SENTENCE_PLAN, sessionId);
+             return response.getBody();
         }
-        catch(RuntimeException e) {
-            log.warn("Failed to authorise User {}", username, value(EVENT, LogEvent.USER_AUTHORISATION_FAILURE));
-            return false;
+        catch(HttpClientErrorException e) {
+            if(e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                log.warn("Failed to authorise User {} offender {} not found", oasysOffenderId, value(EVENT, OASYS_OFFENDER_NOT_FOUND));
+                throw new EntityNotFoundException(String.format("OASys offender %s not found", oasysOffenderId));
+            }
+            else {
+                log.error("Failed to authorise User {} for offender {}", oasysOffenderId, value(EVENT, OASYS_ASSESSMENT_CLIENT_FAILURE));
+            }
+            throw new OasysClientException("Failed to call OASys authorisation service");
         }
     }
 }

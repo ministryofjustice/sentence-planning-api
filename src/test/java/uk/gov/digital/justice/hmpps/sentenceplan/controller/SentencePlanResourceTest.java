@@ -11,7 +11,6 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.client.OAuth2RestTemplate;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
@@ -34,13 +33,12 @@ import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED;
-import static org.springframework.test.web.client.ExpectedCount.between;
 import static org.springframework.test.web.client.MockRestServiceServer.bindTo;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
 
 @RunWith(SpringRunner.class)
-@ActiveProfiles("test")
+@ActiveProfiles("test,disableauthorisation")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Sql(scripts = "classpath:sentencePlan/before-test.sql", config = @SqlConfig(transactionMode = ISOLATED))
 @Sql(scripts = "classpath:sentencePlan/after-test.sql", config = @SqlConfig(transactionMode = ISOLATED), executionPhase = AFTER_TEST_METHOD)
@@ -104,7 +102,6 @@ public class SentencePlanResourceTest {
     @Test
     public void shouldGetSentencePlanWhenExists() throws JsonProcessingException {
         var assessmentApi = createMockAssessmentDataForOffender(OASYS_OFFENDER_ID);
-        createMockAuthService(OASYS_OFFENDER_ID, assessmentApi);
         var result = given()
                 .when()
                 .header("Accept", "application/json")
@@ -123,7 +120,6 @@ public class SentencePlanResourceTest {
     public void shouldGetSentencePlanSummaries() throws JsonProcessingException {
 
         var assessmentApi = bindTo(oauthRestTemplate).ignoreExpectOrder(true).build();
-        createMockAuthService(OASYS_OFFENDER_ID, assessmentApi);
 
         assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123456/fullSentencePlans"))
                 .andExpect(method(GET))
@@ -156,7 +152,6 @@ public class SentencePlanResourceTest {
     public void shouldGetLegacySentencePlanIfExists() throws JsonProcessingException {
 
         var assessmentApi = bindTo(oauthRestTemplate).ignoreExpectOrder(true).build();
-        createMockAuthService(OASYS_OFFENDER_ID, assessmentApi);
         assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123456/fullSentencePlans"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(
@@ -201,7 +196,6 @@ public class SentencePlanResourceTest {
     public void shouldGetLatestOffenderAndLatestAssessmentForNewSentencePlan() throws JsonProcessingException {
 
         var assessmentApi = createMockAssessmentDataForOffender(123L);
-        createMockAuthService(123L, assessmentApi);
         assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123/summary"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(123L, "Gary", "Smith", "", "", new OasysIdentifiers("12345678", "123"))), MediaType.APPLICATION_JSON));
@@ -221,7 +215,6 @@ public class SentencePlanResourceTest {
     public void shouldCreateNewDraftSentencePlan() throws JsonProcessingException {
 
         var assessmentApi = createMockAssessmentDataForOffender(123L);
-        createMockAuthService(123L, assessmentApi);
         assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123/summary"))
                     .andExpect(method(GET))
                     .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(123L, "Gary", "Smith", "", "", new OasysIdentifiers("12345678", "123"))), MediaType.APPLICATION_JSON));
@@ -246,7 +239,6 @@ public class SentencePlanResourceTest {
     public void shouldNotCreateNewSentencePlanIfCurrentPlanExistsForOffender() throws JsonProcessingException {
 
         var assessmentApi = createMockAssessmentDataForOffender(123L);
-        createMockAuthService(123L, assessmentApi);
         assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123/summary"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(123L, "Gary", "Smith", "", "", new OasysIdentifiers("12345678", "123"))), MediaType.APPLICATION_JSON));
@@ -281,7 +273,6 @@ public class SentencePlanResourceTest {
     public void shouldReturn400WhenCreatingPlanWithoutAnAssessment() throws JsonProcessingException {
 
         var assessmentApi = bindTo(oauthRestTemplate).ignoreExpectOrder(true).build();
-        createMockAuthService(123L, assessmentApi);
         assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123/summary"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(123L, "Gary", "Smith", "", "", new OasysIdentifiers("12345678", "123"))), MediaType.APPLICATION_JSON));
@@ -307,35 +298,8 @@ public class SentencePlanResourceTest {
     }
 
     @Test
-    public void shouldReturn401WhenOffenderNotFound() {
-
-        var assessmentApi = bindTo(oauthRestTemplate).ignoreExpectOrder(true).build();
-        assessmentApi.expect(between(1,2), requestTo("http://localhost:8081/authentication/user/" + USER + "/offender/123"))
-                .andExpect(method(GET))
-                .andRespond(withStatus(NOT_FOUND));
-        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123/summary"))
-                .andExpect(method(GET))
-                .andRespond(withStatus(HttpStatus.NOT_FOUND));
-
-        var result = given()
-                .when()
-                .header("Content-Type", "application/json")
-                .header(RequestData.USERNAME_HEADER, USER)
-                .post("/offenders/{oasysOffenderId}/sentenceplans", 123L)
-                .then()
-                .statusCode(401)
-                .extract()
-                .body()
-                .as(ErrorResponse.class);
-
-        assertThat(result.getStatus()).isEqualTo(401);
-
-    }
-
-    @Test
     public void shouldAddComments() throws JsonProcessingException {
         var assessmentApi = createMockAssessmentDataForOffender(123456L);
-        createMockAuthService(OASYS_OFFENDER_ID, assessmentApi);
         var comment = new AddCommentRequest("Test Comment", CommentType.THEIR_SUMMARY);
         var requestBody = List.of(comment);
 
@@ -371,8 +335,7 @@ public class SentencePlanResourceTest {
 
     @Test
     public void shouldGetComments() throws JsonProcessingException {
-        var assessmentApi = createMockAssessmentDataForOffender(OASYS_OFFENDER_ID);
-        createMockAuthService(OASYS_OFFENDER_ID, assessmentApi);
+        createMockAssessmentDataForOffender(OASYS_OFFENDER_ID);
         var comments = given()
                 .when()
                 .header("Accept", "application/json")
@@ -394,8 +357,7 @@ public class SentencePlanResourceTest {
 
     @Test
     public void shouldGetCommentsAddingOverwrites() throws JsonProcessingException {
-        var assessmentApi = createMockAssessmentDataForOffender(OASYS_OFFENDER_ID);
-        createMockAuthService(OASYS_OFFENDER_ID, assessmentApi);
+        createMockAssessmentDataForOffender(OASYS_OFFENDER_ID);
         var newComment = new AddCommentRequest("Any Comment", CommentType.LIAISON_ARRANGEMENTS);
         var requestBody = List.of(newComment);
 
@@ -440,7 +402,6 @@ public class SentencePlanResourceTest {
     @Test
     public void shouldCreateNewRevisionsOnChange() throws JsonProcessingException {
         var assessmentApi = createMockAssessmentDataForOffender(123L);
-        createMockAuthService(123L, assessmentApi);
         assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123/summary"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(123L, "Gary", "Smith", "", "", new OasysIdentifiers("12345678", "123"))), MediaType.APPLICATION_JSON));
@@ -511,12 +472,6 @@ public class SentencePlanResourceTest {
                 .andRespond(withSuccess(mapper.writeValueAsString(new OasysAssessment(123456L, "ACTIVE", needs, true)), MediaType.APPLICATION_JSON));
 
         return assessmentApi;
-    }
-
-    private void createMockAuthService(Long offenderId, MockRestServiceServer assessmentApi) {
-        assessmentApi.expect(between(1,4), requestTo("http://localhost:8081/authentication/user/" + USER + "/offender/" + offenderId))
-                .andExpect(method(GET))
-                .andRespond(withSuccess());
     }
 
 }
