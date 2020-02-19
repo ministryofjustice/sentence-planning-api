@@ -12,6 +12,7 @@ import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysAuthorisationDt
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysOffenderPermissionLevel;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.OffenderService;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -45,7 +46,8 @@ public class AuthorisationAspect {
             throw new AuthorisationException("Unable parse method parameters for type " + joinPoint.getArgs()[0].getClass().getName());
         }
 
-        var sessionId = Optional.ofNullable(requestData.getSessionId()).map(s-> Long.valueOf(s)).orElse(null);
+        var sessionId = Optional.ofNullable(requestData.getSessionId()).map(s-> Long.valueOf(s))
+                .orElseThrow(() -> new AuthorisationException(String.format("No session ID supplied to authorise user %s", requestData.getUsername())));
 
         var authorisationResult =  oasysAssessmentAPIClient.authoriseUserAccess(requestData.getUsername(), oasysOffenderId, sessionId);
 
