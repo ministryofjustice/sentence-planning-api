@@ -13,9 +13,9 @@ public class OasysAuthorisationDto {
     private String oasysUserCode;
     @JsonProperty("oasysOffenderId")
     private Long oasysOffenderId;
-    @JsonProperty("oasysOffenderPermissionLevel")
+    @JsonProperty("offenderPermissionLevel")
     private OasysOffenderPermissionLevel oasysOffenderPermissionLevel;
-    @JsonProperty("oasysOffenderPermissionResource")
+    @JsonProperty("offenderPermissionResource")
     private OasysOffenderPermissionResource oasysOffenderPermissionResource;
 }
 
