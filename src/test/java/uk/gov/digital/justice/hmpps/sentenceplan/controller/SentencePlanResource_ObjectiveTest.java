@@ -175,7 +175,7 @@ public class SentencePlanResource_ObjectiveTest {
 
     @Test
     public void shouldUpdateObjectiveOnExistingPlan() throws JsonProcessingException {
-        var assessmentApi = createMockAssessmentDataForOffender(123456L);
+       createMockAssessmentDataForOffender(123456L);
         var needs = List.of(UUID.fromString("9acddbd3-af5e-4b41-a710-018064700eb5"),
                 UUID.fromString("51c293ec-b2c4-491c-ade5-34375e1cd495"));
 
@@ -212,9 +212,36 @@ public class SentencePlanResource_ObjectiveTest {
     }
 
     @Test
+    public void shouldCloseObjectiveOnExistingPlan() throws JsonProcessingException {
+        createMockAssessmentDataForOffender(123456L);
+
+        given()
+                .when()
+                .header("Content-Type", "application/json")
+                .header(RequestData.USERNAME_HEADER, USER)
+                .post("/sentenceplans/{0}/objectives/{1}/close", SENTENCE_PLAN_ID_FULL,OBJECTIVE_ID)
+                .then()
+                .statusCode(200);
+
+        var updatedObjective = given()
+                .when()
+                .header("Accept", "application/json")
+                .header(RequestData.USERNAME_HEADER, USER)
+                .get("/sentenceplans/{0}/objectives/{1}", SENTENCE_PLAN_ID_FULL,OBJECTIVE_ID)
+                .then()
+                .statusCode(200)
+                .extract()
+                .body()
+                .as(ObjectiveDto.class);
+
+        assertThat(updatedObjective.getActions().get(0).getStatus()).isEqualTo(ActionStatus.ABANDONED);
+
+    }
+
+    @Test
     public void shouldUpdateObjectivePriority() throws JsonProcessingException {
 
-        var assessmentApi = createMockAssessmentDataForOffender(123456L);
+        createMockAssessmentDataForOffender(123456L);
         var requestBody = List.of(
                 new  UpdateObjectivePriorityRequest(UUID.fromString("59023444-afda-4603-9284-c803d18ee4bb"), 1),
                 new  UpdateObjectivePriorityRequest(UUID.fromString("a63a8eac-4daf-4801-b32b-e3d20c249ad4"), 2)

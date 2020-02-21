@@ -90,4 +90,7 @@ public class ActionEntity implements Serializable {
         this.status = status;
     }
 
+    public void abandon() {
+        this.status = ActionStatus.ABANDONED;
+    }
 }
