@@ -2,6 +2,7 @@ package uk.gov.digital.justice.hmpps.sentenceplan.client;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -90,6 +91,7 @@ public class OASYSAssessmentAPIClient {
         }
     }
 
+    @Cacheable("offenderAccess")
     public OasysAuthorisationDto authoriseUserAccess(String username, Long oasysOffenderId, Long sessionId) {
         try {
              var response = restTemplate.getForEntity(assessmentApiBasePath + "/authentication/user/{oasysUserId}/offender/{offenderId}/{resource}?sessionId={sessionId}",
