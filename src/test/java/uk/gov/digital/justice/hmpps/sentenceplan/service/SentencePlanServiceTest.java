@@ -23,7 +23,7 @@ import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import static org.mockito.Mockito.*;
 import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner.PRACTITIONER;
 import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner.SERVICE_USER;
-import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionStatus.NOT_STARTED;
+import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionStatus.*;
 import static uk.gov.digital.justice.hmpps.sentenceplan.api.CommentType.LIAISON_ARRANGEMENTS;
 import static uk.gov.digital.justice.hmpps.sentenceplan.api.CommentType.YOUR_SUMMARY;
 import static uk.gov.digital.justice.hmpps.sentenceplan.application.LogEvent.*;
@@ -78,7 +78,7 @@ public class SentencePlanServiceTest {
 
         verify(offenderService,times(1)).getOffenderByType(oasysOffenderId);
         verify(sentencePlanRepository,times(1)).save(any());
-        //verify(timelineService,times(1)).createTimelineEntry(any(UUID.class), eq(SENTENCE_PLAN_CREATED));
+        verify(timelineService,times(1)).createTimelineEntry(any(UUID.class), eq(SENTENCE_PLAN_CREATED));
     }
 
     @Test
@@ -93,7 +93,7 @@ public class SentencePlanServiceTest {
 
         verify(offenderService,times(1)).getOffenderByType(oasysOffenderId);
         verify(sentencePlanRepository,never()).save(any());
-        verifyZeroInteractions(timelineService);
+        verifyNoInteractions(timelineService);
     }
 
     @Test
@@ -118,7 +118,7 @@ public class SentencePlanServiceTest {
         var newSentencePlan = mock(SentencePlanEntity.class);
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(newSentencePlan);
         var needs = List.of(UUID.fromString("11111111-1111-1111-1111-111111111111"));
-        AddSentencePlanObjectiveRequest request = new AddSentencePlanObjectiveRequest("Objective 1", needs, true);
+        var request = new AddSentencePlanObjectiveRequest("Objective 1", needs, true);
         var objective = service.addObjective(sentencePlanUuid, request);
 
         verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
@@ -130,6 +130,64 @@ public class SentencePlanServiceTest {
         assertThat(objective.getNeeds()).containsExactlyElementsOf(needs);
         assertThat(objective.isMeetsChildSafeguarding()).isEqualTo(true);
 
+    }
+
+    @Test
+    public void shouldSetINPROGRESSActionStatusToABANDONEDWhenObjectiveClosed() {
+
+        var objective1UUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
+        var action1UUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
+        var action1 = new ActionEntity(action1UUID,"Action 1", YearMonth.of(2020,11),null, List.of(PRACTITIONER),null, IN_PROGRESS);
+        var objective1 = new ObjectiveEntity(objective1UUID, "Objective 1", emptyList(), Map.of(action1UUID, action1),false, 1, LocalDateTime.now());
+        var newSentencePlan = mock(SentencePlanEntity.class);
+        when(newSentencePlan.getObjective(objective1UUID)).thenReturn(objective1);
+        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(newSentencePlan);
+        service.closeObjective(sentencePlanUuid, objective1UUID);
+        assertThat(action1.getStatus()).isEqualTo(ABANDONED);
+    }
+
+    @Test
+    public void shouldSetPAUSEDActionStatusToABANDONEDWhenObjectiveClosed() {
+
+        var objective1UUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
+        var action1UUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
+        var action1 = new ActionEntity(action1UUID,"Action 1", YearMonth.of(2020,11),null, List.of(PRACTITIONER),null, PAUSED);
+        var objective1 = new ObjectiveEntity(objective1UUID, "Objective 1", emptyList(), Map.of(action1UUID, action1),false, 1, LocalDateTime.now());
+        var newSentencePlan = mock(SentencePlanEntity.class);
+        when(newSentencePlan.getObjective(objective1UUID)).thenReturn(objective1);
+        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(newSentencePlan);
+
+        service.closeObjective(sentencePlanUuid, objective1UUID);
+
+        verify(timelineService, times(1)).createTimelineEntry(eq(sentencePlanUuid), eq(SENTENCE_PLAN_OBJECTIVE_CLOSED), eq(objective1));
+    }
+
+    @Test
+    public void shouldSetNOTSTARTEDActionStatusToABANDONEDWhenObjectiveClosed() {
+
+        var objective1UUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
+        var action1UUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
+        var action1 = new ActionEntity(action1UUID,"Action 1", YearMonth.of(2020,11),null, List.of(PRACTITIONER),null, NOT_STARTED);
+        var objective1 = new ObjectiveEntity(objective1UUID, "Objective 1", emptyList(), Map.of(action1UUID, action1),false, 1, LocalDateTime.now());
+        var newSentencePlan = mock(SentencePlanEntity.class);
+        when(newSentencePlan.getObjective(objective1UUID)).thenReturn(objective1);
+        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(newSentencePlan);
+        service.closeObjective(sentencePlanUuid, objective1UUID);
+        assertThat(action1.getStatus()).isEqualTo(ABANDONED);
+    }
+
+    @Test
+    public void shouldCreateEventWhenObjectiveIsClosed() {
+
+        var objective1UUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
+        var action1UUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
+        var action1 = new ActionEntity(action1UUID,"Action 1", YearMonth.of(2020,11),null, List.of(PRACTITIONER),null, NOT_STARTED);
+        var objective1 = new ObjectiveEntity(objective1UUID, "Objective 1", emptyList(), Map.of(action1UUID, action1),false, 1, LocalDateTime.now());
+        var newSentencePlan = mock(SentencePlanEntity.class);
+        when(newSentencePlan.getObjective(objective1UUID)).thenReturn(objective1);
+        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(newSentencePlan);
+        service.closeObjective(sentencePlanUuid, objective1UUID);
+        verify(timelineService, times(1)).createTimelineEntry(eq(sentencePlanUuid), eq(SENTENCE_PLAN_OBJECTIVE_CLOSED), any(ObjectiveEntity.class));
     }
 
     @Test
@@ -145,7 +203,7 @@ public class SentencePlanServiceTest {
 
         var motivationUuid = motivations.get(0).getUuid();
 
-        AddSentencePlanActionRequest request = new AddSentencePlanActionRequest(null, "Action 1", YearMonth.of(2019, 10), motivationUuid,  List.of(SERVICE_USER), null, NOT_STARTED);
+        var request = new AddSentencePlanActionRequest(null, "Action 1", YearMonth.of(2019, 10), motivationUuid,  List.of(SERVICE_USER), null, NOT_STARTED);
         service.addAction(sentencePlanUuid,objectiveUUID, request);
 
         verify(sentencePlanRepository,times(1)).findByUuid(sentencePlanUuid);
@@ -236,13 +294,12 @@ public class SentencePlanServiceTest {
 
     @Test
     public void shouldNotUpdateActionWhenNotDraft(){
-        var objective = getObjectiveWithTwoActions(emptyList(), "Objective 1", "Action 1", "Action 2");
         var objectiveUUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
         var newSentencePlan = mock(SentencePlanEntity.class);
         when(newSentencePlan.isDraft()).thenReturn(false);
 
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(newSentencePlan);
-        AddSentencePlanActionRequest request = new AddSentencePlanActionRequest(UUID.randomUUID(), "Any Desc", YearMonth.now(), UUID.randomUUID(), emptyList(), "Other Owner", ActionStatus.PARTIALLY_COMPLETED);
+        var request = new AddSentencePlanActionRequest(UUID.randomUUID(), "Any Desc", YearMonth.now(), UUID.randomUUID(), emptyList(), "Other Owner", ActionStatus.PARTIALLY_COMPLETED);
         var exception = catchThrowable(() -> service.updateAction(sentencePlanUuid, objectiveUUID,UUID.randomUUID(), request));
         assertThat(exception).isInstanceOf(BusinessRuleViolationException.class)
                 .hasMessageContaining("Cannot update Action, Sentence Plan is not a draft");
