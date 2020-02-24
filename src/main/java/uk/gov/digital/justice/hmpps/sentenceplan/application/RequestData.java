@@ -53,7 +53,8 @@ public class RequestData implements HandlerInterceptor {
     }
 
     private String initialiseSessionId(HttpServletRequest request) {
-        return request.getHeader(SESSION_ID_HEADER);
+        var sessionId = request.getHeader(SESSION_ID_HEADER);
+        return !StringUtils.isEmpty(sessionId) ? sessionId : null;
     }
 
     public String getCorrelationId() {
