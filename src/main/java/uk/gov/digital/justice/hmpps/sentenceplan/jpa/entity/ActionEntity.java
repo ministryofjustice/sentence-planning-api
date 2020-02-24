@@ -1,6 +1,9 @@
 package uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.util.StringUtils;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.ActionStatus;
@@ -9,7 +12,11 @@ import uk.gov.digital.justice.hmpps.sentenceplan.application.ValidationException
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Getter
 @AllArgsConstructor
@@ -91,6 +98,9 @@ public class ActionEntity implements Serializable {
     }
 
     public void abandon() {
-        this.status = ActionStatus.ABANDONED;
+        var openActionStatus = Stream.of(ActionStatus.NOT_STARTED, ActionStatus.IN_PROGRESS, ActionStatus.PAUSED).collect(Collectors.toList());
+        if(openActionStatus.contains(this.status)) {
+            this.status = ActionStatus.ABANDONED;
+        }
     }
 }
