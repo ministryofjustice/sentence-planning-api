@@ -131,6 +131,17 @@ public class SentencePlanResource {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping(value = "/sentenceplans/{sentencePlanUUID}/objectives/{objectiveUUID}/close", produces = "application/json")
+    @ApiOperation(value = "Close an Objective on a Sentence Plan")
+    @Authorised(accessLevel = AccessLevel.WRITE_SENTENCE_PLAN)
+    ResponseEntity updateObjective(@ApiParam(value = "Sentence Plan ID", required = true, example = "11111111-1111-1111-1111-111111111111") @PathVariable UUID sentencePlanUUID,
+                                   @ApiParam(value = "Objective ID", required = true, example = "11111111-1111-1111-1111-111111111111") @PathVariable UUID objectiveUUID) {
+        sentencePlanService.closeObjective(
+                sentencePlanUUID,
+                objectiveUUID);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping(value = "/sentenceplans/{sentencePlanUUID}/objectives/{objectiveUUID}", produces = "application/json")
     @ApiOperation(value = "Get an Objective for a Sentence Plan")
     @Authorised(accessLevel = AccessLevel.READ_SENTENCE_PLAN)

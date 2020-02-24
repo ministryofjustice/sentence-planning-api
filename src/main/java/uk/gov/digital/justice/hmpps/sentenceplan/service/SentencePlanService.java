@@ -7,12 +7,13 @@ import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.RequestData;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.OASYSAssessmentAPIClient;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysSentencePlanDto;
-import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.BusinessRuleViolationException;
-import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepository;
+import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.BusinessRuleViolationException;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.CurrentSentencePlanForOffenderExistsException;
+import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
 
+import javax.swing.*;
 import javax.transaction.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -261,5 +262,13 @@ public class SentencePlanService {
         var sentencePlanEntity = getSentencePlanEntity(sentencePlanUuid);
         var revisions = sentencePlanRepository.findRevisions(sentencePlanEntity.getId());
         return revisions.getContent();
+    }
+
+    @Transactional
+    public void closeObjective(UUID sentencePlanUuid, UUID objectiveUUID) {
+        var objective = getObjectiveEntity(sentencePlanUuid,objectiveUUID);
+        objective.getActions().forEach((key, action) -> action.abandon());
+        log.info("Closed objective {} for Sentence Plan {}", objectiveUUID, sentencePlanUuid, value(EVENT, SENTENCE_PLAN_OBJECTIVE_CLOSED));
+        timelineService.createTimelineEntry(sentencePlanUuid, SENTENCE_PLAN_OBJECTIVE_CLOSED, objective);
     }
 }

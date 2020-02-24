@@ -7,6 +7,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.vladmihalcea.hibernate.type.util.ObjectMapperSupplier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.info.BuildProperties;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.envers.repository.support.EnversRevisionRepositoryFactoryBean;
@@ -30,6 +31,7 @@ import java.util.Collections;
 import java.util.Optional;
 
 @Configuration
+@EnableCaching
 @EnableSwagger2
 @EnableJpaRepositories(repositoryFactoryBeanClass = EnversRevisionRepositoryFactoryBean.class, basePackages = {"uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository"})
 public class SpringConfiguration implements WebMvcConfigurer, ObjectMapperSupplier {
