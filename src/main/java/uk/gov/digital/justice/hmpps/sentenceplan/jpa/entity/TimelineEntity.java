@@ -57,6 +57,7 @@ public class TimelineEntity implements Serializable {
 
     @Getter
     @Column(name = "TYPE")
+    @Enumerated(EnumType.STRING)
     private LogEvent type;
 
     public TimelineEntity(UUID sentencePlanUUID, LogEvent type, String entityKey, String user, String comment, String objective) {

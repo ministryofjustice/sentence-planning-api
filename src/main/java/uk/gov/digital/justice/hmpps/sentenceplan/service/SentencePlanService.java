@@ -144,7 +144,7 @@ public class SentencePlanService {
         var actionEntity = getActionEntity(objectiveEntity, actionId);
         var progressEntity = new ProgressEntity(request.getStatus(), request.getTargetDate(), request.getMotivationUUID(), request.getComment(), request.getOwner(), request.getOwnerOther(), requestData.getUsername());
         actionEntity.addProgress(progressEntity);
-        timelineService.createTimelineEntry(sentencePlanUUID, SENTENCE_PLAN_ACTION_CREATED, objectiveEntity);
+        timelineService.createTimelineEntry(sentencePlanUUID, SENTENCE_PLAN_ACTION_PROGRESSED, objectiveEntity);
         log.info("Progressed Action for Sentence Plan {} Objective {}", sentencePlanUUID, objectiveUUID, value(EVENT, SENTENCE_PLAN_ACTION_PROGRESSED));
     }
 
