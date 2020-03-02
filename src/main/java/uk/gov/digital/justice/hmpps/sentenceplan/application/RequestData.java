@@ -18,6 +18,13 @@ public class RequestData implements HandlerInterceptor {
     public static final String USERNAME_HEADER = "X-Auth-Username";
     private static final String ANONYMOUS = "anonymous";
     public static final String SESSION_ID_HEADER = "X-Session-Id";
+    static final String SKIP_LOGGING = "skipLogging";
+    static final String REQUEST_DURATION = "duration";
+    static final String RESPONSE_STATUS = "status";
+
+    static boolean isLoggingAllowed() {
+        return !"true".equals(MDC.get(SKIP_LOGGING));
+    }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
