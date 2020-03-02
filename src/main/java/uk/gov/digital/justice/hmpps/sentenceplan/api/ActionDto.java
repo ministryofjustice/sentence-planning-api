@@ -36,6 +36,8 @@ public class ActionDto {
     private UUID motivation;
     @JsonProperty("priority")
     private Integer priority;
+    @JsonProperty("created")
+    private LocalDateTime created;
     @JsonProperty("updated")
     private LocalDateTime updated;
     @JsonProperty("targetDate")
@@ -52,6 +54,7 @@ public class ActionDto {
                 action.getInterventionUUID(),
                 action.getMotivationUUID(),
                 action.getPriority(),
+                action.getCreated(),
                 action.getUpdated(),
                 action.getTargetDate(),
                 action.getProgress().stream().map(ActionProgress::from).collect(Collectors.toList()));
