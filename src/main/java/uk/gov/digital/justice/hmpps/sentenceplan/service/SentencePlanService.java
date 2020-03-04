@@ -13,13 +13,14 @@ import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.BusinessRule
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.CurrentSentencePlanForOffenderExistsException;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
 
-import javax.swing.*;
 import javax.transaction.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static net.logstash.logback.argument.StructuredArguments.value;
+import static uk.gov.digital.justice.hmpps.sentenceplan.api.ObjectiveStatus.CLOSED;
+import static uk.gov.digital.justice.hmpps.sentenceplan.api.ObjectiveStatus.OPEN;
 import static uk.gov.digital.justice.hmpps.sentenceplan.application.LogEvent.*;
 
 @Service
@@ -265,10 +266,21 @@ public class SentencePlanService {
     }
 
     @Transactional
-    public void closeObjective(UUID sentencePlanUuid, UUID objectiveUUID) {
+    public void closeObjective(UUID sentencePlanUuid, UUID objectiveUUID, String comment) {
         var objective = getObjectiveEntity(sentencePlanUuid,objectiveUUID);
-        objective.getActions().forEach((key, action) -> action.abandon());
-        log.info("Closed objective {} for Sentence Plan {}", objectiveUUID, sentencePlanUuid, value(EVENT, SENTENCE_PLAN_OBJECTIVE_CLOSED));
-        timelineService.createTimelineEntry(sentencePlanUuid, SENTENCE_PLAN_OBJECTIVE_CLOSED, objective);
+        if(objective.getStatus().equals(OPEN)) {
+            objective.close(comment, requestData.getUsername());
+            log.info("Closed objective {} for Sentence Plan {}", objectiveUUID, sentencePlanUuid, value(EVENT, SENTENCE_PLAN_OBJECTIVE_CLOSED));
+            timelineService.createTimelineEntry(sentencePlanUuid, SENTENCE_PLAN_OBJECTIVE_CLOSED, objective);
+        }
+    }
+
+    @Transactional
+    public void reOpenObjective(UUID sentencePlanUuid, UUID objectiveUUID) {
+        var objective = getObjectiveEntity(sentencePlanUuid,objectiveUUID);
+        if(objective.getStatus().equals(CLOSED)) {
+          objective.open(requestData.getUsername());
+          timelineService.createTimelineEntry(sentencePlanUuid, SENTENCE_PLAN_OBJECTIVE_REOPENED, objective);
+        }
     }
 }

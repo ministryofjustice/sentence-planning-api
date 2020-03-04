@@ -4,10 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
+import uk.gov.digital.justice.hmpps.sentenceplan.api.ObjectiveStatus;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.*;
+
+import static uk.gov.digital.justice.hmpps.sentenceplan.api.ObjectiveStatus.CLOSED;
+import static uk.gov.digital.justice.hmpps.sentenceplan.api.ObjectiveStatus.OPEN;
 
 @Getter
 @AllArgsConstructor
@@ -24,13 +27,18 @@ public class ObjectiveEntity implements Serializable {
 
     private boolean meetsChildSafeguarding = false;
 
+    private ObjectiveStatus status;
+
     @Setter
     private int priority;
 
     private LocalDateTime created = LocalDateTime.now();
 
+    private List<ObjectiveStatusEntity> statusChanges = new ArrayList<>(0);
+
     public ObjectiveEntity(String description, List<UUID> needs, boolean meetsChildSafeguarding) {
         this.id = UUID.randomUUID();
+        this.status = OPEN;
         update(description, needs, meetsChildSafeguarding);
     }
 
@@ -55,4 +63,18 @@ public class ObjectiveEntity implements Serializable {
         this.needs = needs;
         this.meetsChildSafeguarding = meetsChildSafeguarding;
     }
+
+    public void open(String openedBy) {
+        if(this.status.equals(CLOSED)) {
+            this.statusChanges.add(new ObjectiveStatusEntity(OPEN, null, openedBy));
+            this.status = OPEN;
+        }
+    }
+
+    public void close(String comment, String closedBy) {
+        this.actions.forEach((key, action) -> action.abandon());
+        this.status = CLOSED;
+        this.statusChanges.add(new ObjectiveStatusEntity(CLOSED, comment, closedBy));
+    }
+
 }

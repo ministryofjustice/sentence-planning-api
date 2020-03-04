@@ -18,7 +18,7 @@ import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentencePlanRepo
 import java.time.*;
 import java.util.*;
 import static java.util.Collections.*;
-import static org.assertj.core.api.Java6Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import static org.mockito.Mockito.*;
 import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner.PRACTITIONER;
@@ -26,6 +26,8 @@ import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionOwner.SERVICE_
 import static uk.gov.digital.justice.hmpps.sentenceplan.api.ActionStatus.*;
 import static uk.gov.digital.justice.hmpps.sentenceplan.api.CommentType.LIAISON_ARRANGEMENTS;
 import static uk.gov.digital.justice.hmpps.sentenceplan.api.CommentType.YOUR_SUMMARY;
+import static uk.gov.digital.justice.hmpps.sentenceplan.api.ObjectiveStatus.CLOSED;
+import static uk.gov.digital.justice.hmpps.sentenceplan.api.ObjectiveStatus.OPEN;
 import static uk.gov.digital.justice.hmpps.sentenceplan.application.LogEvent.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -138,11 +140,11 @@ public class SentencePlanServiceTest {
         var objective1UUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
         var action1UUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
         var action1 = new ActionEntity(action1UUID,"Action 1", YearMonth.of(2020,11),null, List.of(PRACTITIONER),null, IN_PROGRESS);
-        var objective1 = new ObjectiveEntity(objective1UUID, "Objective 1", emptyList(), Map.of(action1UUID, action1),false, 1, LocalDateTime.now());
+        var objective1 = new ObjectiveEntity(objective1UUID, "Objective 1", emptyList(), Map.of(action1UUID, action1),false, OPEN, 1, LocalDateTime.now(), new ArrayList<>());
         var newSentencePlan = mock(SentencePlanEntity.class);
         when(newSentencePlan.getObjective(objective1UUID)).thenReturn(objective1);
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(newSentencePlan);
-        service.closeObjective(sentencePlanUuid, objective1UUID);
+        service.closeObjective(sentencePlanUuid, objective1UUID, "a Comment");
         assertThat(action1.getStatus()).isEqualTo(ABANDONED);
     }
 
@@ -152,12 +154,12 @@ public class SentencePlanServiceTest {
         var objective1UUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
         var action1UUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
         var action1 = new ActionEntity(action1UUID,"Action 1", YearMonth.of(2020,11),null, List.of(PRACTITIONER),null, PAUSED);
-        var objective1 = new ObjectiveEntity(objective1UUID, "Objective 1", emptyList(), Map.of(action1UUID, action1),false, 1, LocalDateTime.now());
+        var objective1 = new ObjectiveEntity(objective1UUID, "Objective 1", emptyList(), Map.of(action1UUID, action1),false, OPEN, 1, LocalDateTime.now(), new ArrayList<>());
         var newSentencePlan = mock(SentencePlanEntity.class);
         when(newSentencePlan.getObjective(objective1UUID)).thenReturn(objective1);
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(newSentencePlan);
 
-        service.closeObjective(sentencePlanUuid, objective1UUID);
+        service.closeObjective(sentencePlanUuid, objective1UUID, "a Comment");
 
         verify(timelineService, times(1)).createTimelineEntry(eq(sentencePlanUuid), eq(SENTENCE_PLAN_OBJECTIVE_CLOSED), eq(objective1));
     }
@@ -168,11 +170,11 @@ public class SentencePlanServiceTest {
         var objective1UUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
         var action1UUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
         var action1 = new ActionEntity(action1UUID,"Action 1", YearMonth.of(2020,11),null, List.of(PRACTITIONER),null, NOT_STARTED);
-        var objective1 = new ObjectiveEntity(objective1UUID, "Objective 1", emptyList(), Map.of(action1UUID, action1),false, 1, LocalDateTime.now());
+        var objective1 = new ObjectiveEntity(objective1UUID, "Objective 1", emptyList(), Map.of(action1UUID, action1),false, OPEN, 1, LocalDateTime.now(), new ArrayList<>());
         var newSentencePlan = mock(SentencePlanEntity.class);
         when(newSentencePlan.getObjective(objective1UUID)).thenReturn(objective1);
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(newSentencePlan);
-        service.closeObjective(sentencePlanUuid, objective1UUID);
+        service.closeObjective(sentencePlanUuid, objective1UUID, "a Comment");
         assertThat(action1.getStatus()).isEqualTo(ABANDONED);
     }
 
@@ -182,12 +184,96 @@ public class SentencePlanServiceTest {
         var objective1UUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
         var action1UUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
         var action1 = new ActionEntity(action1UUID,"Action 1", YearMonth.of(2020,11),null, List.of(PRACTITIONER),null, NOT_STARTED);
-        var objective1 = new ObjectiveEntity(objective1UUID, "Objective 1", emptyList(), Map.of(action1UUID, action1),false, 1, LocalDateTime.now());
+        var objective1 = new ObjectiveEntity(objective1UUID, "Objective 1", emptyList(), Map.of(action1UUID, action1),false, OPEN, 1, LocalDateTime.now(), new ArrayList<>());
+        var newSentencePlan = mock(SentencePlanEntity.class);
+        when(newSentencePlan.getObjective(objective1UUID)).thenReturn(objective1);
+        when(requestData.getUsername()).thenReturn("A user");
+        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(newSentencePlan);
+        service.closeObjective(sentencePlanUuid, objective1UUID, "a Comment");
+        verify(timelineService, times(1)).createTimelineEntry(eq(sentencePlanUuid), eq(SENTENCE_PLAN_OBJECTIVE_CLOSED), any(ObjectiveEntity.class));
+    }
+
+    @Test
+    public void shouldNotCreateEventWhenObjectiveIsAlreadyClosed() {
+
+        var objective1UUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
+        var action1UUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
+        var action1 = new ActionEntity(action1UUID,"Action 1", YearMonth.of(2020,11),null, List.of(PRACTITIONER),null, NOT_STARTED);
+        var objective1 = new ObjectiveEntity(objective1UUID, "Objective 1", emptyList(), Map.of(action1UUID, action1),false, CLOSED, 1, LocalDateTime.now(), new ArrayList<>());
         var newSentencePlan = mock(SentencePlanEntity.class);
         when(newSentencePlan.getObjective(objective1UUID)).thenReturn(objective1);
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(newSentencePlan);
-        service.closeObjective(sentencePlanUuid, objective1UUID);
-        verify(timelineService, times(1)).createTimelineEntry(eq(sentencePlanUuid), eq(SENTENCE_PLAN_OBJECTIVE_CLOSED), any(ObjectiveEntity.class));
+        service.closeObjective(sentencePlanUuid, objective1UUID, "a Comment");
+        verify(timelineService, never()).createTimelineEntry(eq(sentencePlanUuid), eq(SENTENCE_PLAN_OBJECTIVE_CLOSED), any(ObjectiveEntity.class));
+    }
+
+    @Test
+    public void shouldCreateStatusChangeWhenObjectiveIsClosed() {
+
+        var objective1UUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
+        var action1UUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
+        var action1 = new ActionEntity(action1UUID,"Action 1", YearMonth.of(2020,11),null, List.of(PRACTITIONER),null, NOT_STARTED);
+        var objective1 = new ObjectiveEntity(objective1UUID, "Objective 1", emptyList(), Map.of(action1UUID, action1),false, OPEN, 1, LocalDateTime.now(), new ArrayList<>());
+        var newSentencePlan = mock(SentencePlanEntity.class);
+        when(newSentencePlan.getObjective(objective1UUID)).thenReturn(objective1);
+        when(requestData.getUsername()).thenReturn("A user");
+        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(newSentencePlan);
+        service.closeObjective(sentencePlanUuid, objective1UUID, "a Comment");
+        assertThat(objective1.getStatusChanges()).hasSize(1);
+        var status = objective1.getStatusChanges().get(0);
+        assertThat(status.getComment()).isEqualTo("a Comment");
+        assertThat(status.getCreatedBy()).isEqualTo("A user");
+        assertThat(status.getStatus()).isEqualTo(CLOSED);
+        assertThat(status.getCreated()).isEqualToIgnoringSeconds(LocalDateTime.now());
+    }
+
+    @Test
+    public void shouldCreateStatusChangeWhenObjectiveIsReOpened() {
+
+        var objective1UUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
+        var action1UUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
+        var action1 = new ActionEntity(action1UUID,"Action 1", YearMonth.of(2020,11),null, List.of(PRACTITIONER),null, NOT_STARTED);
+        var objective1 = new ObjectiveEntity(objective1UUID, "Objective 1", emptyList(), Map.of(action1UUID, action1),false, CLOSED, 1, LocalDateTime.now(), new ArrayList<>());
+        var newSentencePlan = mock(SentencePlanEntity.class);
+        when(newSentencePlan.getObjective(objective1UUID)).thenReturn(objective1);
+        when(requestData.getUsername()).thenReturn("A user");
+        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(newSentencePlan);
+        service.reOpenObjective(sentencePlanUuid, objective1UUID);
+        assertThat(objective1.getStatusChanges()).hasSize(1);
+        var status = objective1.getStatusChanges().get(0);
+        assertThat(status.getComment()).isNull();
+        assertThat(status.getCreatedBy()).isEqualTo("A user");
+        assertThat(status.getStatus()).isEqualTo(OPEN);
+        assertThat(status.getCreated()).isEqualToIgnoringSeconds(LocalDateTime.now());
+    }
+
+    @Test
+    public void shouldCreateEventWhenObjectiveIsReOpened() {
+
+        var objective1UUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
+        var action1UUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
+        var action1 = new ActionEntity(action1UUID,"Action 1", YearMonth.of(2020,11),null, List.of(PRACTITIONER),null, NOT_STARTED);
+        var objective1 = new ObjectiveEntity(objective1UUID, "Objective 1", emptyList(), Map.of(action1UUID, action1),false, CLOSED, 1, LocalDateTime.now(), new ArrayList<>());
+        var newSentencePlan = mock(SentencePlanEntity.class);
+        when(newSentencePlan.getObjective(objective1UUID)).thenReturn(objective1);
+        when(requestData.getUsername()).thenReturn("A user");
+        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(newSentencePlan);
+        service.reOpenObjective(sentencePlanUuid, objective1UUID);
+        verify(timelineService, times(1)).createTimelineEntry(eq(sentencePlanUuid), eq(SENTENCE_PLAN_OBJECTIVE_REOPENED), any(ObjectiveEntity.class));
+    }
+
+    @Test
+    public void shouldNotCreateEventWhenObjectiveIsAlreadyOpen() {
+
+        var objective1UUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
+        var action1UUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
+        var action1 = new ActionEntity(action1UUID,"Action 1", YearMonth.of(2020,11),null, List.of(PRACTITIONER),null, NOT_STARTED);
+        var objective1 = new ObjectiveEntity(objective1UUID, "Objective 1", emptyList(), Map.of(action1UUID, action1),false, OPEN, 1, LocalDateTime.now(), new ArrayList<>());
+        var newSentencePlan = mock(SentencePlanEntity.class);
+        when(newSentencePlan.getObjective(objective1UUID)).thenReturn(objective1);
+        when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(newSentencePlan);
+        service.reOpenObjective(sentencePlanUuid, objective1UUID);
+        verify(timelineService, never()).createTimelineEntry(eq(sentencePlanUuid), eq(SENTENCE_PLAN_OBJECTIVE_REOPENED), any(ObjectiveEntity.class));
     }
 
     @Test
@@ -237,8 +323,8 @@ public class SentencePlanServiceTest {
     public void updateObjectivePriorityShouldNotChangeOrderWhenEmpty() {
         var objective1UUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
         var objective2UUID = UUID.fromString("22222222-2222-2222-2222-222222222222");
-        var objective1 = new ObjectiveEntity(objective1UUID, "Objective 1", emptyList(), emptyMap(),false, 1, LocalDateTime.now());
-        var objective2 = new ObjectiveEntity(objective2UUID, "Objective 2", emptyList(), emptyMap(),false, 2, LocalDateTime.now());
+        var objective1 = new ObjectiveEntity(objective1UUID, "Objective 1", emptyList(), emptyMap(),false, OPEN, 1, LocalDateTime.now(), emptyList());
+        var objective2 = new ObjectiveEntity(objective2UUID, "Objective 2", emptyList(), emptyMap(),false, OPEN, 2, LocalDateTime.now(), emptyList());
         var newSentencePlan = mock(SentencePlanEntity.class);
         when(newSentencePlan.getObjectives()).thenReturn(Map.of(objective1UUID, objective1, objective2UUID, objective2));
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(newSentencePlan);
@@ -257,8 +343,8 @@ public class SentencePlanServiceTest {
     public void updateObjectivePriorityShouldChangePriority() {
         var objective1UUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
         var objective2UUID = UUID.fromString("22222222-2222-2222-2222-222222222222");
-        var objective1 = new ObjectiveEntity(objective1UUID, "Objective 1", emptyList(), emptyMap(), false, 1, LocalDateTime.now());
-        var objective2 = new ObjectiveEntity(objective2UUID, "Objective 2", emptyList(), emptyMap(), false, 2, LocalDateTime.now());
+        var objective1 = new ObjectiveEntity(objective1UUID, "Objective 1", emptyList(), emptyMap(),false, OPEN, 1, LocalDateTime.now(), emptyList());
+        var objective2 = new ObjectiveEntity(objective2UUID, "Objective 2", emptyList(), emptyMap(),false, OPEN, 2, LocalDateTime.now(), emptyList());
         var newSentencePlan = mock(SentencePlanEntity.class);
         when(newSentencePlan.getObjectives()).thenReturn(Map.of(objective1UUID, objective1, objective2UUID, objective2));
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(newSentencePlan);
@@ -277,8 +363,8 @@ public class SentencePlanServiceTest {
     public void updateObjectivePriorityShouldIgnoreMissingObjectiveUUIDs() {
         var objective1UUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
         var objective2UUID = UUID.fromString("22222222-2222-2222-2222-222222222222");
-        var objective1 = new ObjectiveEntity(objective1UUID, "Objective 1", emptyList(), emptyMap(), false, 1, LocalDateTime.now());
-        var objective2 = new ObjectiveEntity(objective2UUID, "Objective 2", emptyList(), emptyMap(), false, 2, LocalDateTime.now());
+        var objective1 = new ObjectiveEntity(objective1UUID, "Objective 1", emptyList(), emptyMap(),false, OPEN, 1, LocalDateTime.now(), emptyList());
+        var objective2 = new ObjectiveEntity(objective2UUID, "Objective 2", emptyList(), emptyMap(),false, OPEN, 2, LocalDateTime.now(), emptyList());
         var newSentencePlan = mock(SentencePlanEntity.class);
         when(newSentencePlan.getObjectives()).thenReturn(Map.of(objective1UUID, objective1, objective2UUID, objective2));
         when(sentencePlanRepository.findByUuid(sentencePlanUuid)).thenReturn(newSentencePlan);
