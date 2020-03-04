@@ -1,5 +1,5 @@
 plugins {
-    id 'org.springframework.boot' version '2.2.4.RELEASE'
+    id 'org.springframework.boot' version '2.2.5.RELEASE'
     id 'java'
     id 'checkstyle'
     id "com.github.spotbugs" version "2.0.0"
@@ -34,6 +34,7 @@ spotbugs {
 
 checkstyle {
     configFile = new File(rootDir, 'config/checkstyle/checkstyle.xml')
+    ignoreFailures = true
 }
 
 jacocoTestReport {

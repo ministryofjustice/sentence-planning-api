@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.ObjectiveEntity;
+import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.ObjectiveStatusEntity;
 
 import java.util.Collection;
 import java.util.List;
@@ -30,11 +31,21 @@ public class ObjectiveDto {
     private Integer priority;
     @JsonProperty("meetsChildSafeguarding")
     private boolean meetsChildSafeguarding;
-
+    @JsonProperty("status")
+    private ObjectiveStatus status;
+    @JsonProperty("statusChanges")
+    private List<ObjectiveStatusEntity> statusChanges;
 
     public static ObjectiveDto from(ObjectiveEntity objective) {
         var actions = ActionDto.from(objective.getActions().values());
-        return new ObjectiveDto(objective.getId(), objective.getDescription(), objective.getNeeds(), actions, objective.getPriority(), objective.isMeetsChildSafeguarding());
+        return new ObjectiveDto(objective.getId(),
+                objective.getDescription(),
+                objective.getNeeds(),
+                actions,
+                objective.getPriority(),
+                objective.isMeetsChildSafeguarding(),
+                objective.getStatus(),
+                objective.getStatusChanges());
     }
 
     public static List<ObjectiveDto> from(Collection<ObjectiveEntity> objectives) {

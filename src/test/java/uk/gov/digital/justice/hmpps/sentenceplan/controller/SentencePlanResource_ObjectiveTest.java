@@ -39,6 +39,8 @@ import static org.springframework.test.web.client.MockRestServiceServer.bindTo;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+import static uk.gov.digital.justice.hmpps.sentenceplan.api.ObjectiveStatus.CLOSED;
+import static uk.gov.digital.justice.hmpps.sentenceplan.api.ObjectiveStatus.OPEN;
 
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test,disableauthorisation")
@@ -212,13 +214,14 @@ public class SentencePlanResource_ObjectiveTest {
     }
 
     @Test
-    public void shouldCloseObjectiveOnExistingPlan() throws JsonProcessingException {
+    public void shouldCloseObjectiveOnOpenPlan() throws JsonProcessingException {
         createMockAssessmentDataForOffender(123456L);
-
+        var requestBody = new UpdateObjectiveStatusRequest("a comment");
         given()
                 .when()
                 .header("Content-Type", "application/json")
                 .header(RequestData.USERNAME_HEADER, USER)
+                .body(requestBody)
                 .post("/sentenceplans/{0}/objectives/{1}/close", SENTENCE_PLAN_ID_FULL,OBJECTIVE_ID)
                 .then()
                 .statusCode(200);
@@ -235,7 +238,46 @@ public class SentencePlanResource_ObjectiveTest {
                 .as(ObjectiveDto.class);
 
         assertThat(updatedObjective.getActions().get(0).getStatus()).isEqualTo(ActionStatus.ABANDONED);
+        assertThat(updatedObjective.getStatus()).isEqualTo(CLOSED);
+        assertThat(updatedObjective.getStatusChanges()).hasSize(1);
+    }
 
+    @Test
+    public void shouldReOpenObjectiveOnClosedPlan() throws JsonProcessingException {
+        createMockAssessmentDataForOffender(123456L);
+        var requestBody = new UpdateObjectiveStatusRequest("a comment");
+        given()
+                .when()
+                .header("Content-Type", "application/json")
+                .header(RequestData.USERNAME_HEADER, USER)
+                .body(requestBody)
+                .post("/sentenceplans/{0}/objectives/{1}/close", SENTENCE_PLAN_ID_FULL,OBJECTIVE_ID)
+                .then()
+                .statusCode(200);
+
+        given()
+                .when()
+                .header("Content-Type", "application/json")
+                .header(RequestData.USERNAME_HEADER, USER)
+                .post("/sentenceplans/{0}/objectives/{1}/reopen", SENTENCE_PLAN_ID_FULL,OBJECTIVE_ID)
+                .then()
+                .statusCode(200);
+
+        var updatedObjective = given()
+                .when()
+                .header("Accept", "application/json")
+                .header(RequestData.USERNAME_HEADER, USER)
+                .get("/sentenceplans/{0}/objectives/{1}", SENTENCE_PLAN_ID_FULL,OBJECTIVE_ID)
+                .then()
+                .statusCode(200)
+                .extract()
+                .body()
+                .as(ObjectiveDto.class);
+
+        assertThat(updatedObjective.getActions().get(0).getStatus()).isEqualTo(ActionStatus.ABANDONED);
+        assertThat(updatedObjective.getStatus()).isEqualTo(OPEN);
+        //2 state changes are recorded as the action is closed and reopened
+        assertThat(updatedObjective.getStatusChanges()).hasSize(2);
     }
 
     @Test
@@ -273,6 +315,7 @@ public class SentencePlanResource_ObjectiveTest {
         assertThat(objective1.get().getPriority()).isEqualTo(1);
         assertThat(objective2.get().getPriority()).isEqualTo(2);
     }
+
 
     @Test
     public void shouldNotUpdateInvalidObjective() {
