@@ -34,6 +34,7 @@ spotbugs {
 
 checkstyle {
     configFile = new File(rootDir, 'config/checkstyle/checkstyle.xml')
+    ignoreFailures = true
 }
 
 jacocoTestReport {
