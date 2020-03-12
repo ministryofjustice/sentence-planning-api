@@ -476,14 +476,9 @@ public class SentencePlanServiceTest {
                 .createdDate(LocalDate.of(2018,1,1))
                 .oasysSetId(1L).build();
 
-        var legacyPlan2 =  OasysSentencePlanDto.builder()
-                .completedDate(LocalDate.of(2018,1,1))
-                .createdDate(LocalDate.of(2017,1,1))
-                .oasysSetId(2L).build();
+        when(oasysAssessmentAPIClient.getSentencePlanById(12345L, 1l)).thenReturn(Optional.ofNullable(legacyPlan1));
 
-        when(oasysAssessmentAPIClient.getSentencePlansForOffender(12345L)).thenReturn(List.of(legacyPlan1, legacyPlan2));
-
-        var result = service.getLegacySentencePlan(12345L, "1");
+        var result = service.getLegacySentencePlan(12345L, 1l);
 
         assertThat(result.getOasysSetId()).isEqualTo(1L);
         assertThat(result.getCompletedDate()).isEqualTo(LocalDate.of(2019,1,1));

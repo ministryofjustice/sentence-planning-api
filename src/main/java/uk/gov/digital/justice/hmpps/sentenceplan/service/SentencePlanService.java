@@ -168,7 +168,7 @@ public class SentencePlanService {
     @Transactional
     public void addSentencePlanComments(UUID sentencePlanUUID, List<AddCommentRequest> comments) {
         var sentencePlanEntity = getSentencePlanEntity(sentencePlanUUID);
-        for(AddCommentRequest comment : comments) {
+        for(var comment : comments) {
             var commentEntity = new CommentEntity(comment.getComment(), comment.getCommentType(), requestData.getUsername());
             sentencePlanEntity.addComment(commentEntity);
             timelineService.createTimelineEntry(sentencePlanUUID, SENTENCE_PLAN_COMMENTS_CREATED, commentEntity);
@@ -199,10 +199,9 @@ public class SentencePlanService {
 
     }
 
-    public OasysSentencePlanDto getLegacySentencePlan(Long oasysOffenderId, String sentencePlanId) {
-        var oasysSentencePlans = oasysAssessmentAPIClient.getSentencePlansForOffender(oasysOffenderId);
-        return oasysSentencePlans.stream().filter(s -> s.getOasysSetId().equals(Long.valueOf(sentencePlanId))).findFirst()
-                .orElseThrow(() -> new EntityNotFoundException("OASys sentence plan does not exist for offender."));
+    public OasysSentencePlanDto getLegacySentencePlan(Long oasysOffenderId, Long sentencePlanId) {
+        return oasysAssessmentAPIClient.getSentencePlanById(oasysOffenderId, sentencePlanId)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("OASys Sentence Plan %s not found", sentencePlanId)));
     }
 
     public SentencePlanDto getCurrentSentencePlanForOffender(Long offenderId) {
