@@ -236,8 +236,8 @@ public class SentencePlanResource {
     }
 
     @GetMapping(value = "/offenders/{offenderId}/sentenceplans/current", produces = "application/json")
-    @ApiOperation(value = "Gets an Oasys Sentence Plan by its ID",
-            notes = "Request legacy sentence plan")
+    @ApiOperation(value = "Gets the current Sentence Plan for an offender",
+            notes = "Request a sentence plan")
     @Authorised(accessLevel = AccessLevel.READ_SENTENCE_PLAN)
     ResponseEntity<SentencePlanDto> getActiveSentencePlan(@ApiParam(value = "OASys Offender ID", required = true, example = "123456") @PathVariable("offenderId") Long oasysOffenderId) {
         return ResponseEntity.ok(sentencePlanService.getCurrentSentencePlanForOffender(oasysOffenderId));
@@ -247,7 +247,7 @@ public class SentencePlanResource {
     @ApiOperation(value = "Gets an Oasys Sentence Plan by its ID",
             notes = "Request legacy sentence plan")
     @Authorised(accessLevel = AccessLevel.READ_SENTENCE_PLAN)
-    ResponseEntity<OasysSentencePlanDto> getOASysSentencePlan(@ApiParam(value = "OASys Offender ID", required = true, example = "123456") @PathVariable("offenderId") Long oasysOffenderId, @ApiParam(value = "Sentence Plan ID", required = true) @PathVariable("sentencePlanId") String sentencePlanId) {
+    ResponseEntity<OasysSentencePlanDto> getOASysSentencePlan(@ApiParam(value = "OASys Offender ID", required = true, example = "123456") @PathVariable("offenderId") Long oasysOffenderId, @ApiParam(value = "Sentence Plan ID", required = true) @PathVariable("sentencePlanId") Long sentencePlanId) {
         return ResponseEntity.ok(sentencePlanService.getLegacySentencePlan(oasysOffenderId, sentencePlanId));
     }
 }

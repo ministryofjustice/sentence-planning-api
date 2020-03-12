@@ -81,6 +81,22 @@ public class OASYSAssessmentAPIClient {
         }
     }
 
+    public Optional<OasysSentencePlanDto> getSentencePlanById(long oasysOffenderId, long oasysSetId) {
+        try {
+            return Optional.ofNullable(restTemplate.exchange(
+                    assessmentApiBasePath + "/offenders/oasysOffenderId/{oasysOffenderId}/fullSentencePlans/{oasysSetId}",
+                    HttpMethod.GET,null, OasysSentencePlanDto.class, oasysOffenderId, oasysSetId).getBody());
+        }
+        catch(HttpClientErrorException e) {
+            if(e.getStatusCode() == HttpStatus.NOT_FOUND) {
+                log.info("Sentence Plan for offender {} nad Oasys Set {} not found", oasysOffenderId, oasysSetId, value(EVENT, LogEvent.OASYS_ASSESSMENT_NOT_FOUND));
+                return Optional.empty();
+            }
+            log.error("Failed to retrieve sentence plans for offender", value(EVENT, LogEvent.OASYS_ASSESSMENT_CLIENT_FAILURE));
+            throw new OasysClientException("Failed to retrieve sentence plan for offender");
+        }
+    }
+
     public List<OasysRefElement> getInterventionRefData() {
         try {
             return restTemplate.exchange(assessmentApiBasePath + "/referencedata/INTERVENTION",HttpMethod.GET, null, new ParameterizedTypeReference<List<OasysRefElement>>() {}).getBody();

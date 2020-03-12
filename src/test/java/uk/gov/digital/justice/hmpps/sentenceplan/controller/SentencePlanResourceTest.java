@@ -125,7 +125,7 @@ public class SentencePlanResourceTest {
                 .andExpect(method(GET))
                 .andRespond(withSuccess(
                         mapper.writeValueAsString(List.of(
-                            new OasysSentencePlanDto(12345L, LocalDate.of(2010, 1,1), null, Collections.emptyList())
+                            new OasysSentencePlanDto(12345L, LocalDate.of(2010, 1,1), null, Collections.emptyList(), Collections.emptyMap())
                         )), MediaType.APPLICATION_JSON));
 
         var result = given()
@@ -156,7 +156,7 @@ public class SentencePlanResourceTest {
                 .andExpect(method(GET))
                 .andRespond(withSuccess(
                         mapper.writeValueAsString(List.of(
-                                new OasysSentencePlanDto(12345L, LocalDate.of(2010, 1,1), null, Collections.emptyList())
+                                new OasysSentencePlanDto(12345L, LocalDate.of(2010, 1,1), null, Collections.emptyList(), Collections.emptyMap())
                         )), MediaType.APPLICATION_JSON));
 
         var result = given()
