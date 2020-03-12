@@ -152,12 +152,12 @@ public class SentencePlanResourceTest {
     public void shouldGetLegacySentencePlanIfExists() throws JsonProcessingException {
 
         var assessmentApi = bindTo(oauthRestTemplate).ignoreExpectOrder(true).build();
-        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123456/fullSentencePlans"))
+        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123456/fullSentencePlans/12345"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(
-                        mapper.writeValueAsString(List.of(
+                        mapper.writeValueAsString(
                                 new OasysSentencePlanDto(12345L, LocalDate.of(2010, 1,1), null, Collections.emptyList(), Collections.emptyMap())
-                        )), MediaType.APPLICATION_JSON));
+                        ), MediaType.APPLICATION_JSON));
 
         var result = given()
                 .when()
