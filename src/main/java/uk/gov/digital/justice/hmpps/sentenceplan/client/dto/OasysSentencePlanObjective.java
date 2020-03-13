@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @NoArgsConstructor
@@ -15,9 +16,10 @@ public class OasysSentencePlanObjective {
     private List<OasysIntervention> oasysInterventions;
     private OasysObjectiveMeasure oasysObjectiveMeasure;
     private OasysRefElement objectiveType;
-    private OasysWhoDoingWork oasysWhoDoingWork;
     private String objectiveCode;
     private String objectiveDescription;
     private String howMeasured;
-
+    private String objectiveHeading;
+    private String objectiveComment;
+    private LocalDateTime createdDate;
 }
