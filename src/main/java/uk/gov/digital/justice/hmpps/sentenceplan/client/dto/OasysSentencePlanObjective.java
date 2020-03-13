@@ -12,9 +12,9 @@ import java.util.List;
 @Getter
 public class OasysSentencePlanObjective {
 
-    private List<OasysCriminogenicNeed> oasysCriminogenicNeeds;
-    private List<OasysIntervention> oasysInterventions;
-    private OasysObjectiveMeasure oasysObjectiveMeasure;
+    private List<OasysCriminogenicNeed> criminogenicNeeds;
+    private List<OasysIntervention> interventions;
+    private OasysObjectiveMeasure objectiveMeasure;
     private OasysRefElement objectiveType;
     private String objectiveCode;
     private String objectiveDescription;
