@@ -52,7 +52,7 @@ private final Clock clock;
     }
 
     private OffenderEntity saveOASysOffender(OasysOffender oasysOffender) {
-        var offender = new OffenderEntity(oasysOffender.getOasysOffenderId(), oasysOffender.getIdentifiers().getNomisId(), oasysOffender.getIdentifiers().getBookingNumber());
+        var offender = new OffenderEntity(oasysOffender.getOasysOffenderId(), oasysOffender.getNomisId(), oasysOffender.getBookingNumber());
         offenderRespository.save(offender);
         return offender;
     }

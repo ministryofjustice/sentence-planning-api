@@ -19,6 +19,8 @@ public class OasysOffender {
     private String forename2;
     @JsonProperty("forename3")
     private String forename3;
-    @JsonProperty("identifiers")
-    private OasysIdentifiers identifiers;
+    @JsonProperty("nomisId")
+    private String nomisId;
+    @JsonProperty("bookingNumber")
+    private String bookingNumber;
 }
