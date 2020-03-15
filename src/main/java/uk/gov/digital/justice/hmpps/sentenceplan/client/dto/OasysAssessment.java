@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OasysAssessment {
-    @JsonProperty("oasysSetId")
+    @JsonProperty("assessmentId")
     private long assessmentId;
 
     @JsonProperty("assessmentStatus")
