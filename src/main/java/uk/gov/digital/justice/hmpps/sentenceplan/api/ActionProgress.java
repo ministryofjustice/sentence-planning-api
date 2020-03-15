@@ -2,11 +2,13 @@ package uk.gov.digital.justice.hmpps.sentenceplan.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.ProgressEntity;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
@@ -25,9 +27,14 @@ public class ActionProgress {
     @JsonProperty("targetDate")
     private YearMonth targetDate;
 
-
     @JsonProperty("motivationUUID")
     private UUID motivationUUID;
+
+    @JsonProperty("owner")
+    private List<ActionOwner> owner;
+
+    @JsonProperty("ownerOther")
+    private String ownerOther;
 
     @JsonProperty("comment")
     private String comment;
@@ -40,9 +47,14 @@ public class ActionProgress {
 
 
     public static ActionProgress from(ProgressEntity progressEntity) {
-        return new ActionProgress(progressEntity.getStatus(), progressEntity.getTargetDate(),
-                progressEntity.getMotivationUUID(), progressEntity.getComment(),
-                progressEntity.getCreated(), progressEntity.getCreatedBy());
+        return new ActionProgress(progressEntity.getStatus(),
+                progressEntity.getTargetDate(),
+                progressEntity.getMotivationUUID(),
+                progressEntity.getOwner(),
+                progressEntity.getOwnerOther(),
+                progressEntity.getComment(),
+                progressEntity.getCreated(),
+                progressEntity.getCreatedBy());
     }
 
     public static List<ActionProgress> from(List<ProgressEntity> progressEntities) {

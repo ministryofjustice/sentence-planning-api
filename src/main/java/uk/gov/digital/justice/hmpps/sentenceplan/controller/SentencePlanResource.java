@@ -134,9 +134,22 @@ public class SentencePlanResource {
     @PostMapping(value = "/sentenceplans/{sentencePlanUUID}/objectives/{objectiveUUID}/close", produces = "application/json")
     @ApiOperation(value = "Close an Objective on a Sentence Plan")
     @Authorised(accessLevel = AccessLevel.WRITE_SENTENCE_PLAN)
-    ResponseEntity updateObjective(@ApiParam(value = "Sentence Plan ID", required = true, example = "11111111-1111-1111-1111-111111111111") @PathVariable UUID sentencePlanUUID,
-                                   @ApiParam(value = "Objective ID", required = true, example = "11111111-1111-1111-1111-111111111111") @PathVariable UUID objectiveUUID) {
+    ResponseEntity closeObjective(@ApiParam(value = "Sentence Plan ID", required = true, example = "11111111-1111-1111-1111-111111111111") @PathVariable UUID sentencePlanUUID,
+                                   @ApiParam(value = "Objective ID", required = true, example = "11111111-1111-1111-1111-111111111111") @PathVariable UUID objectiveUUID,
+                                   @ApiParam(value = "Objective Status Update", required = true) @RequestBody @Valid UpdateObjectiveStatusRequest updateObjectiveStatusRequest) {
         sentencePlanService.closeObjective(
+                sentencePlanUUID,
+                objectiveUUID,
+                updateObjectiveStatusRequest.getComment());
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping(value = "/sentenceplans/{sentencePlanUUID}/objectives/{objectiveUUID}/reopen", produces = "application/json")
+    @ApiOperation(value = "Reopen an Objective on a Sentence Plan")
+    @Authorised(accessLevel = AccessLevel.WRITE_SENTENCE_PLAN)
+    ResponseEntity reOpenObjective(@ApiParam(value = "Sentence Plan ID", required = true, example = "11111111-1111-1111-1111-111111111111") @PathVariable UUID sentencePlanUUID,
+                                   @ApiParam(value = "Objective ID", required = true, example = "11111111-1111-1111-1111-111111111111") @PathVariable UUID objectiveUUID) {
+        sentencePlanService.reOpenObjective(
                 sentencePlanUUID,
                 objectiveUUID);
         return ResponseEntity.ok().build();
@@ -223,8 +236,8 @@ public class SentencePlanResource {
     }
 
     @GetMapping(value = "/offenders/{offenderId}/sentenceplans/current", produces = "application/json")
-    @ApiOperation(value = "Gets an Oasys Sentence Plan by its ID",
-            notes = "Request legacy sentence plan")
+    @ApiOperation(value = "Gets the current Sentence Plan for an offender",
+            notes = "Request a sentence plan")
     @Authorised(accessLevel = AccessLevel.READ_SENTENCE_PLAN)
     ResponseEntity<SentencePlanDto> getActiveSentencePlan(@ApiParam(value = "OASys Offender ID", required = true, example = "123456") @PathVariable("offenderId") Long oasysOffenderId) {
         return ResponseEntity.ok(sentencePlanService.getCurrentSentencePlanForOffender(oasysOffenderId));
@@ -234,7 +247,7 @@ public class SentencePlanResource {
     @ApiOperation(value = "Gets an Oasys Sentence Plan by its ID",
             notes = "Request legacy sentence plan")
     @Authorised(accessLevel = AccessLevel.READ_SENTENCE_PLAN)
-    ResponseEntity<OasysSentencePlanDto> getOASysSentencePlan(@ApiParam(value = "OASys Offender ID", required = true, example = "123456") @PathVariable("offenderId") Long oasysOffenderId, @ApiParam(value = "Sentence Plan ID", required = true) @PathVariable("sentencePlanId") String sentencePlanId) {
+    ResponseEntity<OasysSentencePlanDto> getOASysSentencePlan(@ApiParam(value = "OASys Offender ID", required = true, example = "123456") @PathVariable("offenderId") Long oasysOffenderId, @ApiParam(value = "Sentence Plan ID", required = true) @PathVariable("sentencePlanId") Long sentencePlanId) {
         return ResponseEntity.ok(sentencePlanService.getLegacySentencePlan(oasysOffenderId, sentencePlanId));
     }
 }

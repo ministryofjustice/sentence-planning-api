@@ -13,13 +13,14 @@ import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.BusinessRule
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.CurrentSentencePlanForOffenderExistsException;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
 
-import javax.swing.*;
 import javax.transaction.Transactional;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static net.logstash.logback.argument.StructuredArguments.value;
+import static uk.gov.digital.justice.hmpps.sentenceplan.api.ObjectiveStatus.CLOSED;
+import static uk.gov.digital.justice.hmpps.sentenceplan.api.ObjectiveStatus.OPEN;
 import static uk.gov.digital.justice.hmpps.sentenceplan.application.LogEvent.*;
 
 @Service
@@ -144,7 +145,7 @@ public class SentencePlanService {
         var actionEntity = getActionEntity(objectiveEntity, actionId);
         var progressEntity = new ProgressEntity(request.getStatus(), request.getTargetDate(), request.getMotivationUUID(), request.getComment(), request.getOwner(), request.getOwnerOther(), requestData.getUsername());
         actionEntity.addProgress(progressEntity);
-        timelineService.createTimelineEntry(sentencePlanUUID, SENTENCE_PLAN_ACTION_CREATED, objectiveEntity);
+        timelineService.createTimelineEntry(sentencePlanUUID, SENTENCE_PLAN_ACTION_PROGRESSED, objectiveEntity);
         log.info("Progressed Action for Sentence Plan {} Objective {}", sentencePlanUUID, objectiveUUID, value(EVENT, SENTENCE_PLAN_ACTION_PROGRESSED));
     }
 
@@ -167,7 +168,7 @@ public class SentencePlanService {
     @Transactional
     public void addSentencePlanComments(UUID sentencePlanUUID, List<AddCommentRequest> comments) {
         var sentencePlanEntity = getSentencePlanEntity(sentencePlanUUID);
-        for(AddCommentRequest comment : comments) {
+        for(var comment : comments) {
             var commentEntity = new CommentEntity(comment.getComment(), comment.getCommentType(), requestData.getUsername());
             sentencePlanEntity.addComment(commentEntity);
             timelineService.createTimelineEntry(sentencePlanUUID, SENTENCE_PLAN_COMMENTS_CREATED, commentEntity);
@@ -198,10 +199,9 @@ public class SentencePlanService {
 
     }
 
-    public OasysSentencePlanDto getLegacySentencePlan(Long oasysOffenderId, String sentencePlanId) {
-        var oasysSentencePlans = oasysAssessmentAPIClient.getSentencePlansForOffender(oasysOffenderId);
-        return oasysSentencePlans.stream().filter(s -> s.getOasysSetId().equals(Long.valueOf(sentencePlanId))).findFirst()
-                .orElseThrow(() -> new EntityNotFoundException("OASys sentence plan does not exist for offender."));
+    public OasysSentencePlanDto getLegacySentencePlan(Long oasysOffenderId, Long sentencePlanId) {
+        return oasysAssessmentAPIClient.getSentencePlanById(oasysOffenderId, sentencePlanId)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("OASys Sentence Plan %s not found", sentencePlanId)));
     }
 
     public SentencePlanDto getCurrentSentencePlanForOffender(Long offenderId) {
@@ -265,10 +265,21 @@ public class SentencePlanService {
     }
 
     @Transactional
-    public void closeObjective(UUID sentencePlanUuid, UUID objectiveUUID) {
+    public void closeObjective(UUID sentencePlanUuid, UUID objectiveUUID, String comment) {
         var objective = getObjectiveEntity(sentencePlanUuid,objectiveUUID);
-        objective.getActions().forEach((key, action) -> action.abandon());
-        log.info("Closed objective {} for Sentence Plan {}", objectiveUUID, sentencePlanUuid, value(EVENT, SENTENCE_PLAN_OBJECTIVE_CLOSED));
-        timelineService.createTimelineEntry(sentencePlanUuid, SENTENCE_PLAN_OBJECTIVE_CLOSED, objective);
+        if(objective.getStatus().equals(OPEN)) {
+            objective.close(comment, requestData.getUsername());
+            log.info("Closed objective {} for Sentence Plan {}", objectiveUUID, sentencePlanUuid, value(EVENT, SENTENCE_PLAN_OBJECTIVE_CLOSED));
+            timelineService.createTimelineEntry(sentencePlanUuid, SENTENCE_PLAN_OBJECTIVE_CLOSED, objective);
+        }
+    }
+
+    @Transactional
+    public void reOpenObjective(UUID sentencePlanUuid, UUID objectiveUUID) {
+        var objective = getObjectiveEntity(sentencePlanUuid,objectiveUUID);
+        if(objective.getStatus().equals(CLOSED)) {
+          objective.open(requestData.getUsername());
+          timelineService.createTimelineEntry(sentencePlanUuid, SENTENCE_PLAN_OBJECTIVE_REOPENED, objective);
+        }
     }
 }
