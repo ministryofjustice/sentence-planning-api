@@ -196,7 +196,7 @@ public class SentencePlanResourceTest {
     public void shouldGetLatestOffenderAndLatestAssessmentForNewSentencePlan() throws JsonProcessingException {
 
         var assessmentApi = createMockAssessmentDataForOffender(123L);
-        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123/summary"))
+        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(123L, "Gary", "Smith", "", "", "12345678", "123")), MediaType.APPLICATION_JSON));
 
@@ -215,7 +215,7 @@ public class SentencePlanResourceTest {
     public void shouldCreateNewDraftSentencePlan() throws JsonProcessingException {
 
         var assessmentApi = createMockAssessmentDataForOffender(123L);
-        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123/summary"))
+        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123"))
                     .andExpect(method(GET))
                     .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(123L, "Gary", "Smith", "", "", "12345678", "123")), MediaType.APPLICATION_JSON));
 
@@ -239,7 +239,7 @@ public class SentencePlanResourceTest {
     public void shouldNotCreateNewSentencePlanIfCurrentPlanExistsForOffender() throws JsonProcessingException {
 
         var assessmentApi = createMockAssessmentDataForOffender(123L);
-        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123/summary"))
+        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(123L, "Gary", "Smith", "", "", "12345678", "123")), MediaType.APPLICATION_JSON));
 
@@ -273,7 +273,7 @@ public class SentencePlanResourceTest {
     public void shouldReturn400WhenCreatingPlanWithoutAnAssessment() throws JsonProcessingException {
 
         var assessmentApi = bindTo(oauthRestTemplate).ignoreExpectOrder(true).build();
-        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123/summary"))
+        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(123L, "Gary", "Smith", "", "", "12345678", "123")), MediaType.APPLICATION_JSON));
 
@@ -402,7 +402,7 @@ public class SentencePlanResourceTest {
     @Test
     public void shouldCreateNewRevisionsOnChange() throws JsonProcessingException {
         var assessmentApi = createMockAssessmentDataForOffender(123L);
-        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123/summary"))
+        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(123L, "Gary", "Smith", "", "", "12345678", "123")), MediaType.APPLICATION_JSON));
 

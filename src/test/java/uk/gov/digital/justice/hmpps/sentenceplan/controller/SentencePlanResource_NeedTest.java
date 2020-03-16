@@ -129,7 +129,7 @@ public class SentencePlanResource_NeedTest {
     public void shouldSetNeedsWhenCreatingNewPlan() throws JsonProcessingException {
 
         var assessmentApi = setupMockRestServiceServer(123L);
-        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123/summary"))
+        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123"))
                 .andExpect(method(GET))
                 .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(123L, "Gary", "Smith", "", "", "12345678", "123")), MediaType.APPLICATION_JSON));
 
