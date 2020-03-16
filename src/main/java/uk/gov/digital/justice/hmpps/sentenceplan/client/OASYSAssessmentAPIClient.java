@@ -37,7 +37,7 @@ public class OASYSAssessmentAPIClient {
 
     public Optional<OasysOffender> getOffenderById(long oasysOffenderId) {
         try {
-            return Optional.ofNullable(restTemplate.getForEntity(assessmentApiBasePath + "/offenders/oasysOffenderId/{oasysOffenderId}/summary", OasysOffender.class, oasysOffenderId).getBody());
+            return Optional.ofNullable(restTemplate.getForEntity(assessmentApiBasePath + "/offenders/oasysOffenderId/{oasysOffenderId}", OasysOffender.class, oasysOffenderId).getBody());
         }
         catch(HttpClientErrorException e) {
             if(e.getRawStatusCode() == 404) {
