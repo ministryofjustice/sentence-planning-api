@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS NEED
   UUID                              UUID          NOT NULL,
   SENTENCE_PLAN_UUID                UUID          NULL,
   NEED_UUID                         UUID          NULL,
+  HEADER                            TEXT          NULL,
   DESCRIPTION                       TEXT          NULL,
   OVER_THRESHOLD                    BOOLEAN       NULL,
   REOFFENDING_RISK                  BOOLEAN       NULL,

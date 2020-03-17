@@ -21,6 +21,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.RequestData;
+import uk.gov.digital.justice.hmpps.sentenceplan.client.SectionHeader;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.AssessmentNeed;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysAssessment;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysOffender;
@@ -151,8 +152,8 @@ public class SentencePlanResource_NeedTest {
     private MockRestServiceServer setupMockRestServiceServer(long offenderId) throws JsonProcessingException {
         var assessmentApi = bindTo(oauthRestTemplate).ignoreExpectOrder(true).build();
 
-        var needs = List.of(new AssessmentNeed("Alcohol", true, true, true, true),
-                new AssessmentNeed("Accommodation", true, true, true, true));
+        var needs = List.of(new AssessmentNeed(SectionHeader.ALCOHOL_MISUSE, "Alcohol", true, true, true, true),
+                new AssessmentNeed(SectionHeader.ACCOMMODATION, "Accommodation", true, true, true, true));
 
         assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/" + offenderId + "/assessments/latest?assessmentType=LAYER_3"))
                 .andExpect(method(GET))

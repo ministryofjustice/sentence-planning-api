@@ -5,6 +5,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.gov.digital.justice.hmpps.sentenceplan.client.SectionHeader;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.repository.SentenceBoardReviewRepository;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
@@ -82,7 +83,7 @@ public class SentenceBoardReviewServiceTest {
     }
 
     private SentencePlanEntity getNewSentencePlan(UUID uuid) {
-        var needs = List.of(NeedEntity.builder().uuid(UUID.fromString("11111111-1111-1111-1111-111111111111")).description("description").build());
+        var needs = List.of(NeedEntity.builder().uuid(UUID.fromString("11111111-1111-1111-1111-111111111111")).header(SectionHeader.DRUG_MISUSE).description("description").build());
         var plan = new  SentencePlanEntity();
         plan.setUuid(uuid);
         plan.setNeeds(needs);
