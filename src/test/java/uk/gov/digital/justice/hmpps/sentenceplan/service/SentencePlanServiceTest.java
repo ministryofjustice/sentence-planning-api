@@ -9,6 +9,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.justice.hmpps.sentenceplan.api.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.RequestData;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.OASYSAssessmentAPIClient;
+import uk.gov.digital.justice.hmpps.sentenceplan.client.SectionHeader;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysSentencePlanDto;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.BusinessRuleViolationException;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.CurrentSentencePlanForOffenderExistsException;
@@ -601,7 +602,7 @@ public class SentencePlanServiceTest {
     }
 
     private SentencePlanEntity getNewSentencePlan(UUID uuid) {
-        var needs = List.of(NeedEntity.builder().uuid(UUID.fromString("11111111-1111-1111-1111-111111111111")).description("description").build());
+        var needs = List.of(NeedEntity.builder().uuid(UUID.fromString("11111111-1111-1111-1111-111111111111")).header(SectionHeader.DRUG_MISUSE).description("description").build());
         var plan = new  SentencePlanEntity();
         plan.setUuid(uuid);
         plan.setNeeds(needs);

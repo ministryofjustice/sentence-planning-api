@@ -93,16 +93,16 @@ public class SentencePlanEntity implements Serializable {
     }
 
     public void updateNeeds(List<NeedEntity> needs) {
-        var latestNeeds = needs.stream().map(NeedEntity::getDescription).collect(Collectors.toSet());
-        var currentNeeds = this.needs.stream().map(NeedEntity::getDescription).collect(Collectors.toSet());
+        var latestNeeds = needs.stream().map(NeedEntity::getHeader).collect(Collectors.toSet());
+        var currentNeeds = this.needs.stream().map(NeedEntity::getHeader).collect(Collectors.toSet());
 
         //flag removed needs as inactive
-        this.needs.stream().filter(n-> !latestNeeds.contains(n.getDescription())).forEach(
+        this.needs.stream().filter(n-> !latestNeeds.contains(n.getHeader())).forEach(
                 n->n.setActive(false)
         );
 
         //add new needs
-        needs.stream().filter(n-> !currentNeeds.contains(n.getDescription())).forEach(
+        needs.stream().filter(n-> !currentNeeds.contains(n.getHeader())).forEach(
                 this::addNeed
         );
     }

@@ -44,7 +44,7 @@ public class AssessmentService {
     private List<NeedEntity> getNeedsFromOasysAssessment(OasysAssessment assessment, SentencePlanEntity sentencePlanEntity) {
      List<AssessmentNeed> needs = assessment.getNeeds() == null ? Collections.emptyList() : assessment.getNeeds();
       return needs.stream()
-              .map(n-> new NeedEntity(n.getName(),n.getOverThreshold(), n.getRiskOfReoffending(), n.getRiskOfHarm(), n.getFlaggedAsNeed(),
+              .map(n-> new NeedEntity(n.getSection(), n.getName(),n.getOverThreshold(), n.getRiskOfReoffending(), n.getRiskOfHarm(), n.getFlaggedAsNeed(),
                       true, sentencePlanEntity)).collect(Collectors.toList());
     }
 }

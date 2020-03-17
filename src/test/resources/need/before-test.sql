@@ -209,5 +209,5 @@ VALUES ('22222222-2222-2222-2222-222222222222', '2019-11-14 08:11:53.177108','sy
 '{}'
 , '2019-11-14 08:11:53.425990', '22222222-2222-2222-2222-222222222222');
 
-INSERT INTO sentenceplanapitest.need (uuid, sentence_plan_uuid, need_uuid, description, over_threshold, reoffending_risk, harm_risk, low_score_risk, active, created_on) VALUES ('9acddbd3-af5e-4b41-a710-018064700eb5', '11111111-1111-1111-1111-111111111111', null, 'Alcohol', null, true, true, false, true, '2019-11-14 08:11:53.424940');
-INSERT INTO sentenceplanapitest.need (uuid, sentence_plan_uuid, need_uuid, description, over_threshold, reoffending_risk, harm_risk, low_score_risk, active, created_on) VALUES ('51c293ec-b2c4-491c-ade5-34375e1cd495', '11111111-1111-1111-1111-111111111111', null, 'Accommodation', null, true, true, null, true, '2019-11-14 08:11:53.424979');
+INSERT INTO sentenceplanapitest.need (uuid, sentence_plan_uuid, need_uuid, header, description, over_threshold, reoffending_risk, harm_risk, low_score_risk, active, created_on) VALUES ('9acddbd3-af5e-4b41-a710-018064700eb5', '11111111-1111-1111-1111-111111111111', null, 'ALCOHOL_MISUSE', 'Alcohol', null, true, true, false, true, '2019-11-14 08:11:53.424940');
+INSERT INTO sentenceplanapitest.need (uuid, sentence_plan_uuid, need_uuid, header, description, over_threshold, reoffending_risk, harm_risk, low_score_risk, active, created_on) VALUES ('51c293ec-b2c4-491c-ade5-34375e1cd495', '11111111-1111-1111-1111-111111111111', null, 'ACCOMMODATION', 'Accommodation', null, true, true, null, true, '2019-11-14 08:11:53.424979');

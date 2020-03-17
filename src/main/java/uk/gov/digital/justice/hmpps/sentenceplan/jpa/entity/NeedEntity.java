@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import uk.gov.digital.justice.hmpps.sentenceplan.client.SectionHeader;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -25,6 +26,10 @@ public class NeedEntity implements Serializable {
 
     @Column(name = "UUID")
     private UUID uuid;
+
+    @Column(name = "HEADER")
+    @Enumerated(EnumType.STRING)
+    private SectionHeader header;
 
     @Column(name = "DESCRIPTION")
     private String description;
@@ -51,8 +56,9 @@ public class NeedEntity implements Serializable {
     @JoinColumn(name = "SENTENCE_PLAN_UUID", referencedColumnName = "UUID")
     private SentencePlanEntity sentencePlan;
 
-    public NeedEntity(String description, Boolean overThreshold, Boolean reoffendingRisk, Boolean harmRisk, Boolean lowScoreRisk, Boolean active, SentencePlanEntity sentencePlan) {
+    public NeedEntity(SectionHeader header, String description, Boolean overThreshold, Boolean reoffendingRisk, Boolean harmRisk, Boolean lowScoreRisk, Boolean active, SentencePlanEntity sentencePlan) {
         this.uuid = UUID.randomUUID();
+        this.header = header;
         this.description = description;
         this.overThreshold = overThreshold;
         this.reoffendingRisk = reoffendingRisk;

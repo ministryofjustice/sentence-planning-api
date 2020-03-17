@@ -6,6 +6,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.OASYSAssessmentAPIClient;
+import uk.gov.digital.justice.hmpps.sentenceplan.client.SectionHeader;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.AssessmentNeed;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysAssessment;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.OffenderEntity;
@@ -44,8 +45,8 @@ public class AssessmentServiceTest {
 
     @Test
     public void shouldAddAssessmentNeedsToSentencePlan() {
-        var needs = List.of(new AssessmentNeed("Accommodation",true,true,true,true),
-                new AssessmentNeed("Alcohol",true,true,true,true));
+        var needs = List.of(new AssessmentNeed(SectionHeader.ACCOMMODATION, "Accommodation",true,true,true,true),
+                new AssessmentNeed(SectionHeader.ALCOHOL_MISUSE, "Alcohol",true,true,true,true));
         var oasysAssessment = new OasysAssessment(123456,"ACTIVE", needs,true);
 
         when(oasysAssessmentAPIClient.getLatestLayer3AssessmentForOffender(123456L))
@@ -79,8 +80,8 @@ public class AssessmentServiceTest {
 
     @Test
     public void shouldAddNewAssessmentNeedsToSentencePlanIfNotUpdatedInPast10Minutes() {
-        var needs = List.of(new AssessmentNeed("Accommodation",true,true,true,true),
-                new AssessmentNeed("Alcohol",true,true,true,true));
+        var needs = List.of(new AssessmentNeed(SectionHeader.ACCOMMODATION, "Accommodation",true,true,true,true),
+                new AssessmentNeed(SectionHeader.ALCOHOL_MISUSE, "Alcohol",true,true,true,true));
         var oasysAssessment = new OasysAssessment(123456,"ACTIVE", needs,true);
 
         when(oasysAssessmentAPIClient.getLatestLayer3AssessmentForOffender(123456L))
