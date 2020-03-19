@@ -28,3 +28,4 @@ env:
   SENTENCEPLAN_API_CLIENT_ID: "sentence-plan-api-client"
   KEYCLOAK_REALM: "https://oasys-auth.service.justice.gov.uk/auth/realms/sentence-planning-preprod"
   KEYCLOAK_UPSTREAM_URL: http://127.0.0.1:8080
+  SPRING_PROFILES: "postgres,logstash"
