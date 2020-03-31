@@ -88,11 +88,6 @@ jobs:
             - gradle-{{ checksum "build.gradle" }}
             - gradle-
       - run: ./gradlew cleanTest build
-      - snyk/scan:
-          fail-on-issues: false
-          monitor-on-build: true
-          project: '${CIRCLE_PROJECT_REPONAME}/${CIRCLE_BRANCH}'
-          organization: 'digital-probation-services'
       - run:
           name: Record the Application Version
           command: |
@@ -151,6 +146,23 @@ jobs:
              docker push mojdigitalstudio/sentence-planning-api:$APP_VERSION
              docker push mojdigitalstudio/sentence-planning-api:latest
             fi
+
+  app-scan:
+    executor: builder
+    steps:
+      - checkout
+      - snyk/scan:
+          fail-on-issues: false
+          monitor-on-build: true
+          project: '${CIRCLE_PROJECT_REPONAME}/${CIRCLE_BRANCH}'
+          organization: 'digital-probation-services'
+
+  image-scan:
+    executor: deployer
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
       - snyk/scan:
           docker-image-name: 'mojdigitalstudio/sentence-planning-api:latest'
           target-file: 'Dockerfile'
@@ -218,6 +230,8 @@ workflows:
           filters:
             tags:
               ignore: /.*/
+      - app-scan
+      - image-scan
       - sonar-scan:
           requires:
             - build
