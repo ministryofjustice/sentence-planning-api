@@ -133,6 +133,10 @@ dependencies {
     testImplementation 'io.rest-assured:rest-assured:3.3.0'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation('org.assertj:assertj-core')
+
+    implementation ('com.puppycrawl.tools:checkstyle:8.24') {
+        because 'Transitive dependency. Previous versions have a known vulnerability'
+    }
 }
 
 task copyAgent(type: Copy) {

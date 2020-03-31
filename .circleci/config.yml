@@ -76,6 +76,7 @@ orbs:
   aws-cli: circleci/aws-cli@0.1.18
   kubernetes: circleci/kubernetes@0.10.1
   helm: circleci/helm@0.2.3
+  snyk: snyk/snyk@0.0.10
 
 jobs:
   build:
@@ -146,6 +147,30 @@ jobs:
              docker push mojdigitalstudio/sentence-planning-api:latest
             fi
 
+  app-scan:
+    executor: builder
+    steps:
+      - checkout
+      - snyk/scan:
+          fail-on-issues: false
+          monitor-on-build: true
+          project: '${CIRCLE_PROJECT_REPONAME}/${CIRCLE_BRANCH}'
+          organization: 'digital-probation-services'
+
+  image-scan:
+    executor: deployer
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: true
+      - snyk/scan:
+          docker-image-name: 'mojdigitalstudio/sentence-planning-api:latest'
+          target-file: 'Dockerfile'
+          fail-on-issues: false
+          monitor-on-build: true
+          project: '${CIRCLE_PROJECT_REPONAME}/latest'
+          organization: 'digital-probation-services'
+
   sonar-scan:
     executor: sonar-scanner
     steps:
@@ -205,6 +230,8 @@ workflows:
           filters:
             tags:
               ignore: /.*/
+      - app-scan
+      - image-scan
       - sonar-scan:
           requires:
             - build
