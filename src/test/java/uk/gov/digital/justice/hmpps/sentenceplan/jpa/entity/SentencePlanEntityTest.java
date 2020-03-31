@@ -3,6 +3,8 @@ package uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
+import uk.gov.digital.justice.hmpps.sentenceplan.client.SectionHeader;
+
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -69,12 +71,13 @@ public class SentencePlanEntityTest {
         var offender = mock(OffenderEntity.class);
         var sentencePlan = new SentencePlanEntity(offender);
         var needUUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
-        var newNeeds = List.of(NeedEntity.builder().description("new Need 1")
+        var newNeeds = List.of(NeedEntity.builder().header(SectionHeader.DRUG_MISUSE).description("new Need 1")
         .uuid(needUUID).build());
 
         assertThat(sentencePlan.getNeeds()).isEmpty();
         sentencePlan.updateNeeds(newNeeds);
         assertThat(sentencePlan.getNeeds()).hasSize(1);
+        assertThat(sentencePlan.getNeeds().get(0).getHeader()).isEqualTo(SectionHeader.DRUG_MISUSE);
         assertThat(sentencePlan.getNeeds().get(0).getDescription()).isEqualTo("new Need 1");
         assertThat(sentencePlan.getNeeds().get(0).getUuid()).isEqualTo(needUUID);
     }
@@ -87,7 +90,7 @@ public class SentencePlanEntityTest {
         var existingNeedUUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
         var newNeedUUID = UUID.fromString("22222222-2222-2222-2222-222222222222");
 
-        var existingNeed = NeedEntity.builder().description("Need 1")
+        var existingNeed = NeedEntity.builder().header(SectionHeader.DRUG_MISUSE).description("Need 1")
                 .uuid(existingNeedUUID).build();
         var existingNeeds = new ArrayList<NeedEntity>();
         existingNeeds.add(existingNeed);
@@ -95,13 +98,15 @@ public class SentencePlanEntityTest {
         sentencePlan.setNeeds(existingNeeds);
 
         //add existing need and new need
-        var newNeeds = List.of(existingNeed, NeedEntity.builder().description("Need 2")
+        var newNeeds = List.of(existingNeed, NeedEntity.builder().header(SectionHeader.ALCOHOL_MISUSE).description("Need 2")
                 .uuid(newNeedUUID).build());
 
         assertThat(sentencePlan.getNeeds()).hasSize(1);
         sentencePlan.updateNeeds(newNeeds);
         assertThat(sentencePlan.getNeeds()).hasSize(2);
         assertThat(sentencePlan.getNeeds()).extracting("description").containsOnly("Need 1", "Need 2");
+        assertThat(sentencePlan.getNeeds()).extracting("header").containsOnly(SectionHeader.DRUG_MISUSE, SectionHeader.ALCOHOL_MISUSE);
+
     }
 
 
@@ -113,15 +118,15 @@ public class SentencePlanEntityTest {
         var existingNeedUUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
         var newNeedUUID = UUID.fromString("22222222-2222-2222-2222-222222222222");
 
-        var existingNeed = NeedEntity.builder().description("Need 1")
+        var existingNeed = NeedEntity.builder().header(SectionHeader.DRUG_MISUSE).description("Need 1")
                 .uuid(existingNeedUUID).build();
         var existingNeeds = new ArrayList<NeedEntity>();
         existingNeeds.add(existingNeed);
 
         sentencePlan.setNeeds(existingNeeds);
 
-        //add new need but not existing neeed
-        var newNeeds = List.of(NeedEntity.builder().description("Need 2")
+        //add new need but not existing need
+        var newNeeds = List.of(NeedEntity.builder().header(SectionHeader.ALCOHOL_MISUSE).description("Need 2")
                 .uuid(newNeedUUID).build());
 
         sentencePlan.updateNeeds(newNeeds);
@@ -137,14 +142,14 @@ public class SentencePlanEntityTest {
         var existingNeedUUID = UUID.fromString("11111111-1111-1111-1111-111111111111");
         var newNeedUUID = UUID.fromString("22222222-2222-2222-2222-222222222222");
 
-        var existingNeed = NeedEntity.builder().description("Need 1")
+        var existingNeed = NeedEntity.builder().header(SectionHeader.DRUG_MISUSE).description("Need 1")
                 .uuid(existingNeedUUID).build();
         var existingNeeds = new ArrayList<NeedEntity>();
         existingNeeds.add(existingNeed);
 
         sentencePlan.setNeeds(existingNeeds);
 
-        var newNeeds = List.of(NeedEntity.builder().description("Need 2")
+        var newNeeds = List.of(NeedEntity.builder().header(SectionHeader.ALCOHOL_MISUSE).description("Need 2")
                 .uuid(newNeedUUID).build());
 
         sentencePlan.updateNeeds(newNeeds);
