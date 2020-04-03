@@ -72,14 +72,14 @@ public class SentencePlanServiceTest {
     public void createSentencePlanShouldRetrieveOffenderAndAssessmentAndSavePlan() {
         var offender = mock(OffenderEntity.class);
 
-        when(offenderService.getOffenderByType(oasysOffenderId)).thenReturn(offender);
+        when(offenderService.getOasysOffender(oasysOffenderId)).thenReturn(offender);
         when(sentencePlanRepository.findByOffenderUuid(any())).thenReturn(null);
         when(sentencePlanRepository.findByOffenderUuid(any())).thenReturn(Collections.emptyList());
         when(sentencePlanRepository.save(any())).thenReturn(getNewSentencePlan(sentencePlanUuid));
 
         service.createSentencePlan(oasysOffenderId);
 
-        verify(offenderService,times(1)).getOffenderByType(oasysOffenderId);
+        verify(offenderService,times(1)).getOasysOffender(oasysOffenderId);
         verify(sentencePlanRepository,times(1)).save(any());
         verify(timelineService,times(1)).createTimelineEntry(any(UUID.class), eq(SENTENCE_PLAN_CREATED));
     }
@@ -88,13 +88,13 @@ public class SentencePlanServiceTest {
     public void shouldNotCreateSentencePlanIfCurrentPlanExistsForOffender() {
         var offender = mock(OffenderEntity.class);
 
-        when(offenderService.getOffenderByType(oasysOffenderId)).thenReturn(offender);
+        when(offenderService.getOasysOffender(oasysOffenderId)).thenReturn(offender);
         when(sentencePlanRepository.findByOffenderUuid(any())).thenReturn(List.of(getNewSentencePlan(sentencePlanUuid)));  when(sentencePlanRepository.findByOffenderUuid(any())).thenReturn(List.of(getNewSentencePlan(sentencePlanUuid)));
 
         var exception = catchThrowable(() -> service.createSentencePlan(oasysOffenderId));
         assertThat(exception).isInstanceOf(CurrentSentencePlanForOffenderExistsException.class);
 
-        verify(offenderService,times(1)).getOffenderByType(oasysOffenderId);
+        verify(offenderService,times(1)).getOasysOffender(oasysOffenderId);
         verify(sentencePlanRepository,never()).save(any());
         verifyNoInteractions(timelineService);
     }
@@ -617,7 +617,7 @@ public class SentencePlanServiceTest {
         var action = new ActionEntity(UUID.fromString("11111111-1111-1111-1111-111111111111"),null,"Action 1", YearMonth.of(2019,8),
                 UUID.fromString("11111111-1111-1111-1111-111111111111"), List.of(SERVICE_USER), null, NOT_STARTED, 1, emptyList(),
                 LocalDateTime.of(2019,6,6, 2,0),null);
-        var offender = new OffenderEntity(1L, "two", "3");
+        var offender = new OffenderEntity(1L, "two", "3", "4");
         objective.addAction(action);
         sentencePlanProperty.setObjectives(Map.of(objective.getId(), objective));
 

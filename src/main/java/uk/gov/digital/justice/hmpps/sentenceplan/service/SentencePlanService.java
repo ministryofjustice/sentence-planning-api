@@ -44,7 +44,7 @@ public class SentencePlanService {
 
     @Transactional
     public SentencePlanDto createSentencePlan(Long offenderId) {
-        var offender = offenderService.getOffenderByType(offenderId);
+        var offender = offenderService.getOasysOffender(offenderId);
         if (getCurrentSentencePlan(offender.getUuid()).isPresent()) {
             throw new CurrentSentencePlanForOffenderExistsException("Offender already has a current sentence plan");
         }
@@ -242,7 +242,6 @@ public class SentencePlanService {
     private SentencePlanEntity getSentencePlanEntityWithUpdatedNeeds(UUID sentencePlanUuid) {
         var sentencePlanEntity = getSentencePlanEntity(sentencePlanUuid);
         assessmentService.addLatestAssessmentNeedsToPlan(sentencePlanEntity);
-        offenderService.updateOasysOffender(sentencePlanEntity);
         return sentencePlanEntity;
     }
 
