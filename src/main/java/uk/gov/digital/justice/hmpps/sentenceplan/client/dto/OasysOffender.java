@@ -21,6 +21,10 @@ public class OasysOffender {
     private String forename3;
     @JsonProperty("nomisId")
     private String nomisId;
+    @JsonProperty("crn")
+    private String crn;
     @JsonProperty("bookingNumber")
     private String bookingNumber;
+    @JsonProperty("mergedOasysOffenderId")
+    private Long mergedOasysOffenderId;
 }

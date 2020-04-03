@@ -102,7 +102,7 @@ public class SentencePlanResourceTest {
 
     @Test
     public void shouldGetSentencePlanWhenExists() throws JsonProcessingException {
-        var assessmentApi = createMockAssessmentDataForOffender(OASYS_OFFENDER_ID);
+        createMockAssessmentDataForOffender(OASYS_OFFENDER_ID);
         var result = given()
                 .when()
                 .header("Accept", "application/json")
@@ -128,6 +128,11 @@ public class SentencePlanResourceTest {
                         mapper.writeValueAsString(List.of(
                             new OasysSentencePlanDto(12345L, LocalDate.of(2010, 1,1), null, Collections.emptyList(), Collections.emptyMap())
                         )), MediaType.APPLICATION_JSON));
+
+        assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123456"))
+                .andExpect(method(GET))
+                .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(123456L, "Gary", "Smith", "", "", "12345678", "123", null, null)), MediaType.APPLICATION_JSON));
+
 
         var result = given()
                 .when()
@@ -199,7 +204,7 @@ public class SentencePlanResourceTest {
         var assessmentApi = createMockAssessmentDataForOffender(123L);
         assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123"))
                 .andExpect(method(GET))
-                .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(123L, "Gary", "Smith", "", "", "12345678", "123")), MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(123L, "Gary", "Smith", "", "", "12345678", "123", null, null)), MediaType.APPLICATION_JSON));
 
         given()
             .when()
@@ -218,7 +223,7 @@ public class SentencePlanResourceTest {
         var assessmentApi = createMockAssessmentDataForOffender(123L);
         assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123"))
                     .andExpect(method(GET))
-                    .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(123L, "Gary", "Smith", "", "", "12345678", "123")), MediaType.APPLICATION_JSON));
+                    .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(123L, "Gary", "Smith", "", "", "12345678", "123", null, null)), MediaType.APPLICATION_JSON));
 
         var result = given()
                 .when()
@@ -242,7 +247,7 @@ public class SentencePlanResourceTest {
         var assessmentApi = createMockAssessmentDataForOffender(123L);
         assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123"))
                 .andExpect(method(GET))
-                .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(123L, "Gary", "Smith", "", "", "12345678", "123")), MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(123L, "Gary", "Smith", "", "", "12345678", "123", null, null)), MediaType.APPLICATION_JSON));
 
             given()
                 .when()
@@ -276,7 +281,7 @@ public class SentencePlanResourceTest {
         var assessmentApi = bindTo(oauthRestTemplate).ignoreExpectOrder(true).build();
         assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123"))
                 .andExpect(method(GET))
-                .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(123L, "Gary", "Smith", "", "", "12345678", "123")), MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(123L, "Gary", "Smith", "", "", "12345678", "123", null, null)), MediaType.APPLICATION_JSON));
 
         assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123/assessments/latest?assessmentType=LAYER_3"))
                 .andExpect(method(GET))
@@ -405,7 +410,7 @@ public class SentencePlanResourceTest {
         var assessmentApi = createMockAssessmentDataForOffender(123L);
         assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123"))
                 .andExpect(method(GET))
-                .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(123L, "Gary", "Smith", "", "", "12345678", "123")), MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(123L, "Gary", "Smith", "", "", "12345678", "123", null, null)), MediaType.APPLICATION_JSON));
 
         //create a new sentence plan
         var sentencePlan = given()

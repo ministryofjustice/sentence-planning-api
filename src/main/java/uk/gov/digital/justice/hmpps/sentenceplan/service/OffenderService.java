@@ -2,7 +2,7 @@ package uk.gov.digital.justice.hmpps.sentenceplan.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.SentencePlanEntity;
+import org.springframework.transaction.annotation.Transactional;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.OASYSAssessmentAPIClient;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysOffender;
@@ -28,38 +28,44 @@ private final Clock clock;
         this.clock = clock;
     }
 
-    public void updateOasysOffender(SentencePlanEntity sentencePlanEntity) {
-        if(sentencePlanEntity.getOffender().getOasysOffenderLastImportedOn() == null || sentencePlanEntity.getOffender().getOasysOffenderLastImportedOn().getDayOfYear() < LocalDateTime.now(clock).getDayOfYear()) {
-            var offenderId = sentencePlanEntity.getOffender().getOasysOffenderId();
-            var offender = getOasysOffender(offenderId);
-            sentencePlanEntity.getOffender().updateIdentityDetails(offender);
-        }
-    }
-
+    @Transactional
     public OffenderEntity getOasysOffender(Long offenderId) {
-        return getOffenderByType(offenderId);
+        var offender = offenderRespository.findByOasysOffenderId(offenderId).orElseGet(() -> saveOASysOffender(getOasysOffenderFromOasys(offenderId)));
+        return updateOasysOffender(offender);
     }
 
-
-    public OffenderEntity getOffenderByType(Long offenderId) {
-        return retrieveOasysOffender(offenderId);
+    @Transactional
+    public OffenderEntity getSentencePlanOffender(UUID sentencePlanUuid) {
+        var offender =  Optional.ofNullable(offenderRespository.findOffenderBySentencePlanUuid(sentencePlanUuid))
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Sentence Plan %s not found", sentencePlanUuid)));
+        return updateOasysOffender(offender);
     }
 
-    private OffenderEntity retrieveOasysOffender(long offenderId) {
-         return offenderRespository.findByOasysOffenderId(offenderId).orElseGet(
-                 () -> saveOASysOffender(oasysAssessmentAPIClient.getOffenderById(offenderId)
-                         .orElseThrow(() -> new EntityNotFoundException(String.format("Offender %s not found", offenderId)))));
-    }
 
     private OffenderEntity saveOASysOffender(OasysOffender oasysOffender) {
-        var offender = new OffenderEntity(oasysOffender.getOasysOffenderId(), oasysOffender.getNomisId(), oasysOffender.getBookingNumber());
+        var offender = new OffenderEntity(
+                oasysOffender.getOasysOffenderId(),
+                oasysOffender.getNomisId(),
+                oasysOffender.getBookingNumber(),
+                oasysOffender.getCrn());
         offenderRespository.save(offender);
         return offender;
     }
 
-    public OffenderEntity getSentencePlanOffender(UUID sentencePlanUuid) {
-        return Optional.ofNullable(offenderRespository.findOffenderBySentencePlanUuid(sentencePlanUuid))
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Sentence Plan %s not found", sentencePlanUuid)));
+    private OffenderEntity updateOasysOffender(OffenderEntity offenderEntity) {
+        if(offenderEntity.getOasysOffenderLastImportedOn() == null || offenderEntity.getOasysOffenderLastImportedOn().getDayOfYear() < LocalDateTime.now(clock).getDayOfYear()) {
+            var oasysOffender = getOasysOffenderFromOasys(offenderEntity.getOasysOffenderId());
+            offenderEntity.updateIdentityDetails(
+                    oasysOffender.getOasysOffenderId(),
+                    oasysOffender.getNomisId(),
+                    oasysOffender.getBookingNumber(),
+                    oasysOffender.getCrn());
+        }
+        return offenderEntity;
     }
 
+    private OasysOffender getOasysOffenderFromOasys(Long offenderId) {
+        return oasysAssessmentAPIClient.getOffenderById(offenderId)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Offender %s not found", offenderId)));
+    }
 }

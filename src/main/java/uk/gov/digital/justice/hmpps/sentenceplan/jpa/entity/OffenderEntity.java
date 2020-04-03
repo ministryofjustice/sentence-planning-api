@@ -46,20 +46,21 @@ public class OffenderEntity implements Serializable {
     @OneToMany(mappedBy = "offender", cascade = CascadeType.PERSIST)
     private List<SentencePlanEntity> setencePlans;
 
-    public OffenderEntity(Long oasysOffenderId, String nomisOffednerId, String nomisBookingNumber) {
+    public OffenderEntity(Long oasysOffenderId, String nomisOffenderId, String nomisBookingNumber, String deliusOffenderId) {
         this.uuid = UUID.randomUUID();
         this.oasysOffenderId = oasysOffenderId;
-        this.nomisOffenderId = nomisOffednerId;
+        this.nomisOffenderId = nomisOffenderId;
         this.nomisBookingNumber = nomisBookingNumber;
+        this.deliusOffenderId = deliusOffenderId;
         this.oasysOffenderLastImportedOn = LocalDateTime.now();
         this.setencePlans = new ArrayList<>();
     }
 
-    public void updateIdentityDetails(OffenderEntity entity) {
-        this.oasysOffenderId = entity.getOasysOffenderId();
-        this.nomisOffenderId = entity.getNomisOffenderId();
-        this.nomisBookingNumber = entity.getNomisBookingNumber();
+    public void updateIdentityDetails(Long oasysOffenderId, String nomisOffenderId, String nomisBookingNumber, String deliusOffenderId) {
+        this.oasysOffenderId = oasysOffenderId;
+        this.nomisOffenderId = nomisOffenderId;
+        this.nomisBookingNumber = nomisBookingNumber;
         this.oasysOffenderLastImportedOn = LocalDateTime.now();
-        this.deliusOffenderId = entity.getDeliusOffenderId();
+        this.deliusOffenderId = deliusOffenderId;
     }
 }

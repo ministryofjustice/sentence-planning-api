@@ -46,7 +46,7 @@ public class AuthorisationAspectTest {
 
     final UUID sentencePlanUuid =  UUID.fromString("11111111-1111-1111-1111-111111111111");
 
-    final OffenderEntity offender = new OffenderEntity(123456L, "12345", null);
+    final OffenderEntity offender = new OffenderEntity(123456L, "12345", null, null);
 
     @Before
     public void setup() {
