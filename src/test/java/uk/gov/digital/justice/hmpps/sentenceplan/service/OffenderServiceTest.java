@@ -42,7 +42,10 @@ public class OffenderServiceTest {
     @Test
     public void shouldStoreOffenderMetaDataIfNotExists() {
 
-        var offender = new OasysOffender(123456L, "John", "Smith","","","12345", "123", null, null);
+        var offender = new OasysOffender(123455L,false, "Smith",
+                "Gary",  "", "", "N", "N","",
+                "12345678", "123", "","","",
+                null, null);
 
         when(offenderRespository.findByOasysOffenderId(123456L)).thenReturn(Optional.empty());
         when(oasysAssessmentAPIClient.getOffenderById(123456L))
@@ -79,7 +82,11 @@ public class OffenderServiceTest {
 
     @Test
     public void shouldUpdateBookingNumberIfNotUpdatedToday() {
-        var oasysOffender = new OasysOffender(1L, null, null, null, null, "Nomis", "4", null, null);
+
+        var oasysOffender =  new OasysOffender(1L,false, null,
+                null,  null, null, "N", "N",null,
+                null, null, null,null,"4",
+                null, null);
         var offender = new OffenderEntity(1L, "two", "3", "4");
         offender.setOasysOffenderLastImportedOn(LocalDateTime.now(clock).minusDays(2));
         when(offenderRespository.findByOasysOffenderId(1L)).thenReturn(Optional.ofNullable(offender));
@@ -102,7 +109,6 @@ public class OffenderServiceTest {
     @Test
     public void shouldGetOffenderForSentencePlan() {
         var offender = new OffenderEntity(1L, "two", "3", "4");
-        var oasysOffender = new OasysOffender(1L, null, null, null, null, "Nomis", "4", null, null);
         when(offenderRespository.findOffenderBySentencePlanUuid(sentencePlanUuid)).thenReturn(offender);
         offenderService.getSentencePlanOffender(sentencePlanUuid);
         verify(offenderRespository, times(1)).findOffenderBySentencePlanUuid(sentencePlanUuid);
