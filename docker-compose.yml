@@ -21,15 +21,16 @@ services:
       - hmpps
     container_name: oauth
     ports:
-      - "9090:8080"
+      - "9090:9090"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/auth/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:9090/auth/health"]
     environment:
-      - SERVER_PORT=8080
+      - SERVER_PORT=9090
       - SPRING_PROFILES_ACTIVE=dev
 
   offender-assessment-api:
     image: mojdigitalstudio/offender-assessments-api:latest
+    restart: always
     networks:
       - hmpps
     container_name: offender-assessment-api
@@ -40,6 +41,7 @@ services:
     environment:
       - SERVER_PORT=8080
       - SPRING_PROFILES_ACTIVE=dev
+      - OAUTH_ENDPOINT_URL=http://oauth:9090/auth
 
 networks:
   hmpps:
