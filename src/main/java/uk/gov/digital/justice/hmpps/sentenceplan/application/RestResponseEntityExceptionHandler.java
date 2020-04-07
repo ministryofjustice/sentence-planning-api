@@ -10,6 +10,7 @@ import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.CurrentSente
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.NoOffenderAssessmentException;
 
+import static net.logstash.logback.argument.StructuredArguments.value;
 import static org.springframework.http.HttpStatus.*;
 
 @ControllerAdvice
@@ -27,7 +28,7 @@ public class RestResponseEntityExceptionHandler {
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ErrorResponse> handle(ValidationException e) {
         log.error("ValidationException: {}", e.getMessage());
-      return new ResponseEntity<>(ErrorResponse.builder().status(400)
+        return new ResponseEntity<>(ErrorResponse.builder().status(400)
                 .developerMessage(e.getMessage())
                 .userMessage(e.getMessage()).build(), BAD_REQUEST);
     }
@@ -54,5 +55,13 @@ public class RestResponseEntityExceptionHandler {
         return new ResponseEntity<>(ErrorResponse.builder().status(401)
                 .developerMessage(e.getMessage())
                 .userMessage(e.getMessage()).build(), UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponse> handle(Exception e) {
+        log.error("Exception: {}", e.getMessage());
+        return new ResponseEntity<>(ErrorResponse.builder().status(500)
+                .developerMessage("Internal Server Error. Check Logs")
+                .userMessage("An unexpected error has occurred").build(), INTERNAL_SERVER_ERROR);
     }
 }

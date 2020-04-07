@@ -16,6 +16,13 @@ This service provides an API to manage HMPPS Setence Plans.
 ### Prerequisites
 In order to run the service locally, a postgres database, the [Offender Assessment API](https://github.com/ministryofjustice/offender-assessments-api/) and [Nomis OAuth Service](https://github.com/ministryofjustice/nomis-oauth2-server/) are required. 
 
+Add the following to your hosts file to enable the authentication integration to work:
+
+```
+ 127.0.0.1    oauth
+ ```
+
+
 These can be run locally using the [docker-compose.yml](docker-compose.yml) file which will pull down the latest version.
 
 ```
