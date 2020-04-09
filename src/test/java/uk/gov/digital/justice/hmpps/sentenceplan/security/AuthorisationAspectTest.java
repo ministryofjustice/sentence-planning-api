@@ -10,8 +10,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.RequestData;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.OASYSAssessmentAPIClient;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysAuthorisationDto;
-import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysOffenderPermissionLevel;
-import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysOffenderPermissionResource;
 import uk.gov.digital.justice.hmpps.sentenceplan.jpa.entity.OffenderEntity;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.OffenderService;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
@@ -62,9 +60,8 @@ public class AuthorisationAspectTest {
         var args = new Object[1];
         args[0] = sentencePlanUuid;
 
-        when(requestData.getSessionId()).thenReturn("123456");
         when(offenderService.getSentencePlanOffender(sentencePlanUuid)).thenReturn(offender);
-        when(oasysAssessmentAPIClient.authoriseUserAccess("USER", offender.getOasysOffenderId(), 123456L)).thenReturn(authorisationDto);
+        when(oasysAssessmentAPIClient.authoriseUserAccess("USER", offender.getOasysOffenderId())).thenReturn(authorisationDto);
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
         when(annotation.accessLevel()).thenReturn(READ_SENTENCE_PLAN);
 
@@ -80,9 +77,8 @@ public class AuthorisationAspectTest {
         var args = new Object[1];
         args[0] = sentencePlanUuid;
 
-        when(requestData.getSessionId()).thenReturn("123456");
         when(offenderService.getSentencePlanOffender(sentencePlanUuid)).thenReturn(offender);
-        when(oasysAssessmentAPIClient.authoriseUserAccess("USER", offender.getOasysOffenderId(), 123456L)).thenReturn(authorisationDto);
+        when(oasysAssessmentAPIClient.authoriseUserAccess("USER", offender.getOasysOffenderId())).thenReturn(authorisationDto);
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
         when(annotation.accessLevel()).thenReturn(READ_SENTENCE_PLAN);
 
@@ -100,8 +96,7 @@ public class AuthorisationAspectTest {
         var args = new Object[1];
         args[0] = offender.getOasysOffenderId();
 
-        when(requestData.getSessionId()).thenReturn("123456");
-        when(oasysAssessmentAPIClient.authoriseUserAccess("USER", offender.getOasysOffenderId(), 123456L)).thenReturn(authorisationDto);
+        when(oasysAssessmentAPIClient.authoriseUserAccess("USER", offender.getOasysOffenderId())).thenReturn(authorisationDto);
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
         when(proceedingJoinPoint.getSignature().getName()).thenReturn("methodName");
         when(annotation.accessLevel()).thenReturn(READ_SENTENCE_PLAN);
@@ -118,8 +113,7 @@ public class AuthorisationAspectTest {
         var args = new Object[1];
         args[0] = offender.getOasysOffenderId();
 
-        when(requestData.getSessionId()).thenReturn("123456");
-        when(oasysAssessmentAPIClient.authoriseUserAccess("USER", offender.getOasysOffenderId(), 123456L)).thenReturn(authorisationDto);
+        when(oasysAssessmentAPIClient.authoriseUserAccess("USER", offender.getOasysOffenderId())).thenReturn(authorisationDto);
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
         when(proceedingJoinPoint.getSignature().getName()).thenReturn("methodName");
         when(annotation.accessLevel()).thenReturn(READ_SENTENCE_PLAN);
@@ -138,8 +132,7 @@ public class AuthorisationAspectTest {
         var args = new Object[1];
         args[0] = offender.getOasysOffenderId();
 
-        when(requestData.getSessionId()).thenReturn("123456");
-        when(oasysAssessmentAPIClient.authoriseUserAccess("USER", offender.getOasysOffenderId(), 123456L)).thenReturn(authorisationDto);
+        when(oasysAssessmentAPIClient.authoriseUserAccess("USER", offender.getOasysOffenderId())).thenReturn(authorisationDto);
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
         when(proceedingJoinPoint.getSignature().getName()).thenReturn("methodName");
         when(annotation.accessLevel()).thenReturn(WRITE_SENTENCE_PLAN);
@@ -156,8 +149,7 @@ public class AuthorisationAspectTest {
         var args = new Object[1];
         args[0] = offender.getOasysOffenderId();
 
-        when(requestData.getSessionId()).thenReturn("123456");
-        when(oasysAssessmentAPIClient.authoriseUserAccess("USER", offender.getOasysOffenderId(), 123456L)).thenReturn(authorisationDto);
+        when(oasysAssessmentAPIClient.authoriseUserAccess("USER", offender.getOasysOffenderId())).thenReturn(authorisationDto);
         when(proceedingJoinPoint.getArgs()).thenReturn(args);
         when(proceedingJoinPoint.getSignature().getName()).thenReturn("methodName");
         when(annotation.accessLevel()).thenReturn(WRITE_SENTENCE_PLAN);
