@@ -41,6 +41,10 @@ private final Clock clock;
         return updateOasysOffender(offender);
     }
 
+    public OasysOffender getOasysOffenderFromOasys(Long offenderId) {
+        return oasysAssessmentAPIClient.getOffenderById(offenderId)
+                .orElseThrow(() -> new EntityNotFoundException(String.format("Offender %s not found", offenderId)));
+    }
 
     private OffenderEntity saveOASysOffender(OasysOffender oasysOffender) {
         var offender = new OffenderEntity(
@@ -62,10 +66,5 @@ private final Clock clock;
                     oasysOffender.getCrn());
         }
         return offenderEntity;
-    }
-
-    private OasysOffender getOasysOffenderFromOasys(Long offenderId) {
-        return oasysAssessmentAPIClient.getOffenderById(offenderId)
-                .orElseThrow(() -> new EntityNotFoundException(String.format("Offender %s not found", offenderId)));
     }
 }

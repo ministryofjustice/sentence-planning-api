@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 public class OasysOffender {
     @JsonProperty("oasysOffenderId")
     private Long oasysOffenderId;
+    @JsonProperty("limitedAccessOffender")
+    private boolean limitedAccessOffender;
     @JsonProperty("familyName")
     private String familyName;
     @JsonProperty("forename1")
@@ -19,12 +21,24 @@ public class OasysOffender {
     private String forename2;
     @JsonProperty("forename3")
     private String forename3;
-    @JsonProperty("nomisId")
-    private String nomisId;
+    @JsonProperty("riskToOthers")
+    private String riskToOthers;
+    @JsonProperty("riskToSelf")
+    private String riskToSelf;
+    @JsonProperty("pnc")
+    private String pnc;
     @JsonProperty("crn")
     private String crn;
+    @JsonProperty("nomisId")
+    private String nomisId;
+    @JsonProperty("legacyCmsProbNumber")
+    private String legacyCmsProbNumber;
+    @JsonProperty("croNumber")
+    private String croNumber;
     @JsonProperty("bookingNumber")
     private String bookingNumber;
+    @JsonProperty("mergePncNumber")
+    private String mergePncNumber;
     @JsonProperty("mergedOasysOffenderId")
     private Long mergedOasysOffenderId;
 }

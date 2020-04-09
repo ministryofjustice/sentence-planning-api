@@ -131,7 +131,10 @@ public class SentencePlanResource_NeedTest {
         var assessmentApi = setupMockRestServiceServer(123L);
         assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/123"))
                 .andExpect(method(GET))
-                .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(123L, "Gary", "Smith", "", "", "12345678", "123", null, null)), MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(123L,false, "Smith",
+                        "Gary",  "", "", "N", "N","",
+                        "12345678", "123", "","","",
+                        null, null)), MediaType.APPLICATION_JSON));
 
         var sentencePlan = given()
                 .when()

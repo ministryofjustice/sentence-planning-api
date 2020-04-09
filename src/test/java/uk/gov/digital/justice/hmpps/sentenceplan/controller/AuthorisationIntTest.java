@@ -127,7 +127,10 @@ public class AuthorisationIntTest {
 
         assessmentApi.expect(requestTo("http://localhost:8081/offenders/oasysOffenderId/" + offenderId))
                 .andExpect(method(GET))
-                .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(123456L, null, null, null, null, "Nomis", "4", null, null)), MediaType.APPLICATION_JSON));
+                .andRespond(withSuccess(mapper.writeValueAsString(new OasysOffender(123456L,false, "Smith",
+                        "Gary",  "", "", "N", "N","",
+                        "12345678", "123", "","","",
+                        null, null)), MediaType.APPLICATION_JSON));
 
         var needs = List.of(new AssessmentNeed(SectionHeader.ALCOHOL_MISUSE, "Alcohol", true, true, true, true),
                 new AssessmentNeed(SectionHeader.ALCOHOL_MISUSE,"Accommodation", true, true, true, true));
