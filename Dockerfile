@@ -20,10 +20,11 @@ RUN curl https://s3.amazonaws.com/rds-downloads/rds-ca-2015-root.pem \
 
 WORKDIR /app
 
-COPY build/libs/sentence-planning-api*.jar /app/app.jar
-COPY run.sh /app
+COPY --chown=appuser:appgroup build/libs/sentence-planning-api*.jar /app/app.jar
+COPY --chown=appuser:appgroup build/libs/applicationinsights-agent*.jar /app/agent.jar
+COPY --chown=appuser:appgroup run.sh /app
+COPY --chown=appuser:appgroup AI-Agent.xml /app
 
-RUN chown -R appuser:appgroup /app
 
 USER 2000
 
