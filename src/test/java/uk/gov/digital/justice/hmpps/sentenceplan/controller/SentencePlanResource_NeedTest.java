@@ -76,7 +76,6 @@ public class SentencePlanResource_NeedTest {
 
     @Test
     public void shouldGetNeedsWhenSentencePlanExists() throws JsonProcessingException {
-        var assessmentApi = setupMockRestServiceServer(123456L);
         var result = given()
                 .when()
                 .header("Accept", "application/json")
@@ -93,7 +92,6 @@ public class SentencePlanResource_NeedTest {
 
     @Test
     public void shouldGetEmptyArrayWhenNoNeedsExist() throws JsonProcessingException {
-        var assessmentApi = setupMockRestServiceServerNoNeeds();
         var result = given()
                 .when()
                 .header("Accept", "application/json")

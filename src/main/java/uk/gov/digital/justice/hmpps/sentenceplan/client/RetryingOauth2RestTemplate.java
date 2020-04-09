@@ -1,5 +1,6 @@
 package uk.gov.digital.justice.hmpps.sentenceplan.client;
 
+import lombok.Getter;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.retry.annotation.Backoff;
@@ -11,6 +12,7 @@ import uk.gov.digital.justice.hmpps.sentenceplan.application.RequestData;
 @Component
 public class RetryingOauth2RestTemplate {
 
+    @Getter
     private final OAuth2RestTemplate restTemplate;
     private final RequestData requestData;
 
