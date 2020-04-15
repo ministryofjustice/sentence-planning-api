@@ -4,15 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.oauth2.client.OAuth2RestTemplate;
+import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.digital.justice.hmpps.sentenceplan.application.LogEvent;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.*;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.exception.OasysClientException;
-import uk.gov.digital.justice.hmpps.sentenceplan.security.AccessLevel;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
 
 import java.util.Collections;
@@ -27,17 +24,19 @@ import static uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysOffender
 @Slf4j
 public class OASYSAssessmentAPIClient {
 
-    private final OAuth2RestTemplate restTemplate;
+    private final RetryingOauth2RestTemplate restTemplate;
     private final String assessmentApiBasePath;
 
-    public OASYSAssessmentAPIClient(OAuth2RestTemplate restTemplate, @Value("${assessment.api.uri.root}") String assessmentApiBasePath) {
-        this.restTemplate = restTemplate;
+    public OASYSAssessmentAPIClient(RetryingOauth2RestTemplate restTemplate, @Value("${assessment.api.uri.root}") String assessmentApiBasePath) {
         this.assessmentApiBasePath = assessmentApiBasePath;
+        this.restTemplate = restTemplate;
     }
 
     public Optional<OasysOffender> getOffenderById(long oasysOffenderId) {
         try {
-            return Optional.ofNullable(restTemplate.getForEntity(assessmentApiBasePath + "/offenders/oasysOffenderId/{oasysOffenderId}", OasysOffender.class, oasysOffenderId).getBody());
+            var url = String.format("%s/offenders/oasysOffenderId/%s", assessmentApiBasePath, oasysOffenderId);
+            var response = restTemplate.get(url, OasysOffender.class);
+            return Optional.ofNullable(response.getBody());
         }
         catch(HttpClientErrorException e) {
             if(e.getRawStatusCode() == 404) {
@@ -51,9 +50,10 @@ public class OASYSAssessmentAPIClient {
 
     public Optional<OasysAssessment> getLatestLayer3AssessmentForOffender(long oasysOffenderId) {
         try {
-           return Optional.ofNullable(restTemplate.getForEntity(
-                   assessmentApiBasePath + "/offenders/oasysOffenderId/{oasysOffenderId}/assessments/latest?assessmentType=LAYER_3",
-                   OasysAssessment.class, oasysOffenderId).getBody());
+
+            var url = String.format("%s/offenders/oasysOffenderId/%s/assessments/latest?assessmentType=LAYER_3", assessmentApiBasePath, oasysOffenderId);
+            var response = restTemplate.get(url, OasysAssessment.class);
+            return Optional.ofNullable(response.getBody());
         }
         catch(HttpClientErrorException e) {
             if(e.getStatusCode() == HttpStatus.NOT_FOUND) {
@@ -67,9 +67,9 @@ public class OASYSAssessmentAPIClient {
 
     public List<OasysSentencePlanDto> getSentencePlansForOffender(long oasysOffenderId) {
         try {
-            return restTemplate.exchange(
-                    assessmentApiBasePath + "/offenders/oasysOffenderId/{oasysOffenderId}/fullSentencePlans",
-                    HttpMethod.GET,null, new ParameterizedTypeReference<List<OasysSentencePlanDto>>(){}, oasysOffenderId).getBody();
+            var url = String.format("%s/offenders/oasysOffenderId/%s/fullSentencePlans", assessmentApiBasePath, oasysOffenderId);
+            var response = restTemplate.get(url, new ParameterizedTypeReference<List<OasysSentencePlanDto>>(){});
+            return response.getBody();
         }
         catch(HttpClientErrorException e) {
             if(e.getStatusCode() == HttpStatus.NOT_FOUND) {
@@ -83,9 +83,9 @@ public class OASYSAssessmentAPIClient {
 
     public Optional<OasysSentencePlanDto> getSentencePlanById(long oasysOffenderId, long oasysSetId) {
         try {
-            return Optional.ofNullable(restTemplate.exchange(
-                    assessmentApiBasePath + "/offenders/oasysOffenderId/{oasysOffenderId}/fullSentencePlans/{oasysSetId}",
-                    HttpMethod.GET,null, OasysSentencePlanDto.class, oasysOffenderId, oasysSetId).getBody());
+            var url = String.format("%s/offenders/oasysOffenderId/%s/fullSentencePlans/%s", assessmentApiBasePath, oasysOffenderId, oasysSetId);
+            var response = restTemplate.get(url, OasysSentencePlanDto.class);
+            return Optional.ofNullable(response.getBody());
         }
         catch(HttpClientErrorException e) {
             if(e.getStatusCode() == HttpStatus.NOT_FOUND) {
@@ -99,7 +99,9 @@ public class OASYSAssessmentAPIClient {
 
     public List<OasysRefElement> getInterventionRefData() {
         try {
-            return restTemplate.exchange(assessmentApiBasePath + "/referencedata/INTERVENTION",HttpMethod.GET, null, new ParameterizedTypeReference<List<OasysRefElement>>() {}).getBody();
+            var url = String.format("%s/referencedata/INTERVENTION", assessmentApiBasePath);
+            var response = restTemplate.get(url, new ParameterizedTypeReference<List<OasysRefElement>>() {});
+            return response.getBody();
         }
         catch(HttpClientErrorException e) {
             log.error("Failed to retrieve intervention reference data", value(EVENT, LogEvent.OASYS_ASSESSMENT_CLIENT_FAILURE));
@@ -108,10 +110,10 @@ public class OASYSAssessmentAPIClient {
     }
 
     @Cacheable("offenderAccess")
-    public OasysAuthorisationDto authoriseUserAccess(String username, Long oasysOffenderId, Long sessionId) {
+    public OasysAuthorisationDto authoriseUserAccess(String username, Long oasysOffenderId) {
         try {
-             var response = restTemplate.getForEntity(assessmentApiBasePath + "/authentication/user/{oasysUserId}/offender/{offenderId}/{resource}?sessionId={sessionId}",
-                    OasysAuthorisationDto.class, username, oasysOffenderId, SENTENCE_PLAN, sessionId);
+             var url = String.format("%s/authentication/user/%s/offender/%s/%s", assessmentApiBasePath, username, oasysOffenderId, SENTENCE_PLAN);
+             var response = restTemplate.get(url, OasysAuthorisationDto.class);
              return response.getBody();
         }
         catch(HttpClientErrorException e) {
@@ -125,4 +127,6 @@ public class OASYSAssessmentAPIClient {
             throw new OasysClientException("Failed to call OASys authorisation service");
         }
     }
+
+
 }
