@@ -40,7 +40,6 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
     environment:
       - SERVER_PORT=8080
-      - OAUTH_ROOT_URL=http://oauth:8080/auth
       - SPRING_PROFILES_ACTIVE=dev
       - OAUTH_ENDPOINT_URL=http://oauth:9090/auth
 
