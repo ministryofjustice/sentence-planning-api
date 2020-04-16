@@ -46,9 +46,7 @@ public class AuthorisationAspect {
             throw new AuthorisationException("Unable parse method parameters for type " + joinPoint.getArgs()[0].getClass().getName());
         }
 
-        var sessionId = Optional.ofNullable(requestData.getSessionId()).map(s-> Long.valueOf(s)).orElse(null);
-
-        var authorisationResult =  oasysAssessmentAPIClient.authoriseUserAccess(requestData.getUsername(), oasysOffenderId, sessionId);
+        var authorisationResult =  oasysAssessmentAPIClient.authoriseUserAccess(requestData.getUsername(), oasysOffenderId);
 
         if (isAuthorised(authorisationResult, authorised.accessLevel())) {
             log.info("User {} authorised to perform {} on offender {}", requestData.getUsername(), joinPoint.getSignature().getName(), oasysOffenderId);
