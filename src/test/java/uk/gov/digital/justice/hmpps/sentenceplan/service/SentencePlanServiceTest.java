@@ -11,6 +11,7 @@ import uk.gov.digital.justice.hmpps.sentenceplan.application.RequestData;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.OASYSAssessmentAPIClient;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.SectionHeader;
 import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysSentencePlanDto;
+import uk.gov.digital.justice.hmpps.sentenceplan.client.dto.OasysSentencePlanSummaryDto;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.BusinessRuleViolationException;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.CurrentSentencePlanForOffenderExistsException;
 import uk.gov.digital.justice.hmpps.sentenceplan.service.exceptions.EntityNotFoundException;
@@ -451,7 +452,7 @@ public class SentencePlanServiceTest {
     public void getSentencePlansForOffenderShouldReturnOASysPlans() {
 
         var offender = getOffenderEntity();
-        var legacyPlan =  OasysSentencePlanDto.builder()
+        var legacyPlan =  OasysSentencePlanSummaryDto.builder()
                 .completedDate(LocalDate.of(2019,1,1))
                 .createdDate(LocalDate.of(2018,1,1))
                 .oasysSetId(123456L).build();
@@ -543,7 +544,7 @@ public class SentencePlanServiceTest {
     public void getSentencePlansForOffenderShouldOrderPlansByCreatedDate() {
 
         var offender = getOffenderEntity();
-        var legacyPlan =  OasysSentencePlanDto.builder()
+        var legacyPlan =  OasysSentencePlanSummaryDto.builder()
                 .completedDate(LocalDate.of(2019,1,1))
                 .createdDate(LocalDate.of(2018,1,1))
                 .oasysSetId(123456L).build();

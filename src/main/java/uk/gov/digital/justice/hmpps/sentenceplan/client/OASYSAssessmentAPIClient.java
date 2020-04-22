@@ -65,10 +65,10 @@ public class OASYSAssessmentAPIClient {
         }
     }
 
-    public List<OasysSentencePlanDto> getSentencePlansForOffender(long oasysOffenderId) {
+    public List<OasysSentencePlanSummaryDto> getSentencePlansForOffender(long oasysOffenderId) {
         try {
-            var url = String.format("%s/offenders/oasysOffenderId/%s/fullSentencePlans", assessmentApiBasePath, oasysOffenderId);
-            var response = restTemplate.get(url, new ParameterizedTypeReference<List<OasysSentencePlanDto>>(){});
+            var url = String.format("%s/offenders/oasysOffenderId/%s/fullSentencePlans/summary", assessmentApiBasePath, oasysOffenderId);
+            var response = restTemplate.get(url, new ParameterizedTypeReference<List<OasysSentencePlanSummaryDto>>(){});
             return response.getBody();
         }
         catch(HttpClientErrorException e) {
