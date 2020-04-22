@@ -1,5 +1,6 @@
 package uk.gov.digital.justice.hmpps.sentenceplan.application;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -51,6 +52,8 @@ public class SpringConfiguration implements WebMvcConfigurer, ObjectMapperSuppli
         var m = new ObjectMapper();
         m.registerModule(new JavaTimeModule());
         m.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        m.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        m.setSerializationInclusion(JsonInclude.Include.NON_ABSENT);
         m.enable(SerializationFeature.INDENT_OUTPUT);
         m.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
         m.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
