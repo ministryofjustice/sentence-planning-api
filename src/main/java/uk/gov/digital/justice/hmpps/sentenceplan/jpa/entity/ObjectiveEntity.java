@@ -49,7 +49,7 @@ public class ObjectiveEntity implements Serializable {
     public void addAction(ActionEntity actionEntity) {
         if(actionEntity.getPriority() < 1) {
             // Set the priority to lowest
-            actionEntity.setPriority(this.getActions().size());
+            actionEntity.setPriority(this.getActions().size() + 1);
         }
         actions.put(actionEntity.getId(), actionEntity);
     }

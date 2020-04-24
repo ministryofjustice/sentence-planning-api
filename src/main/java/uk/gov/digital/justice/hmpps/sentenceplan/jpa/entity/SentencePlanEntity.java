@@ -113,7 +113,7 @@ public class SentencePlanEntity implements Serializable {
 
     public void addObjective(ObjectiveEntity objective) {
         // Set the priority to lowest
-        objective.setPriority(this.getObjectives().size());
+        objective.setPriority(this.getObjectives().size() +1);
          this.data.getObjectives().put(objective.getId(), objective);
     }
 
