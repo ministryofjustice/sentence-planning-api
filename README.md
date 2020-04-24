@@ -10,7 +10,6 @@ This service provides an API to manage HMPPS Setence Plans.
 * ```Docker```
 * ```Postgres```
 
-
 ## Build and Run the Service
 
 ### Prerequisites
@@ -21,7 +20,6 @@ Add the following to your hosts file to enable the authentication integration to
 ```
  127.0.0.1    oauth
  ```
-
 
 These can be run locally using the [docker-compose.yml](docker-compose.yml) file which will pull down the latest version.
 
