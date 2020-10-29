@@ -200,8 +200,10 @@ public class SentencePlanService {
     }
 
     public OasysSentencePlanDto getLegacySentencePlan(Long oasysOffenderId, Long sentencePlanId) {
-        return oasysAssessmentAPIClient.getSentencePlanById(oasysOffenderId, sentencePlanId)
+        var sentencePlan = oasysAssessmentAPIClient.getSentencePlanById(oasysOffenderId, sentencePlanId)
                 .orElseThrow(() -> new EntityNotFoundException(String.format("OASys Sentence Plan %s not found", sentencePlanId)));
+        log.info("Returned sentence plan {} for Offender {}", sentencePlanId, oasysOffenderId, oasysOffenderId, value(EVENT, SENTENCE_PLAN_RETRIEVED));
+        return sentencePlan;
     }
 
     public SentencePlanDto getCurrentSentencePlanForOffender(Long offenderId) {
